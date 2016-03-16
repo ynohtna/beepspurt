@@ -1,0 +1,11 @@
+{
+  "warnings": true,
+  "compress": {
+    "screw_ie8": true,
+    "dead_code": true,
+    "unused": true
+  },
+  "mangle": {
+    "screw_ie8": true
+  }
+}
