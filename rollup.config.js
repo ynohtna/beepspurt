@@ -6,6 +6,7 @@ import { rollup } from 'rollup';
 import babel from 'rollup-plugin-babel';
 import eslint from 'rollup-plugin-eslint';
 import filesize from 'rollup-plugin-filesize';
+import nodeResolve from 'rollup-plugin-node-resolve';
 import uglify from 'rollup-plugin-uglify';
 
 import pack from './package.json';
@@ -39,15 +40,18 @@ babelConfig.presets = babelConfig.presets.map((preset) =>
 );
 
 const plugins = [
+  nodeResolve({
+    jsnext: true,
+    main: true
+  }),
   eslint(),
-  babel(babelConfig),
-  filesize(),
+  babel(babelConfig)
 ];
-
 if (!devBuild) {
   const uglifyConfig = JSON.parse(fs.readFileSync('.uglifyrc.json', 'utf-8'));
   plugins.push(uglify(uglifyConfig));
 }
+plugins.push(filesize());
 
 const bundleConfig = {
   dest,
