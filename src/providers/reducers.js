@@ -7,10 +7,15 @@ const defaultRendererState = {
 
 const renderer = (state = defaultRendererState, action) => {
   switch (action.type) {
-    case 'renderer/FRAME_ADVANCE':
+    case '/renderer/FRAME_ADVANCE':
       return {
         ...state,
         frame: state.frame + 1
+      };
+    case '/renderer/CLEAR_COLOUR':
+      return {
+        ...state,
+        clearColour: action.payload
       };
     default:
       return state;
@@ -23,7 +28,7 @@ const defaultVarsState = {
 
 const vars = (state = defaultVarsState, action) => {
   switch (action.type) {
-    case 'vars/SET_MESSAGE':
+    case '/vars/SET_MESSAGE':
       return {
         ...state,
         message: action.payload
@@ -37,4 +42,3 @@ export default {
   renderer,
   vars
 };
- 
