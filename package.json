@@ -30,8 +30,8 @@
     "package:reinstall": "npm run package:purge && npm install",
     "package:check": "ncu",
     "package:upgrade": "ncu -u",
-    "package:prod": "ncu -u",
-    "package:dev": "ncu -p -u",
+    "package:prod": "ncu -p -u",
+    "package:dev": "ncu -d -u",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -62,7 +62,7 @@
     "eslint-plugin-react": "^4.2.3",
     "mkdirp": "^0.5.1",
     "nodemon": "^1.9.1",
-    "npm-check-updates": "^2.5.8",
+    "npm-check-updates": "^2.6.1",
     "performance-now": "^0.2.0",
     "redux": "^3.3.1",
     "redux-saga": "^0.9.4",
