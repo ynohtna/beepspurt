@@ -21,11 +21,7 @@ const banner =`/*!
  * Released under the ${pack.license} License.
  */`;
 
-console.log(banner);
-
 const entryFile = pack['jsnext:main'] || 'src/index.js';
-console.log(entryFile);
-
 const entry = p.resolve(entryFile);
 
 const bundleName = pack.name + (devBuild ? '.js' : '.min.js');
@@ -42,7 +38,12 @@ babelConfig.presets = babelConfig.presets.map((preset) =>
 const plugins = [
   nodeResolve({
     jsnext: true,
-    main: true
+    main: true,
+    preferBuiltins: true,
+    external: [
+      'dgram',
+      'events'
+    ]
   }),
   eslint(),
   babel(babelConfig)
