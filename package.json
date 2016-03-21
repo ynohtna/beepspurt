@@ -7,6 +7,7 @@
   "scripts": {
     "clean": "rimraf ./dist/",
     "start": "npm run start:prod",
+    "serve": "env NODE_ENV=server npm run build:server && node ./dist/beepspurt.server.js",
     "start:prod": "env NODE_ENV=production ./plask.sh ./dist/beepspurt.min.js",
     "start:dev": "env NODE_ENV=dev ./plaskdbg.sh ./dist/beepspurt.js",
     "start:debug": "env NODE_ENV=dev ./plaskdbg.sh debug ./dist/beepspurt.js",
@@ -17,6 +18,7 @@
     "build:js:dev": "babel-node ./rollup.config.js dev",
     "build:js:dev:watch": "nodemon -w src -e js -x \"npm run build:js:dev\"",
     "build:js:prod": "babel-node ./rollup.config.js prod",
+    "build:server": "babel-node ./rollup.config.js server",
     "build:run:dev": "npm run build:js:dev && npm run start:dev",
     "build:run:prod": "npm run build:js:prod && npm run start:prod",
     "build:plask:all": "npm run build:plask:dev && npm run build:plask:prod",
@@ -66,6 +68,7 @@
     "performance-now": "^0.2.0",
     "redux": "^3.3.1",
     "redux-saga": "^0.9.4",
+    "restify": "^4.0.4",
     "rimraf": "^2.5.2",
     "rollup": "^0.25.4",
     "rollup-plugin-babel": "^2.4.0",
