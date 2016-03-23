@@ -36,7 +36,7 @@ const oscSource = (socket) => {
     resolve(err);
   });
   socket.on('closed', () => {
-    console.log('socket/close');
+    console.log('socket/closed');
     resolve('closed');
   });
   socket.on('osc', event => {
@@ -48,9 +48,9 @@ const oscSource = (socket) => {
     resolve(res);
   });
   return {
-    nextMessage: () => messageQueue.length ?
+    nextMessage: () => (messageQueue.length ?
                      cancellablePromise(Promise.resolve(messageQueue.shift()))
-      : cancellablePromise(new Promise(resolver => resolveQueue.push(resolver)))
+      : cancellablePromise(new Promise(resolver => resolveQueue.push(resolver))))
   };
 };
 
@@ -145,7 +145,7 @@ export default function* oscSaga(...args) {
       socket.close();
     }
 
-    // If socket closed or errored then await new open request.
+    // If socket closed or errored then await new open request, i.e. from direct user intervention.
     awaitOpen = !winner.open;
   }
 }

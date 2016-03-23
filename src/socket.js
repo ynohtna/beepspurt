@@ -144,7 +144,8 @@ class Socket extends EventEmitter {
     this.emit('opened');
   }
   onerror(error) {
-    this.emit('error');
+    console.error('socket error', error);
+    this.emit('error', error);
   }
   onclosed() {
     this.emit('closed');

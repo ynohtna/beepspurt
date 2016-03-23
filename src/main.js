@@ -1,10 +1,10 @@
 import 'babel-polyfill';
 import Plask from 'plask';
+import createSagaMiddleware from 'redux-saga';
 import settings from './settings';
 import createStore from './store';
-import createSagaMiddleware from 'redux-saga';
-import oscSaga from './providers/oscSaga';
 import Socket from './socket';
+import { oscSaga, serverSaga } from './providers/';
 
 const log = (process.env.NODE_ENV && process.env.NODE_ENV.startsWith('dev'))
   ? (...args) => console.log(...args) // eslint-disable-line no-console
@@ -17,6 +17,7 @@ const { store, dispatch } = createStore(sagaMiddleware);
 log('Initial state:', store.getState());
 
 sagaMiddleware.run(oscSaga, new Socket(settings.osc));
+sagaMiddleware.run(serverSaga, settings.server);
 
 const perfnow = require('performance-now');
 const fps = settings.framerate || 30;
@@ -31,8 +32,10 @@ Plask.simpleWindow({
 
   init() {
     const { paint } = this;
-    paint.setFontFamily('Monaco', '14');
+    paint.setFontFamily('Rockwell', '14');
     paint.setTextSize(128);
+    paint.setSubpixelText(true);
+    paint.setLCDRenderText(true);
 
     dispatch('/plask/INIT');
   },
