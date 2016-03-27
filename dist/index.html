@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>[beep]spurter</title>
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+    <meta name="HandheldFriendly" content="True" />
+    <script src="https://fb.me/react-with-addons-0.14.7.js"></script>
+    <script src="https://fb.me/react-dom-0.14.7.js"></script>
+  </head>
+  <body>
+    <h1>[beep]<em>spurter</em></h1>
+    <div id="root"></div>
+    <script>
+     document.body.addEventListener('touchmove', function(evt) {
+       if(!evt._isScroller) {
+         evt.preventDefault()
+       }
+     });
+    </script>
+    <script src="client.js"></script>
+  </body>
+</html>
