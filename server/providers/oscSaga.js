@@ -77,6 +77,7 @@ function* fetchSocket(source) {
           action = handlers['*'](msg);
         }
         if (action) {
+          console.log('> put', action);
           yield put(action);
         }
       } else if (msg === 'opened') {
@@ -97,7 +98,7 @@ function* fetchSocket(source) {
   }
 }
 
-export default function* oscSaga(...args) {
+const oscSaga = function*(...args) {
   if (args.length < 2) {
     throw new Error('*oscSaga requires second parameter to be a Socket instance');
   }
@@ -149,3 +150,4 @@ export default function* oscSaga(...args) {
     awaitOpen = !winner.open;
   }
 }
+export default oscSaga;

@@ -1,5 +1,5 @@
 import { applyMiddleware, combineReducers, createStore as createReduxStore } from 'redux';
-import reducers from './providers/reducers';
+import reducers from './reducers/index';
 
 const createStore = (middleware) => {
   const store = createReduxStore(combineReducers(reducers), applyMiddleware(middleware));

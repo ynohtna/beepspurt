@@ -1,11 +1,17 @@
 /* eslint-disable no-console */
 /* eslint no-param-reassign: [2, {"props": false }] */
-const restify = require('restify');
-import { effects, isCancelError } from 'redux-saga';
-const { call, cancel, fork, put, race, take } = effects;
+import restify from 'restify';
+// console.log('restify ===========', restify);
 
+import restifyPlugins from 'restify-plugins';
+// console.log('---- restifyPlugins', restifyPlugins);
+
+import { Watershed } from 'watershed';
+// console.log(Watershed);
+
+import { effects, isCancelError } from 'redux-saga';
+const { call, cancel, fork, race, take } = effects;
 import { cancellablePromise } from '../utils';
-const Watershed = require('watershed').Watershed;
 
 // Server notifications.
 const SERVER_STARTED = '/server/STARTED';
@@ -29,7 +35,8 @@ ${req.serverName}$ ${req.method} ${req.url}
 };
 
 const serverSource = (server) => {
-  const ws = new Watershed();
+  const shed = new Watershed();
+//  const wskey = ws.generateKey();
   const messageQueue = [];
   const resolveQueue = [];
   const resolve = msg => {
@@ -48,29 +55,31 @@ const serverSource = (server) => {
     console.log('server/connect');
     resolve('connect');
   });
-  server.on('upgrade', (/* request, socket, head */) => {
-    console.log('server/upgrade');
-    // TODO: implement via Watershed.
-    resolve('upgraded');
+  server.on('upgrade', (request, socket, head) => {
+    console.log('**** server/upgrade');
+    let wsc;
+    try {
+      wsc = shed.accept(request, socket, head);
+    } catch (ex) {
+      console.error('**** watershed error', ex);
+      socket.end();
+      return resolve(ex);
+    }
+    wsc.on('text', text =>
+      console.log('>>>> watershed text', text)
+    );
+    wsc.on('end', () =>
+      console.log('---- watershed end')
+    );
+    wsc.send('HELLO');
+
+    return resolve('upgraded');
   });
   server.on('close', () => {
     console.log('server/closed');
     resolve('closed');
   });
 
-  server.get('/websocket/attach', (request, response, next) => {
-    console.log('^^^^ websocket/attach');
-    if (!response.claimUpgrade) {
-      return next(new Error('connection cannot upgrade'));
-    }
-
-    const upgrade = response.claimUpgrade();
-    const shed = ws.accept(request, upgrade.socket, upgrade.head);
-    shed.on('text', msg => console.log('>>>> websocket', msg));
-    shed.send('helpme!');
-    resolve('upgraded');
-    return next(false);
-  });
   server.get(/^\/api(\/.+)/, (request, response, next) => {
     serveApi(request, response);
     resolve('api');
@@ -88,21 +97,19 @@ const createServer = config => {
   console.log('* createServer', config);
   const server = restify.createServer(config);
 
-  server.pre(restify.pre.sanitizePath());
-  server.pre(restify.pre.userAgentConnection());
+  server.pre(restifyPlugins.pre.sanitizePath());
+  server.pre(restifyPlugins.pre.userAgentConnection());
 
-  server.use(restify.queryParser());
+  server.use(restifyPlugins.queryParser());
   if (config.gzip) {
-    server.use(restify.gzipResponse());
+    server.use(restifyPlugins.gzipResponse());
   }
 
   const statics = config.statics;
   Object.keys(statics).forEach(key => {
     const cfg = statics[key];
     console.log('** static:', key, cfg);
-    const handler = restify.serveStatic(cfg.directory ?
-                                        { directory: cfg.directory }
-                                      : cfg.config);
+    const handler = restifyPlugins.serveStatic(cfg.config);
     server.get(cfg.path, handler);
   });
 
@@ -125,7 +132,7 @@ function* serveRequests(source) {
   }
 }
 
-export default function* serverSaga(...args) {
+const serverSaga = function*(...args) {
   const config = args[1];
 
   yield take('/plask/INIT');
@@ -177,3 +184,4 @@ export default function* serverSaga(...args) {
     awaitStart = !winner.start;
   }
 }
+export default serverSaga;
