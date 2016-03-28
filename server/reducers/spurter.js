@@ -4,14 +4,14 @@ const defaultVarsState = {
   colour: [255, 255, 255, 255]
 };
 
-const vars = (state = defaultVarsState, action) => {
+const spurter = (state = defaultVarsState, action) => {
   switch (action.type) {
-    case '/vars/MESSAGE':
+    case '/spurter/MESSAGE':
       return {
         ...state,
         message: action.payload
       };
-    case '/vars/COLOUR':
+    case '/spurter/COLOUR':
       return {
         ...state,
         colour: action.payload
@@ -21,4 +21,4 @@ const vars = (state = defaultVarsState, action) => {
   }
 };
 
-export default vars;
+export default spurter;

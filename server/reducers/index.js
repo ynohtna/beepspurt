@@ -1,7 +1,7 @@
 import renderer from './renderer.js';
-import vars from './vars.js';
+import spurter from './spurter.js';
 
 export default {
   renderer,
-  vars
+  spurter
 };
