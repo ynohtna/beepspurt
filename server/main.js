@@ -43,10 +43,10 @@ Plask.simpleWindow({
 
     const { canvas, paint } = this;
 
-    const { renderer, vars } = store.getState();
+    const { renderer, spurter } = store.getState();
 
     const { clearColour: [clrr, clrg, clrb, clra], frame } = renderer;
-    const { message, colour: [r, g, b, a] } = vars;
+    const { message, colour: [r, g, b, a] } = spurter;
 
     canvas.clear(clrr, clrg, clrb, (clra * 255) | 0);
 
@@ -68,7 +68,7 @@ Plask.simpleWindow({
       const ox = (renderer.width / 2) - (w * sx);
       const oy = (renderer.height / 2) - (h * sy);
       canvas.resetMatrix();
-      canvas.translate(0, 300 - (h / 2));
+      canvas.translate(0, (renderer.height / 2) - h);
       canvas.scale(scale, scale);
 //      canvas.skew(0.5, -0.2);
       const top = false;
