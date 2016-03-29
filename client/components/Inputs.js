@@ -6,22 +6,18 @@ const TextArea = props => {
   );
 };
 
-const CheckBox = props => {
-  return (
-    <label>
-      <input type='checkbox' {...props} children={null} />
-      {props.children}
-    </label>
-  );
-};
+const CheckBox = props => (
+  <label>
+    <input type='checkbox' {...props} children={null} />
+    {props.children}
+  </label>
+);
 
-const Button = props => {
-  return (
-    <button {...props} children={null}>
-      {props.children}
-    </button>
-  );
-};
+const Button = props => (
+  <button {...props} children={null}>
+    {props.children}
+  </button>
+);
 
 export {
   Button,

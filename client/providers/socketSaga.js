@@ -6,12 +6,20 @@ import { cancellablePromise, endpointFromWindowLocation } from '../utils';
 // Socket notifications.
 const SOCKET_OPENED = '/socket/OPENED';
 const SOCKET_CLOSED = '/socket/CLOSED';
-const SOCKET_ERROR = '/socket/ERROR';
+const SOCKET_ERRORED = '/socket/ERROR';
 const SOCKET_RECV = '/socket/RECV';
 
 // Socket manipulation requests.
 export const OPEN_SOCKET = '/socket/OPEN';
 export const CLOSE_SOCKET = '/socket/CLOSE';
+export const SEND_SOCKET = '/socket/SEND';
+
+const SET_SOCKET_STATUS = '/socket/SET_STATUS';
+
+const actionCreators = {
+  setSocketStatus: status => ({ type: SET_SOCKET_STATUS, status }),
+  sendSocket: (address, ...args) => ({ type: SEND_SOCKET, address, args })
+};
 
 /* eslint no-param-reassign: [2, {"props": false }] */
 const socketSource = websocket => {
@@ -34,11 +42,13 @@ const socketSource = websocket => {
     resolve(err);
   };
   websocket.onclose = e => {
-    console.log('socket/closed', e);
+    // TODO: convert code into reason text as per:
+    //       https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
+    console.log('socket/closed [reason, code]', e.reason, e.code);
     resolve('closed');
   };
   websocket.onmessage = msg => {
-    console.log('socket/receive', msg);
+    console.log('socket/receive [origin, data]', msg.origin, msg.data);
     const { data } = msg;
     const res = {
       type: SOCKET_RECV,
@@ -56,31 +66,22 @@ const socketSource = websocket => {
 function* fetchSocket(source) {
   try {
     console.log('* fetchSocket');
+    const setStatus = status => put(actionCreators.setSocketStatus(status));
 
     let msg = yield call(source.nextMessage);
     while (msg) {
       if (msg.type && msg.type === SOCKET_RECV) {
         console.log(':::: MSG', msg);
-/*
-        let action = null;
-        if (handlers.hasOwnProperty(msg.addr)) {
-          action = handlers[msg.addr](msg);
-        } else {
-          console.warn('default osc/RECV handler', msg);
-          action = handlers['*'](msg);
-        }
-        if (action) {
-          console.log('> put', action);
-          yield put(action);
-        }
-*/
       } else if (msg === 'opened') {
+        yield setStatus('open');
         yield put({ type: SOCKET_OPENED });
       } else if (msg === 'closed') {
+        yield setStatus('closed');
         yield put({ type: SOCKET_CLOSED });
       } else {
         console.warn('unknown message type on socket', msg);
-        yield put({ type: SOCKET_ERROR, error: msg });
+        yield setStatus('error');
+        yield put({ type: SOCKET_ERRORED, error: msg });
       }
 
       msg = yield call(source.nextMessage);
@@ -88,6 +89,27 @@ function* fetchSocket(source) {
   } catch (error) {
     if (!isCancelError(error)) {
       console.error('*fetchSocket error', error);
+    }
+  }
+}
+
+function *sendSocket(websocket) {
+  try {
+    yield take(SOCKET_OPENED);
+    const send = true;
+    while (send) {
+      const msg = yield take(SEND_SOCKET);
+      const { address, args } = msg;
+      const data = args.length > 1 ? JSON.stringify({ address, args })
+        : JSON.stringify({ address, args: args[0] });
+      console.log('> socketSend', data);
+      websocket.send(data);
+//      const { addr, tags, args } = msg;
+//      osc.send(addr, tags, args);
+    }
+  } catch (error) {
+    if (!isCancelError(error)) {
+      console.error('*sendSocket error', error);
     }
   }
 }
@@ -111,29 +133,35 @@ function* rootSaga() {
     const endpoint = endpointFromWindowLocation(window.location);
     console.log(`:::: WS connecting to endpoint ${endpoint}`);
 
-    const ws = new window.WebSocket(endpoint);
-    const source = socketSource(ws);
+    const socket = new window.WebSocket(endpoint);
+    const source = socketSource(socket);
+
     const fetchTask = yield fork(fetchSocket, source);
+    const sendTask = yield fork(sendSocket, socket);
 
     // Race: didClose, close, error, open.
     const winner = yield race({
       didClose: take(SOCKET_CLOSED),
-      erred: take(SOCKET_ERROR),
+      erred: take(SOCKET_ERRORED),
       close: take(CLOSE_SOCKET),
       open: take(OPEN_SOCKET)
     });
     console.log('**** socketSaga race!', winner, fetchTask.isRunning());
 
+    // Close socket if didClose didn't win race.
+    if (!winner.didClose) {
+      socket.close();
+    }
+    yield put(actionCreators.setSocketStatus('closed'));
+
     // Cancel fetch & send.
     console.log('cancelling socket fetch');
     yield cancel(fetchTask);
 
-    // TODO: Dispatch socket status: winner.
+    console.log('cancelling socket send');
+    yield cancel(sendTask);
 
-    // Close if didClose didn't win race.
-    if (!winner.didClose) {
-      ws.close();
-    }
+    // TODO: Dispatch socket status: winner.
 
     // If socket closed or errored then await new open request, i.e. from direct user intervention.
     awaitOpen = !winner.open;
@@ -142,9 +170,16 @@ function* rootSaga() {
 
 const middleware = createSagaMiddleware(rootSaga);
 
+const actions = {
+  ...actionCreators
+};
+
 const reducers = {
   socketStatus(state = '?', action) {
     switch (action.type) {
+      case SET_SOCKET_STATUS:
+        console.log(SET_SOCKET_STATUS, action);
+        return action.status || state;
       default:
         return state;
     }
@@ -152,6 +187,8 @@ const reducers = {
 };
 
 export default {
+  actionCreators,
+  actions,
   reducers,
   middleware
 };

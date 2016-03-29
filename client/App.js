@@ -1,25 +1,23 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
 import provide from 'react-redux-provide';
 
+import Header from './components/Header';
 import WordEditor from './components/WordEditor';
 import { columnParent, rowParent, flexContainer,
          flexChild, flexAll, flexNone } from './flexStyles';
 
 const narrowStyle = {
-  height: '2em'
+  height: '1.5em',
+  fontSize: 'smaller'
 };
 
 @provide
 class App extends React.Component {
-  static propTypes = {
-    socketStatus: PropTypes.string.isRequired
-  };
-
   render() {
     return (
       <section style={{ ...flexChild, ...columnParent, ...flexContainer }}>
         <header style={{ ...flexChild, ...flexNone, ...narrowStyle }}>
-          HEADER
+          <Header />
         </header>
         <section style={{ ...flexChild, ...rowParent }}>
           <div style={{ ...flexChild, backgroundColor: '#112' }}>

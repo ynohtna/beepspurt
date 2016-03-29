@@ -7,6 +7,7 @@ import providers from './providers/index';
 const context = {
   providers,
   providedState: {
+//    socketStatus: '???',
     spurter: {
       message: 'testing'
     }

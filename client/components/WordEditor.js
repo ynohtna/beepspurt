@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Button, CheckBox, TextArea } from './Inputs';
+import provide from 'react-redux-provide';
 
 const textStyle = {
+  fontFamily: 'Rockwell',
   fontSize: 'medium',
   background: '#363',
   color: '#ffe',
@@ -15,8 +17,10 @@ const textStyle = {
   outlineColor: '#696'
 };
 
+@provide
 class WordEditor extends React.Component {
   static propTypes = {
+    sendSocket: PropTypes.func.isRequired
   };
   static defaultProps = {
   };
@@ -24,12 +28,24 @@ class WordEditor extends React.Component {
     message: '[beep]',
     autoUpdate: false
   };
+
+  dispatch(message) {
+    this.props.sendSocket('/spurter/MESSAGE', message);
+  }
+
+  updateMessage(message) {
+    this.setState({ message });
+    if (this.state.autoUpdate) {
+      this.dispatch(message);
+    }
+  }
+
   render() {
     return (
       <div>
         <TextArea autoComplete='off' cols={30} rows={4}
                   value={this.state.message}
-                  onChange={message => this.setState({ message })}
+                  onChange={::this.updateMessage}
                   style={textStyle}
         />
         <CheckBox checked={this.state.autoUpdate}
@@ -37,7 +53,7 @@ class WordEditor extends React.Component {
         >
           auto-dispatch
         </CheckBox>
-        <Button>
+        <Button onClick={() => this.dispatch(this.state.message)}>
           dispatch
         </Button>
       </div>
