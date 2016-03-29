@@ -1,15 +1,23 @@
 /* eslint-disable no-console */
 import { render } from 'react-dom';
-import createSagaMiddleware from 'redux-saga';
 import App from './App';
-import createStore from './store';
+
+import providers from './providers/index';
+
+const context = {
+  providers,
+  providedState: {
+    spurter: {
+      message: 'testing'
+    }
+  }
+};
 
 const main = () => {
   console.log('-- -- MAIN -- --');
 
-  const middleware = createSagaMiddleware();
-  const { store, dispatch } = createStore(middleware);
-  render(<App />, document.getElementById('app'));
+  render(<App {...context} />,
+         document.getElementById('app'));
 
   console.log('-- -- MAIN -- --');
 };
