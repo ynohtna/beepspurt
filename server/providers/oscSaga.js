@@ -16,7 +16,7 @@ const SOCKET_ERROR = '/socket/ERROR';
 const SOCKET_OPEN = '/socket/OPEN';
 const SOCKET_CLOSE = '/socket/CLOSE';
 
-const oscSource = (socket) => {
+const oscSource = socket => {
   const messageQueue = [];
   const resolveQueue = [];
   const resolve = msg => {
@@ -62,7 +62,7 @@ const handlers = {
   ...oscHandlers
 };
 
-function* fetchSocket(source) {
+const fetchSocket = function*(source) {
   try {
     console.log('* fetchSocket');
 
@@ -96,7 +96,7 @@ function* fetchSocket(source) {
       console.error('*fetchSocket error', error);
     }
   }
-}
+};
 
 const oscSaga = function*(...args) {
   if (args.length < 2) {
@@ -149,5 +149,5 @@ const oscSaga = function*(...args) {
     // If socket closed or errored then await new open request, i.e. from direct user intervention.
     awaitOpen = !winner.open;
   }
-}
+};
 export default oscSaga;
