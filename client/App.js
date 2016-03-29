@@ -29,7 +29,7 @@ class App extends React.Component {
                 <p>bacon</p>
               </div>
             </div>
-            <section style={{ ...flexChild, ...rowParent, ...flexAll }}>
+            <section style={{ ...flexChild, ...rowParent, ...flexNone }}>
               <div style={{ ...flexChild }}>
                 LFO OPACITY
               </div>

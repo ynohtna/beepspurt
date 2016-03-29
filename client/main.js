@@ -14,4 +14,9 @@ const main = () => {
   console.log('-- -- MAIN -- --');
 };
 
-document.addEventListener('DOMContentLoaded', () => main());
+const loadedStates = ['complete', 'loaded', 'interactive'];
+if (loadedStates.includes(document.readyState) && document.body) {
+  main();
+} else {
+  window.addEventListener('DOMContentLoaded', main, false);
+}
