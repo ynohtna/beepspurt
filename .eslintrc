@@ -17,11 +17,12 @@
     "react"
   ],
   "rules": {
+    "arrow-body-style": 1,
     "comma-dangle": [2, "never"],
     "indent": [2, 2, {"SwitchCase": 1}],
+    "jsx-quotes": [1, "prefer-single"],
     "no-console": 1,
 	"no-unused-vars": 1,
-    "arrow-body-style": 1,
-    "jsx-quotes": [1, "prefer-single"]
+    "prefer-const": 1
   }
 }
