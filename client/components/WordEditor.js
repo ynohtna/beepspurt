@@ -27,7 +27,8 @@ class WordEditor extends React.Component {
   render() {
     return (
       <div>
-        <TextArea value={this.state.message}
+        <TextArea autoComplete='off' cols={30} rows={4} 
+                  value={this.state.message}
                   onChange={message => this.setState({ message })}
                   style={textStyle}
         />

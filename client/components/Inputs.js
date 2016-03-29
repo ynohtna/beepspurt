@@ -1,12 +1,7 @@
 const TextArea = props => {
-  const onChange = (e) => {
-    console.log(e.target.value);
-    if (props.onChange) {
-      props.onChange(e.target.value);
-    }
-  };
+  const onChange = e => props.onChange && props.onChange(e.target.value);
   return (
-    <textarea autoComplete='off' cols={30} rows={4} {...props} onChange={onChange}>
+    <textarea{...props} onChange={onChange}>
     </textarea>
   );
 };
@@ -22,7 +17,7 @@ const CheckBox = props => {
 
 const Button = props => {
   return (
-    <button {...props}>
+    <button {...props} children={null}>
       {props.children}
     </button>
   );
