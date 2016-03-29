@@ -1,7 +1,7 @@
-import renderer from './renderer.js';
-import vars from './vars.js';
+import rendererState from './renderer.js';
+import spurterState from './spurter.js';
 
 export default {
-  renderer,
-  vars
+  rendererState,
+  spurterState
 };

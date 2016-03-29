@@ -16,7 +16,7 @@ const SOCKET_ERROR = '/socket/ERROR';
 const SOCKET_OPEN = '/socket/OPEN';
 const SOCKET_CLOSE = '/socket/CLOSE';
 
-const oscSource = (socket) => {
+const oscSource = socket => {
   const messageQueue = [];
   const resolveQueue = [];
   const resolve = msg => {
@@ -98,7 +98,7 @@ function* fetchSocket(source) {
   }
 }
 
-const oscSaga = function*(...args) {
+function* oscSaga(...args) {
   if (args.length < 2) {
     throw new Error('*oscSaga requires second parameter to be a Socket instance');
   }

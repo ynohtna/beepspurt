@@ -1,15 +1,31 @@
-import React from 'react';
+/* eslint-disable no-console */
 import { render } from 'react-dom';
+import App from './App';
 
-class App extends React.Component {
-  render() {
-    return (
-      <div>
-      <h1>spurt...</h1>
-      </div>
-    );
+import providers from './providers/index';
+
+const context = {
+  providers,
+  providedState: {
+//    socketStatus: '???',
+    spurter: {
+      message: 'testing'
+    }
   }
 };
 
-console.log('-- -- MAIN -- --');
-render(<App />, document.getElementById('root'));
+const main = () => {
+  console.log('-- -- MAIN -- --');
+
+  render(<App {...context} />,
+         document.getElementById('app'));
+
+  console.log('-- -- MAIN -- --');
+};
+
+const loadedStates = ['complete', 'loaded', 'interactive'];
+if (loadedStates.includes(document.readyState) && document.body) {
+  main();
+} else {
+  window.addEventListener('DOMContentLoaded', main, false);
+}

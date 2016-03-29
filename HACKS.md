@@ -6,14 +6,12 @@ var VERSION = JSON.parse(fs.readFileSync(path.normalize(__dirname + '/../../pack
 ```
 JSPM bundles this so it executes at runtime and fails in Plask's node environment.
 
-Either comment out this line before bundling, or install personal fork with JSPM:
+Either edit this line before bundling (hard-coding version string, maybe), or install my personal fork through JSPM:
 ```
 jspm install restify=github:ynohtna/node-restify@hacks
 ```
-This removes an attempt by `lib/dtrace.js` to `require('dtrace-provider')` at runtime, which also
-fails in the Plask node environment.
+This fork removes an attempt by `lib/dtrace.js` to `require('dtrace-provider')` at runtime, which also
+fails in the Plask node environment, as well as branching off the latest release on github.
 
-The `ynohtna/node-restify` fork branches off the latest release github, unlike the
-default version served by npm which installs a very old 1.32.5 version of `spdy` that
-tries to `require('_http_commmon')` (line 12, `lib/spdy/stream.js`) at runtime and,
-again, fails.
+The default branch/version served by npm which installs a very old 1.32.5 version of `spdy` that
+tries to `require('_http_commmon')` (line 12, `lib/spdy/stream.js`) at runtime and, again, fails.

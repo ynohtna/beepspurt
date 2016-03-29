@@ -1,3 +1,3 @@
 [submodule "plask"]
 	path = plask
-	url = git@github.com:ynohtna/plask.git
+url=git@github.com:ynohtna/plask.git@feature/tweaks
