@@ -1,18 +1,30 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>[beep]spurter</title>
     <meta charset="utf-8">
+    <title>[beep]spurter</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
     <meta name="HandheldFriendly" content="True" />
-    <script src="https://fb.me/react-with-addons-0.14.7.js"></script>
-    <script src="https://fb.me/react-dom-0.14.7.js"></script>
+    <script src="react-with-addons-0.14.7.js"></script>
+    <script src="react-dom-0.14.7.js"></script>
+    <style type="text/css">
+     html, body {
+       height: 100%;
+       width: 100%;
+       margin: 0;
+     }
+     #app {
+       height: 100%;
+       width: 100%;
+       background: #111;
+       color: #ffe;
+     }
+    </style>
   </head>
   <body>
-    <h1>[beep]<em>spurter</em></h1>
-    <div id="root"></div>
+    <div id="app"></div>
     <script>
      document.body.addEventListener('touchmove', function(evt) {
        if(!evt._isScroller) {
