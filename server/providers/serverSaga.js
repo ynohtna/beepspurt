@@ -1,13 +1,10 @@
 /* eslint-disable no-console */
 /* eslint no-param-reassign: [2, {"props": false }] */
 import restify from 'restify';
-// console.log('restify ===========', restify);
-
 import restifyPlugins from 'restify-plugins';
-// console.log('---- restifyPlugins', restifyPlugins);
+console.log('RESTIFY', restify, '\n----\n', restifyPlugins);
 
 import { Watershed } from 'watershed';
-// console.log(Watershed);
 
 import { effects, isCancelError } from 'redux-saga';
 const { call, cancel, fork, race, take } = effects;
@@ -97,9 +94,11 @@ const createServer = config => {
   console.log('* createServer', config);
   const server = restify.createServer(config);
 
+  server.pre(restify.CORS()); // eslint-disable-line new-cap
   server.pre(restifyPlugins.pre.sanitizePath());
   server.pre(restifyPlugins.pre.userAgentConnection());
 
+  server.use(restifyPlugins.fullResponse());
   server.use(restifyPlugins.queryParser());
   if (config.gzip) {
     server.use(restifyPlugins.gzipResponse());
@@ -132,7 +131,7 @@ function* serveRequests(source) {
   }
 }
 
-const serverSaga = function*(...args) {
+function* serverSaga(...args) {
   const config = args[1];
 
   yield take('/plask/INIT');

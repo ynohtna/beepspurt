@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 /* eslint no-param-reassign: [2, {"props": false }] */
+/*
 import { createSagaMiddleware, effects, isCancelError } from 'redux-saga';
 import { cancellablePromise } from '../utils';
 
@@ -97,3 +98,4 @@ function* saga() {
 
 const sagaMiddleware = createSagaMiddleware(saga);
 export default sagaMiddleware;
+*/
