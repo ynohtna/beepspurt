@@ -9,7 +9,7 @@ const TextArea = props => {
 const CheckBox = props => {
   return (
     <label>
-      <input type="checkbox" {...props} children={null} />
+      <input type='checkbox' {...props} children={null} />
       {props.children}
     </label>
   );

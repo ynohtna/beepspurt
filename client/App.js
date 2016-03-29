@@ -1,17 +1,24 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
+import provide from 'react-redux-provide';
+
+import WordEditor from './components/WordEditor';
 import { columnParent, rowParent, flexContainer,
          flexChild, flexAll, flexNone } from './flexStyles';
-import WordEditor from './components/WordEditor';
 
+const narrowStyle = {
+  height: '2em'
+};
+
+@provide
 class App extends React.Component {
-  render() {
-    const narrow = {
-      height: '2em'
-    };
+  static propTypes = {
+    socketStatus: PropTypes.string.isRequired
+  };
 
+  render() {
     return (
       <section style={{ ...flexChild, ...columnParent, ...flexContainer }}>
-        <header style={{ ...flexChild, ...flexNone, ...narrow }}>
+        <header style={{ ...flexChild, ...flexNone, ...narrowStyle }}>
           HEADER
         </header>
         <section style={{ ...flexChild, ...rowParent }}>
@@ -39,7 +46,7 @@ class App extends React.Component {
             </section>
           </section>
         </section>
-        <footer style={{ ...flexChild, ...flexNone, ...narrow }}>
+        <footer style={{ ...flexChild, ...flexNone, ...narrowStyle }}>
           FOOTER
         </footer>
       </section>

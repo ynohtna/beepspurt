@@ -27,13 +27,13 @@ class WordEditor extends React.Component {
   render() {
     return (
       <div>
-        <TextArea autoComplete='off' cols={30} rows={4} 
+        <TextArea autoComplete='off' cols={30} rows={4}
                   value={this.state.message}
                   onChange={message => this.setState({ message })}
                   style={textStyle}
         />
         <CheckBox checked={this.state.autoUpdate}
-                  onChange={e => this.setState({ autoUpdate: !this.state.autoUpdate })}
+                  onChange={() => this.setState({ autoUpdate: !this.state.autoUpdate })}
         >
           auto-dispatch
         </CheckBox>
