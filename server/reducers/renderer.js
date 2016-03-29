@@ -2,13 +2,18 @@ const defaultRendererState = {
   frame: -1,
   width: 800,
   height: 600,
-  clearColour: [0, 0, 0, 0],
+  clearColour: [0, 0, 0, 1],
   beatInterval: 1000,
-  state: 'on'
+  state: 'run' // 'pause', 'off'
 };
 
-const renderer = (state = defaultRendererState, action) => {
+const rendererState = (state = defaultRendererState, action) => {
   switch (action.type) {
+    case '/renderer/STATE':
+      return {
+        ...state,
+        state: action.payload
+      };
     case '/renderer/FRAME_BOUNDS':
       return {
         ...state,
@@ -30,4 +35,4 @@ const renderer = (state = defaultRendererState, action) => {
   }
 };
 
-export default renderer;
+export default rendererState;
