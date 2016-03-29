@@ -4,7 +4,7 @@ const defaultVarsState = {
   colour: [255, 255, 255, 255]
 };
 
-const spurter = (state = defaultVarsState, action) => {
+const spurterState = (state = defaultVarsState, action) => {
   switch (action.type) {
     case '/spurter/MESSAGE':
       return {
@@ -21,4 +21,4 @@ const spurter = (state = defaultVarsState, action) => {
   }
 };
 
-export default spurter;
+export default spurterState;

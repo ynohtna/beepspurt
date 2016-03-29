@@ -62,7 +62,7 @@ const handlers = {
   ...oscHandlers
 };
 
-const fetchSocket = function*(source) {
+function* fetchSocket(source) {
   try {
     console.log('* fetchSocket');
 
@@ -96,9 +96,9 @@ const fetchSocket = function*(source) {
       console.error('*fetchSocket error', error);
     }
   }
-};
+}
 
-const oscSaga = function*(...args) {
+function* oscSaga(...args) {
   if (args.length < 2) {
     throw new Error('*oscSaga requires second parameter to be a Socket instance');
   }
@@ -149,5 +149,5 @@ const oscSaga = function*(...args) {
     // If socket closed or errored then await new open request, i.e. from direct user intervention.
     awaitOpen = !winner.open;
   }
-};
+}
 export default oscSaga;
