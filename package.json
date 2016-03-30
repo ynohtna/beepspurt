@@ -12,6 +12,7 @@
     "build:~envs~": "",
     "build:envs-": "----------    BUILD DEV/PROD ENVIRONMENT ---------",
     "build:all": "npm run build:server:all && npm run build:client:all && npm run build:plask:all",
+    "build:js:all": "npm run build:server:all && npm run build:client:all",
     "build:dev": "npm run build:server:dev && npm run build:client:dev",
     "build:prod": "npm run build:server:prod && npm run build:client:prod",
     "build:client-": "",
