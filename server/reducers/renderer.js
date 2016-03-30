@@ -1,5 +1,5 @@
 const defaultRendererState = {
-  frame: -1,
+  frame: 0,
   width: 800,
   height: 600,
   clearColour: [0, 0, 0, 1],
