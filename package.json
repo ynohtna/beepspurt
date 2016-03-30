@@ -9,6 +9,11 @@
     "start:prod": "env NODE_ENV=production ./plask.sh ./dist/server.min.js",
     "start:dev": "env NODE_ENV=development ./plaskdbg.sh ./dist/server.js",
     "start:debug": "env NODE_ENV=development ./plaskdbg.sh debug ./dist/server.js",
+    "build:~envs~": "",
+    "build:envs-": "----------    BUILD DEV/PROD ENVIRONMENT ---------",
+    "build:all": "npm run build:server:all && npm run build:client:all && npm run build:plask:all",
+    "build:dev": "npm run build:server:dev && npm run build:client:dev",
+    "build:prod": "npm run build:server:prod && npm run build:client:prod",
     "build:client-": "",
     "build:client": "------------    CLIENT WEBAPP JS   --------------------",
     "build:client:all": "npm run build:client:dev && npm run build:client:prod",
@@ -31,7 +36,7 @@
     "lint:server": "eslint ./server/ && { echo '\\033[0;92m√ SUCCESS √\\033[0m'; echo; } || true",
     "test:-": "",
     "test:": "---------------     TESTING        ----------------------------------",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test procedure specified - lazy developer!\" && exit 1"
   },
   "author": "Anthony Bowyer-Lowe <anthony@lowbroweye.com>",
   "license": "ISC",
