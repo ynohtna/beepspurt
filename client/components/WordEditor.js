@@ -4,13 +4,14 @@ import provide from 'react-redux-provide';
 
 const textStyle = {
   fontFamily: 'Rockwell',
-  fontSize: 'medium',
+  fontSize: '120%',
   background: '#363',
   color: '#ffe',
   border: 0,
-  borderRadius: 16,
+  borderRadius: 12,
   margin: 4,
   padding: 6,
+  resize: 'vertical',
   outlineStyle: 'dotted',
   outlineWidth: 2,
   outlineOffset: 3,
@@ -20,12 +21,14 @@ const textStyle = {
 @provide
 class WordEditor extends React.Component {
   static propTypes = {
-    sendSocket: PropTypes.func.isRequired
+    sendSocket: PropTypes.func.isRequired,
+    spurterState: PropTypes.object.isRequired
+    //    spurterState: PropTypes.object.isRequired
   };
   static defaultProps = {
   };
   state = {
-    message: '[beep]',
+    message: this.props.spurterState.message || '[beep]',
     autoUpdate: false
   };
 

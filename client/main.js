@@ -8,7 +8,7 @@ const context = {
   providers,
   providedState: {
 //    socketStatus: '???',
-    spurter: {
+    spurterState: {
       message: 'testing'
     }
   }

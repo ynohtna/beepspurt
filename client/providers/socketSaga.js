@@ -18,7 +18,7 @@ const SET_SOCKET_STATUS = '/socket/SET_STATUS';
 
 const actionCreators = {
   setSocketStatus: status => ({ type: SET_SOCKET_STATUS, status }),
-  sendSocket: (address, ...args) => ({ type: SEND_SOCKET, address, args })
+  sendSocket: (addr, ...args) => ({ type: SEND_SOCKET, addr, args })
 };
 
 /* eslint no-param-reassign: [2, {"props": false }] */
@@ -99,13 +99,11 @@ function *sendSocket(websocket) {
     const send = true;
     while (send) {
       const msg = yield take(SEND_SOCKET);
-      const { address, args } = msg;
-      const data = args.length > 1 ? JSON.stringify({ address, args })
-        : JSON.stringify({ address, args: args[0] });
+      const { addr, args } = msg;
+      const data = args.length > 1 ? JSON.stringify({ addr, args })
+        : JSON.stringify({ addr, args: args[0] });
       console.log('> socketSend', data);
       websocket.send(data);
-//      const { addr, tags, args } = msg;
-//      osc.send(addr, tags, args);
     }
   } catch (error) {
     if (!isCancelError(error)) {
