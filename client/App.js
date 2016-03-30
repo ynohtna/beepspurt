@@ -3,6 +3,7 @@ import provide from 'react-redux-provide';
 
 import Header from './components/Header';
 import WordEditor from './components/WordEditor';
+import WordList from './components/WordList';
 import { columnParent, rowParent, flexContainer,
          flexChild, flexAll, flexNone } from './flexStyles';
 
@@ -28,15 +29,11 @@ class App extends React.Component {
               MASTER
             </div>
             <div style={{ ...flexChild, ...flexAll, backgroundColor: '#211' }}>
-              <div style={{ display: 'table-cell', overflowY: 'scroll' }}>
-                <p>WORD LIST</p>
-                <p>asdfghjkl</p>
-                <p>bacon</p>
-              </div>
+              <WordList />
             </div>
             <section style={{ ...flexChild, ...rowParent, ...flexNone }}>
               <div style={{ ...flexChild }}>
-                LFO OPACITY
+                LFO {'>'} OPACITY
               </div>
               <div style={{ ...flexChild, backgroundColor: '#211' }}>
                 SEQUENCER

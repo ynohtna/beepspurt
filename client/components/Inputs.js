@@ -7,14 +7,14 @@ const TextArea = props => {
 };
 
 const CheckBox = props => (
-  <label>
-    <input type='checkbox' {...props} children={null} />
+  <label style={{ ...props.style }}>
+    <input type='checkbox' { ...props } style={null} children={null} />
     {props.children}
   </label>
 );
 
 const Button = props => (
-  <button {...props} children={null}>
+  <button { ...props } children={null}>
     {props.children}
   </button>
 );
