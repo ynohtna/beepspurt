@@ -52,21 +52,28 @@ const serverSource = (server) => {
     resolve('connect');
   });
   server.on('upgrade', (request, socket, head) => {
-    console.log('**** server/upgrade', request.headers.origin,
+    console.log('**** socket:upgrade', request.headers.origin,
                 request.headers['sec-websocket-key']);
     let wsc;
     try {
       wsc = shed.accept(request, socket, head);
     } catch (ex) {
-      console.error('**** watershed error', ex);
+      console.error('**** socket:error', ex);
       socket.end();
       return resolve(ex);
     }
-    wsc.on('text', text =>
-      console.log('>>>> watershed text', text)
-    );
+    wsc.on('text', text => {
+      console.log('>>>> socket:text', text);
+      let action = `badmsg: ${text}`;
+      try {
+        action = JSON.parse(text);
+      } catch (ex) {
+        console.error(text, ex);
+      }
+      resolve(action);
+    });
     wsc.on('end', () =>
-      console.log('---- watershed end')
+      console.log('---- socket:end')
     );
     wsc.send('HELLO');
 
@@ -77,7 +84,7 @@ const serverSource = (server) => {
     resolve('clienterror');
   });
   server.on('close', () => {
-    console.log('server/closed');
+    console.log('---- server/closed');
     resolve('closed');
   });
 
@@ -94,36 +101,39 @@ const serverSource = (server) => {
   };
 };
 
+const addrHandler = ({ addr, args }) => ({ type: addr,
+                                           payload: (args.length === 1) ? args[0] : args });
+
+const handlers = {
+  '/spurter/MESSAGE': addrHandler,
+  // ---- internal notifications ----
+  opened: { type: SERVER_STARTED },
+  closed: { type: SERVER_STOPPED },
+  connected: { type: CLIENT_CONNECTED },
+  upgraded: { type: CLIENT_UPGRADED }
+};
+
 function* serveRequests(source) {
   try {
     console.log('* serveRequests');
 
     let req = yield call(source.nextRequest);
     while (req) {
+      let action;
       console.log('**** request', req);
-      if (req.type) {
-        // TODO: Sanitize request.
-        yield put(req);
+      if (req.addr && req.addr in handlers) {
+        action = handlers[req.addr](req);
+//        console.log('.... handled action:=', action);
+      } else if ((typeof req === 'string') && (req in handlers)) {
+        action = handlers[req];
       } else {
-        // Simple string packet.
-        switch (req) {
-          case 'opened':
-            yield put({ type: SERVER_STARTED });
-            break;
-          case 'closed':
-            yield put({ type: SERVER_STOPPED });
-            break;
-          case 'connected':
-            yield put({ type: CLIENT_CONNECTED });
-            break;
-          case 'upgraded':
-            yield put({ type: CLIENT_UPGRADED });
-            break;
-          case 'clienterror':
-            break;
-          default:
-            break;
-        }
+        console.error('^^^^^ UNHANDLED SERVER REQUEST !!!!!\n');
+      }
+      if (action) {
+        console.log('>>>>', action);
+        yield put(action);
+      } else {
+        console.log('^^^^ NO ACTION ^^^^\n');
       }
       req = yield call(source.nextRequest);
     }
@@ -168,7 +178,9 @@ function* serverSaga(...args) {
   const server = createServer(config);
   const source = serverSource(server);
 
-  let awaitStart = false; // Automatically begin listening for first loop.
+  // Server always tries to start up.
+  const awaitStart = false;
+
   const active = true;
   while (active) {
     if (awaitStart) { // Await user-initiated start server request.
@@ -181,7 +193,14 @@ function* serverSaga(...args) {
 
     // Open server.
     console.log('socket/opening...');
-    server.listen(config.port || 9336, config.addr || '127.0.0.1', () =>
+    const hostname = config.hostname || '127.0.0.1';
+    const port = config.port || 9336;
+    if ((hostname === '127.0.0.1') || (hostname === 'localhost')) {
+      console.warn(`---- **** SERVER LISTENING on LOCALHOST ONLY **** ${hostname} ----`);
+    } else if (hostname === '0.0.0.0') {
+      console.warn('---- **** SERVER LISTENING on ALL INTERFACES **** ----');
+    }
+    server.listen(port, hostname, () =>
       server.emit('opened')
     );
 
@@ -196,7 +215,7 @@ function* serverSaga(...args) {
     });
     console.log('***** serveSaga race!', winner, serverTask.isRunning());
 
-    // Cancel fetch & send.
+    // Cancel fetch (TODO: & send).
     console.log('cancelling sever handling');
     yield cancel(serverTask);
 
@@ -206,9 +225,6 @@ function* serverSaga(...args) {
     if (!winner.didStop) {
       server.close();
     }
-
-    // If server closed or errored then await new open request, i.e. from manual user interaction.
-    awaitStart = !winner.start;
   }
 }
 export default serverSaga;
