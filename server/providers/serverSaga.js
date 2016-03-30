@@ -2,8 +2,8 @@
 /* eslint no-param-reassign: [2, {"props": false }] */
 import restify from 'restify';
 import restifyPlugins from 'restify-plugins';
-
 import { Watershed } from 'watershed';
+import { createHash } from 'crypto';
 
 import { effects, isCancelError } from 'redux-saga';
 const { call, cancel, fork, race, put, take } = effects;
@@ -19,6 +19,7 @@ const SERVER_ERROR = '/server/ERROR';
 // Server manipulation requests.
 const START_SERVER = '/server/START';
 const STOP_SERVER = '/server/STOP';
+const SERVER_SEND = '/server/SEND';
 
 const toJS = obj => JSON.stringify(obj);
 
@@ -43,6 +44,7 @@ const serverSource = (server) => {
       messageQueue.push(msg);
     }
   };
+  server._wsc = {};
   server.on('opened', () => {
     console.log('server/opened');
     resolve('opened');
@@ -55,8 +57,16 @@ const serverSource = (server) => {
     console.log('**** socket:upgrade', request.headers.origin,
                 request.headers['sec-websocket-key']);
     let wsc;
+    let id;
     try {
       wsc = shed.accept(request, socket, head);
+      const hash = createHash('sha256');
+      hash.update(`${request.headers.origin}`);
+      hash.update(`${request.headers['sec-websocket-key']}`);
+      hash.update(`${wsc._remote}`);
+      const rand = (Math.random() * 0xffffffff) | 0;
+      hash.update(`${rand}`);
+      id = hash.digest('hex');
     } catch (ex) {
       console.error('**** socket:error', ex);
       socket.end();
@@ -72,11 +82,15 @@ const serverSource = (server) => {
       }
       resolve(action);
     });
-    wsc.on('end', () =>
-      console.log('---- socket:end')
-    );
-    wsc.send('HELLO');
-
+    wsc.on('end', (code, reason) => {
+      server._wsc[id] = null;
+      console.log('---- socket:end', code, reason, server._wsc);
+    });
+    if (id) {
+      wsc.send(JSON.stringify({ addr: '*HIHO*', id }));
+      server._wsc[id] = wsc;
+      console.log('++ :: %%', id, wsc._remote);
+    }
     return resolve('upgraded');
   });
   server.on('clientError', (ex, socket) => {
@@ -101,11 +115,14 @@ const serverSource = (server) => {
   };
 };
 
-const addrHandler = ({ addr, args }) => ({ type: addr,
-                                           payload: (args.length === 1) ? args[0] : args });
+const mungeArgs = args => ((args.length === 1) ? args[0] : args);
+const dispatchHandler = ({ addr, id, args }) => ({ type: addr,
+                                                   id,
+                                                   payload: mungeArgs(args) });
 
 const handlers = {
-  '/spurter/MESSAGE': addrHandler,
+  '/spurter/MESSAGE': dispatchHandler,
+  '/ping': ({ args, id }) => ({ type: SERVER_SEND, addr: '/pong', args, id }),
   // ---- internal notifications ----
   opened: { type: SERVER_STARTED },
   closed: { type: SERVER_STOPPED },
@@ -140,6 +157,33 @@ function* serveRequests(source) {
   } catch (error) {
     if (!isCancelError(error)) {
       console.error('* serveRequests error', error);
+    }
+  }
+}
+
+function* sendMessages(server) {
+  try {
+    yield take(SERVER_STARTED);
+    const send = true;
+    while (send) {
+      const msg = yield take(SERVER_SEND);
+      const { addr, id, args } = msg;
+      if (id) {
+        const wsc = (id in server._wsc) && server._wsc[id];
+        if (wsc) {
+          const packet = JSON.stringify({ addr, args });
+          wsc.send(packet);
+          console.log('--->', packet);
+        } else {
+          console.error('!!!! SERVER_SEND request on DEAD CHANNEL', id, server._wsc);
+        }
+      } else {
+        console.log('* <-', addr, args);
+      }
+    }
+  } catch (error) {
+    if (!isCancelError(error)) {
+      console.error('*sendMessages error', error);
     }
   }
 }
@@ -189,9 +233,9 @@ function* serverSaga(...args) {
     }
 
     // Fork server handling.
-    const serverTask = yield fork(serveRequests, source);
+    const requestsTask = yield fork(serveRequests, source);
 
-    // Open server.
+    // Start server listening.
     console.log('socket/opening...');
     const hostname = config.hostname || '127.0.0.1';
     const port = config.port || 9336;
@@ -204,7 +248,8 @@ function* serverSaga(...args) {
       server.emit('opened')
     );
 
-    // TODO: Fork socket sending.
+    // Fork server sending.
+    const sendTask = yield fork(sendMessages, server);
 
     // Race: didStop, stop, error, start.
     const winner = yield race({
@@ -213,11 +258,15 @@ function* serverSaga(...args) {
       stop: take(STOP_SERVER),
       start: take(START_SERVER)
     });
-    console.log('***** serveSaga race!', winner, serverTask.isRunning());
+    console.log('***** serveSaga race!', winner,
+                requestsTask.isRunning(), sendTask.isRunning());
 
-    // Cancel fetch (TODO: & send).
-    console.log('cancelling sever handling');
-    yield cancel(serverTask);
+    // Cancel fetch & send tasks.
+    console.log('cancelling server request handling');
+    yield cancel(requestsTask);
+
+    console.log('cancelling server sending');
+    yield cancel(sendTask);
 
     // TODO: Dispatch socket status as per the race winner.
 
