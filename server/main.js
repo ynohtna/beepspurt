@@ -55,7 +55,14 @@ Plask.simpleWindow({
   },
 
   draw() {
-    dispatch('/renderer/FRAME_ADVANCE');
+    const { canvas, paint } = this;
+    const storeState = store.getState();
+    const { rendererState } = storeState;
+    const { state, frame } = rendererState;
+
+    if (state !== 'pause') {
+      dispatch('/renderer/FRAME_ADVANCE');
+    }
 
     const now = perfnow();
     if (lastFrame) {
@@ -66,13 +73,8 @@ Plask.simpleWindow({
     }
     lastFrame = now;
 
-    const { canvas, paint } = this;
-    const storeState = store.getState();
 
-    const { rendererState } = storeState;
-    const { state, frame } = rendererState;
-
-    // Every second show amortised draw timing stats.
+    // Every expected second show amortised draw timing stats.
     if ((frame % fps) === 0) {
       const mspf = lastClock ? ((now - lastClock) / fps) : 0;
       log(`#${frame} : ${now} : ${mspf} : ${maxFrameTime}`);
@@ -81,8 +83,10 @@ Plask.simpleWindow({
     }
 
     if (state === 'pause') {
+      // No need to do any clearing or rendering.
       return;
     } else if (state === 'off') {
+      // FIXME: Only clear to black once.
       canvas.clear(0, 0, 0, 255);
       return;
     }
