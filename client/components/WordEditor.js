@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Button, CheckBox, TextArea } from './Inputs';
 import provide from 'react-redux-provide';
+import { columnParent, rowParent, flexContainer, flexChild, flexNone } from '../flexStyles';
 
 const textStyle = {
   fontFamily: 'Rockwell',
@@ -45,20 +46,26 @@ class WordEditor extends React.Component {
 
   render() {
     return (
-      <div>
-        <TextArea autoComplete='off' cols={30} rows={4}
+      <div style={{ ...rowParent, ...flexContainer }}>
+        <TextArea style={{ ...textStyle, ...flexChild }}
+                  autoComplete='off' cols={30} rows={4}
                   value={this.state.message}
                   onChange={::this.updateMessage}
-                  style={textStyle}
         />
-        <CheckBox checked={this.state.autoUpdate}
-                  onChange={() => this.setState({ autoUpdate: !this.state.autoUpdate })}
-        >
-          auto-dispatch
-        </CheckBox>
-        <Button onClick={() => this.dispatch(this.state.message)}>
-          dispatch
-        </Button>
+        <div style={{ ...flexChild, ...columnParent, ...flexNone }}>
+          <CheckBox style={{ ...flexChild, ...flexNone, margin: '1rem' }}
+                    checked={this.state.autoUpdate}
+                    onChange={() => this.setState({ autoUpdate: !this.state.autoUpdate })}
+          >
+            auto-send
+          </CheckBox>
+          <Button style={{ ...flexChild, ...flexNone,
+                           margin: '1rem', height: '2rem',
+                           fontSize: '100%', borderRadius: '12px' }}
+                  onClick={() => this.dispatch(this.state.message)}>
+            send
+          </Button>
+        </div>
       </div>
     );
   }

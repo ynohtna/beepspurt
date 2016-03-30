@@ -1,24 +1,29 @@
 /* eslint-disable no-console */
 import createSagaMiddleware, { isCancelError } from 'redux-saga';
 import { call, cancel, fork, put, race, take } from 'redux-saga/effects';
-import { cancellablePromise, endpointFromWindowLocation } from '../utils';
+import { cancellablePromise, delayedResolve, endpointFromWindowLocation } from '../utils';
 
 // Socket notifications.
 const SOCKET_OPENED = '/socket/OPENED';
 const SOCKET_CLOSED = '/socket/CLOSED';
 const SOCKET_ERRORED = '/socket/ERROR';
 const SOCKET_RECV = '/socket/RECV';
+const PONG_RECV = '/socket/PONG';
 
 // Socket manipulation requests.
 export const OPEN_SOCKET = '/socket/OPEN';
 export const CLOSE_SOCKET = '/socket/CLOSE';
 export const SEND_SOCKET = '/socket/SEND';
 
+// Socket status updates.
 const SET_SOCKET_STATUS = '/socket/SET_STATUS';
+const SET_PING_INFO = '/socket/SET_PING_INFO';
 
 const actionCreators = {
   setSocketStatus: status => ({ type: SET_SOCKET_STATUS, status }),
-  sendSocket: (addr, ...args) => ({ type: SEND_SOCKET, addr, args })
+  sendSocket: (addr, ...args) => ({ type: SEND_SOCKET, addr, args }),
+  sendPing: (...args) => ({ type: SEND_SOCKET, addr: '/ping', args }),
+  setPingInfo: info => ({ type: SET_PING_INFO, info })
 };
 
 /* eslint no-param-reassign: [2, {"props": false }] */
@@ -49,18 +54,34 @@ const socketSource = websocket => {
   };
   websocket.onmessage = msg => {
     console.log('socket/receive [origin, data]', msg.origin, msg.data);
-    const { data } = msg;
-    const res = {
-      type: SOCKET_RECV,
-      data
-    };
-    resolve(res);
+    try {
+      let { data } = msg;
+      data = JSON.parse(data);
+      const res = {
+        type: SOCKET_RECV,
+        ...data
+      };
+      if (data.addr === '*HIHO*' && data.id) {
+        websocket._id = data.id;
+      }
+      resolve(res);
+    } catch (ex) {
+      console.error(msg, ex);
+    }
   };
   return {
     nextMessage: () => (messageQueue.length ?
                         cancellablePromise(Promise.resolve(messageQueue.shift()))
         : cancellablePromise(new Promise(resolver => resolveQueue.push(resolver))))
   };
+};
+
+const noopAction = {};
+const noop = () => noopAction;
+
+const handlers = {
+  '*HIHO*': noop,
+  '/pong': ({ args }) => ({ type: PONG_RECV, args })
 };
 
 function* fetchSocket(source) {
@@ -70,8 +91,21 @@ function* fetchSocket(source) {
 
     let msg = yield call(source.nextMessage);
     while (msg) {
+      console.log(':::: MSG', msg);
       if (msg.type && msg.type === SOCKET_RECV) {
-        console.log(':::: MSG', msg);
+        let action;
+        // Sanitize remote actions against registered handlers.
+        if (msg.addr && msg.addr in handlers) {
+          action = handlers[msg.addr](msg);
+        }
+        if (action) {
+          if (action !== noopAction) {
+            console.log('>:>|', action);
+            yield put(action);
+          }
+        } else {
+          console.error('^^^^^ UNHANDLED SOCKET MESSAGE !!!!!!\n');
+        }
       } else if (msg === 'opened') {
         yield setStatus('open');
         yield put({ type: SOCKET_OPENED });
@@ -93,15 +127,18 @@ function* fetchSocket(source) {
   }
 }
 
+const mungeArgs = args => ((args.length === 1) ? args[0] : args);
+
 function *sendSocket(websocket) {
   try {
     yield take(SOCKET_OPENED);
+
     const send = true;
     while (send) {
       const msg = yield take(SEND_SOCKET);
       const { addr, args } = msg;
-      const data = args.length > 1 ? JSON.stringify({ addr, args })
-        : JSON.stringify({ addr, args: args[0] });
+      const id = websocket._id;
+      const data = JSON.stringify({ addr, args: mungeArgs(args), id });
       console.log('> socketSend', data);
       websocket.send(data);
     }
@@ -112,12 +149,52 @@ function *sendSocket(websocket) {
   }
 }
 
+function *pingSocket(/* websocket */) {
+  try {
+    yield take(SOCKET_OPENED);
+
+    const pingActive = true;
+    while (pingActive) {
+      // Wait 3 seconds before initial and between subsequent ping transmissions.
+      yield delayedResolve(3 * 1000);
+
+      const pingFrame = (Math.random() * 0xffffffff) | 0;
+      yield put(actionCreators.sendPing(pingFrame));
+
+      let level = 5;
+      while (level > -5) {
+        yield put(actionCreators.setPingInfo(`${level}`));
+        const { pong } = yield race({
+          pong: take(PONG_RECV),
+          timeout: delayedResolve(200)
+        });
+        if (pong) {
+          // Check for identical pingFrame.
+          if (pingFrame === pong.args) {
+            console.log(`@! pong !@ ${pingFrame} ${level}`);
+            break;
+          }
+        } else {
+          level = level - 1;
+        }
+      }
+      if (level <= -5) {
+        console.error('!!! PING TIMEOUT !!!', level);
+      }
+
+      yield put(actionCreators.setPingInfo(`${level}`));
+    }
+  } catch (error) {
+    if (!isCancelError(error)) {
+      console.error('*pingSocket error', error);
+    }
+  }
+}
+
 function* rootSaga() {
   if (!window.WebSocket) {
     throw new Error('WebSocket support required!');
   }
-
-  console.log('***** socketSaga');
 
   const active = true;
   let awaitOpen = false;
@@ -136,6 +213,7 @@ function* rootSaga() {
 
     const fetchTask = yield fork(fetchSocket, source);
     const sendTask = yield fork(sendSocket, socket);
+    const pingTask = yield fork(pingSocket, socket);
 
     // Race: didClose, close, error, open.
     const winner = yield race({
@@ -144,22 +222,26 @@ function* rootSaga() {
       close: take(CLOSE_SOCKET),
       open: take(OPEN_SOCKET)
     });
-    console.log('**** socketSaga race!', winner, fetchTask.isRunning());
+    console.log('**** socketSaga race!', winner,
+                fetchTask.isRunning(), sendTask.isRunning(), pingTask.isRunning());
 
     // Close socket if didClose didn't win race.
     if (!winner.didClose) {
       socket.close();
     }
+
+    // TODO: Dispatch socket status according to winner.
     yield put(actionCreators.setSocketStatus('closed'));
 
-    // Cancel fetch & send.
+    // Cancel fetch, send & ping.
+    console.log('cancelling socket ping');
+    yield cancel(pingTask);
+
     console.log('cancelling socket fetch');
     yield cancel(fetchTask);
 
     console.log('cancelling socket send');
     yield cancel(sendTask);
-
-    // TODO: Dispatch socket status: winner.
 
     // If socket closed or errored then await new open request, i.e. from direct user intervention.
     awaitOpen = !winner.open;
@@ -173,6 +255,14 @@ const actions = {
 };
 
 const reducers = {
+  pingInfo(state = '?', action) {
+    switch (action.type) {
+      case SET_PING_INFO:
+        return action.info || state;
+      default:
+        return state;
+    }
+  },
   socketStatus(state = '?', action) {
     switch (action.type) {
       case SET_SOCKET_STATUS:
