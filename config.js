@@ -22,6 +22,7 @@ System.config({
     "babel-plugin-transform-object-rest-spread": "npm:babel-plugin-transform-object-rest-spread@6.6.5",
     "babel-runtime": "npm:babel-runtime@5.8.38",
     "core-js": "npm:core-js@1.2.6",
+    "crypto": "github:jspm/nodelibs-crypto@0.1.0",
     "dgram": "github:jspm/nodelibs-dgram@0.1.0",
     "events": "github:jspm/nodelibs-events@0.1.1",
     "performance-now": "npm:performance-now@0.2.0",
