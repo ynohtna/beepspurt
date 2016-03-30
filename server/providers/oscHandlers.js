@@ -17,7 +17,7 @@ const oscHandlers = {
     return action;
   },
   '/vars/COLOUR': msg => {
-    const action = { type: '/vars/COLOUR', payload: [255, 255, 255, 1] };
+    const action = { type: '/vars/COLOUR', payload: [255, 255, 255, 255] };
     const input = msg.args[0];
     console.log('COLOUR input:', input);
     const colour = parseCSSColor(input);

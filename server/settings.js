@@ -1,10 +1,12 @@
 const name = '[beep]spurt';
 const port = 9336;
+const hostname = '0.0.0.0';
 const version = '1.0.0';
 
-const server = {
+const appServer = onDevelopment => ({
   name,
   port,
+  hostname,
   version,
   autoStart: true,
   gzip: false,
@@ -13,12 +15,12 @@ const server = {
     index: {
       path: /^\/[^\/]*$/,
       config: {
-        default: 'index.html',
+        default: onDevelopment ? 'index.html' : 'index.min.html',
         directory: './dist'
       }
     }
   }
-};
+});
 
 const settings = {
   width: 800,
@@ -32,8 +34,14 @@ const settings = {
   },
 
   type: '3d2d',
-  syphon_server: name,
-
-  server
+  syphon_server: name
 };
-export default settings;
+
+const appSettings = onDevelopment => ({
+  ...settings,
+  server: {
+    ...appServer(onDevelopment)
+  }
+});
+
+export default appSettings;
