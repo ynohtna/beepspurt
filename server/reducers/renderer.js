@@ -7,13 +7,19 @@ const defaultRendererState = {
   state: 'run' // 'pause', 'off'
 };
 
+const validStates = {
+  play: true,
+  pause: true,
+  off: true
+};
+
 const rendererState = (state = defaultRendererState, action) => {
   switch (action.type) {
     case '/renderer/STATE':
-      return {
+      return (action.payload in validStates) ? {
         ...state,
         state: action.payload
-      };
+      } : state;
     case '/renderer/FRAME_BOUNDS':
       return {
         ...state,
