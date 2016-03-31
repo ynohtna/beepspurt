@@ -2,6 +2,7 @@ import React from 'react';
 import provide from 'react-redux-provide';
 
 import Header from './components/Header';
+import Master from './components/Master';
 import WordEditor from './components/WordEditor';
 import WordList from './components/WordList';
 import { columnParent, rowParent, flexContainer,
@@ -26,7 +27,7 @@ class App extends React.Component {
           </div>
           <section style={{ ...flexChild, ...columnParent }}>
             <div style={{ ...flexChild, ...flexNone, backgroundColor: '#112' }}>
-              MASTER
+              <Master />
             </div>
             <div style={{ ...flexChild, ...flexAll, backgroundColor: '#211' }}>
               <WordList />

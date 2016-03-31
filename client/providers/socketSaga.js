@@ -54,7 +54,7 @@ const socketSource = websocket => {
     resolve('closed');
   };
   websocket.onmessage = msg => {
-    console.log('socket/receive [origin, data]', msg.origin, msg.data);
+//    console.log('socket/receive [origin, data]', msg.origin, msg.data);
     try {
       let { data } = msg;
       data = JSON.parse(data);
@@ -101,7 +101,7 @@ function* fetchSocket(source) {
         }
         if (action) {
           if (action !== noopAction) {
-            console.log('>:>|', action);
+//            console.log('>:>|', action);
             yield put(action);
           }
         } else {
@@ -156,6 +156,8 @@ function *sendSocket(websocket) {
 function *pingSocket(/* websocket */) {
   try {
     yield take(SOCKET_OPENED);
+
+    yield put(actionCreators.setPingInfo(-2));	// Awaiting initial ping.
 
     // Wait 1 second after socket has opened before starting to ping.
     yield delayedResolve(1 * 1000);

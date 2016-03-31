@@ -10,8 +10,8 @@ const pingBarStyle = {
 };
 
 const connectedStates = {
-  'open': true,
-  'opening': true
+  open: true,
+  opening: true
 };
 
 @provide
@@ -46,14 +46,33 @@ class Header extends React.Component {
 //    console.log('Header', this.props);
     const { pingInfo, socketStatus } = this.props;
     const status = this.status(socketStatus);
-    const pingDelay = (pingInfo !== -1) ? (pingInfo === 0 ? '\u2713' : pingInfo) : '\u2a2f';
+    let pingSymbol = '\u2a2f'; // Small cross as ping symbol for unknown states.
+    let pingColour = '';
+    if (pingInfo === -2) {
+      pingSymbol = '\u00b7';
+    } else if (pingInfo === 0) {
+      pingSymbol = '\u2713';
+    } else if (pingInfo > 0) {
+      pingSymbol = `${pingInfo}`;
+      if (pingInfo > 7) {
+        pingColour = 'danger';
+      } else if (pingInfo > 3) {
+        pingColour = 'warning';
+      } else {
+        pingColour = 'notify';
+      }
+    }
     const reconnect = (socketStatus in connectedStates) ?
                       null :
                       (<a className='reconnect' onClick={::this.reconnect}>reconnect</a>);
     return (
       <div className={socketStatus}>
-        <span className='status'>{status}</span>
-        <span className='ping'>{pingDelay}</span>
+        <span className='status'>
+          {status}
+        </span>
+        <span className={'ping ' + pingColour}>
+          {pingSymbol}
+        </span>
         {reconnect}
       </div>
     );

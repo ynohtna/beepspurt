@@ -53,15 +53,15 @@ class WordEditor extends React.Component {
                   onChange={::this.updateMessage}
         />
         <div style={{ ...flexChild, ...columnParent, ...flexNone }}>
-          <CheckBox style={{ ...flexChild, ...flexNone, margin: '1rem' }}
+          <CheckBox style={{ ...flexChild, ...flexNone,
+                             margin: '1rem', fontSize: '90%' }}
                     checked={this.state.autoUpdate}
                     onChange={() => this.setState({ autoUpdate: !this.state.autoUpdate })}
           >
             auto-send
           </CheckBox>
           <Button style={{ ...flexChild, ...flexNone,
-                           margin: '1rem', height: '2rem',
-                           fontSize: '100%', borderRadius: '12px' }}
+                           margin: '1rem' }}
                   onClick={() => this.dispatch(this.state.message)}>
             send
           </Button>
