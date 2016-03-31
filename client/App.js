@@ -8,8 +8,8 @@ import { columnParent, rowParent, flexContainer,
          flexChild, flexAll, flexNone } from './flexStyles';
 
 const narrowStyle = {
-  height: '1.5em',
-  fontSize: 'smaller'
+  height: '1.6rem',
+  fontSize: '110%'
 };
 
 @provide

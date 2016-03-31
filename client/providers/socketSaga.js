@@ -23,7 +23,8 @@ const actionCreators = {
   setSocketStatus: status => ({ type: SET_SOCKET_STATUS, status }),
   sendSocket: (addr, ...args) => ({ type: SEND_SOCKET, addr, args }),
   sendPing: (...args) => ({ type: SEND_SOCKET, addr: '/ping', args }),
-  setPingInfo: info => ({ type: SET_PING_INFO, info })
+  setPingInfo: info => ({ type: SET_PING_INFO, info }),
+  openSocket: () => ({ type: OPEN_SOCKET })
 };
 
 /* eslint no-param-reassign: [2, {"props": false }] */
@@ -43,8 +44,8 @@ const socketSource = websocket => {
     resolve('opened');
   };
   websocket.onerror = err => {
-    console.log('socket/error', err);
-    resolve(err);
+    console.error('socket/error', err);
+    resolve('error');
   };
   websocket.onclose = e => {
     // TODO: convert code into reason text as per:
@@ -112,6 +113,9 @@ function* fetchSocket(source) {
       } else if (msg === 'closed') {
         yield setStatus('closed');
         yield put({ type: SOCKET_CLOSED });
+      } else if (msg === 'error') {
+        yield setStatus('error');
+        yield put({ type: SOCKET_ERRORED, error: msg });
       } else {
         console.warn('unknown message type on socket', msg);
         yield setStatus('error');
@@ -153,36 +157,39 @@ function *pingSocket(/* websocket */) {
   try {
     yield take(SOCKET_OPENED);
 
+    // Wait 1 second after socket has opened before starting to ping.
+    yield delayedResolve(1 * 1000);
+
     const pingActive = true;
     while (pingActive) {
-      // Wait 3 seconds before initial and between subsequent ping transmissions.
-      yield delayedResolve(3 * 1000);
-
       const pingFrame = (Math.random() * 0xffffffff) | 0;
       yield put(actionCreators.sendPing(pingFrame));
 
-      let level = 5;
-      while (level > -5) {
-        yield put(actionCreators.setPingInfo(`${level}`));
+      let level = 0;
+      while (level < 10) {
+        yield put(actionCreators.setPingInfo(level));
         const { pong } = yield race({
           pong: take(PONG_RECV),
-          timeout: delayedResolve(200)
+          timeout: delayedResolve(100)
         });
         if (pong) {
           // Check for identical pingFrame.
           if (pingFrame === pong.args) {
-            console.log(`@! pong !@ ${pingFrame} ${level}`);
+//            console.log(`@! pong !@ ${pingFrame} ${level}`);
             break;
           }
         } else {
-          level = level - 1;
+          level = level + 1;
         }
       }
-      if (level <= -5) {
-        console.error('!!! PING TIMEOUT !!!', level);
+      if (level >= 10) {
+        console.warn('!!! PING TIMEOUT !!!', level);
       }
 
-      yield put(actionCreators.setPingInfo(`${level}`));
+      yield put(actionCreators.setPingInfo(level));
+
+      // Wait 3 seconds between subsequent ping transmissions.
+      yield delayedResolve(3 * 1000);
     }
   } catch (error) {
     if (!isCancelError(error)) {
@@ -204,6 +211,7 @@ function* rootSaga() {
       yield take(OPEN_SOCKET);
       console.log('::: OPEN_SOCKET');
     }
+    yield put(actionCreators.setSocketStatus('opening'));
 
     const endpoint = endpointFromWindowLocation(window.location);
     console.log(`:::: WS connecting to endpoint ${endpoint}`);
@@ -230,9 +238,6 @@ function* rootSaga() {
       socket.close();
     }
 
-    // TODO: Dispatch socket status according to winner.
-    yield put(actionCreators.setSocketStatus('closed'));
-
     // Cancel fetch, send & ping.
     console.log('cancelling socket ping');
     yield cancel(pingTask);
@@ -242,6 +247,10 @@ function* rootSaga() {
 
     console.log('cancelling socket send');
     yield cancel(sendTask);
+
+    // Update socket & ping status.
+    yield put(actionCreators.setSocketStatus('closed'));
+    yield put(actionCreators.setPingInfo(-1));
 
     // If socket closed or errored then await new open request, i.e. from direct user intervention.
     awaitOpen = !winner.open;
@@ -255,19 +264,20 @@ const actions = {
 };
 
 const reducers = {
-  pingInfo(state = '?', action) {
+  pingInfo(state = -1, action) {
     switch (action.type) {
       case SET_PING_INFO:
-        return action.info || state;
+//        console.log(action);
+        return action.info;
       default:
         return state;
     }
   },
-  socketStatus(state = '?', action) {
+  socketStatus(state = 'unknown', action) {
     switch (action.type) {
       case SET_SOCKET_STATUS:
-        console.log(SET_SOCKET_STATUS, action);
-        return action.status || state;
+//        console.log(action);
+        return action.status;
       default:
         return state;
     }
