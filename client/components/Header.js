@@ -1,14 +1,6 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 
-const pingBarStyle = {
-  height: 1,
-  marginBottom: 3,
-  marginLeft: 2,
-  backgroundColor: '#fff',
-  display: 'inline-block'
-};
-
 const connectedStates = {
   open: true,
   opening: true
@@ -66,15 +58,16 @@ class Header extends React.Component {
                       null :
                       (<a className='reconnect' onClick={::this.reconnect}>reconnect</a>);
     return (
-      <div className={socketStatus}>
+      <span className={`header ${socketStatus}`}>
         <span className='status'>
           {status}
         </span>
-        <span className={'ping ' + pingColour}>
+        <span className={`ping ${pingColour}`}>
           {pingSymbol}
         </span>
         {reconnect}
-      </div>
+        <h1>[beep]spurter</h1>
+      </span>
     );
   }
 }

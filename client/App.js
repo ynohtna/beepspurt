@@ -20,18 +20,26 @@ class App extends React.Component {
       <section style={{ ...flexChild, ...columnParent, ...flexContainer }}>
         <header style={{ ...flexChild, ...flexNone, ...narrowStyle }}>
           <Header />
+          <Master />
         </header>
         <section style={{ ...flexChild, ...rowParent }}>
-          <div style={{ ...flexChild, backgroundColor: '#112' }}>
+
+          <div className='left-panel'
+               style={{ ...flexChild, backgroundColor: '#112' }}>
             <WordEditor />
           </div>
-          <section style={{ ...flexChild, ...columnParent }}>
-            <div style={{ ...flexChild, ...flexNone, backgroundColor: '#112' }}>
-              <Master />
+
+          <section className='right-panel'
+              style={{ ...flexChild, ...columnParent }}>
+            <div className='master-panel'
+                 style={{ ...flexChild, ...flexNone, backgroundColor: '#112' }}>
             </div>
-            <div style={{ ...flexChild, ...flexAll, backgroundColor: '#211' }}>
+
+            <div className='word-list-panel'
+                 style={{ ...flexChild, ...flexAll, backgroundColor: '#211' }}>
               <WordList />
             </div>
+
             <section style={{ ...flexChild, ...rowParent, ...flexNone }}>
               <div style={{ ...flexChild }}>
                 LFO {'>'} OPACITY
@@ -43,7 +51,6 @@ class App extends React.Component {
           </section>
         </section>
         <footer style={{ ...flexChild, ...flexNone, ...narrowStyle }}>
-          FOOTER
         </footer>
       </section>
     );

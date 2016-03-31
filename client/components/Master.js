@@ -10,11 +10,11 @@ class Master extends React.Component {
 
   render() {
     return (
-      <div>
+      <span className='master'>
         <button>off</button>
         <button>play</button>
         <button>pause</button>
-      </div>
+      </span>
     );
   }
 }
