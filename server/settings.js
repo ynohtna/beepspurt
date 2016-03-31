@@ -18,7 +18,7 @@ const appServer = onDevelopment => ({
         default: onDevelopment ? 'index.html' : 'index.min.html',
         directory: './dist',
         maxAge: onDevelopment ? 0 : (60 * 60)
-      },
+      }
     }
   }
 });
