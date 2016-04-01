@@ -13,6 +13,32 @@ const narrowStyle = {
   fontSize: '110%'
 };
 
+const LeftPanel = () => (
+  <div className='left-panel'
+       style={{ ...flexChild }}>
+    <WordEditor />
+  </div>
+);
+
+const RightPanel = () => (
+  <section className='right-panel'
+           style={{ ...flexChild, ...columnParent }}>
+    <div className='word-list-panel'
+         style={{ ...flexChild, ...flexAll, overflowY: 'scroll' }}>
+      <WordList />
+    </div>
+
+    <section style={{ ...flexChild, ...rowParent, ...flexNone }}>
+      <div style={{ ...flexChild }}>
+        <h2>LFO {'>'} OPACITY</h2>
+      </div>
+      <div style={{ ...flexChild }}>
+        <h2>SEQUENCER</h2>
+      </div>
+    </section>
+  </section>
+);
+
 @provide
 class App extends React.Component {
   render() {
@@ -22,34 +48,12 @@ class App extends React.Component {
           <Header />
           <Master />
         </header>
+
         <section style={{ ...flexChild, ...rowParent }}>
-
-          <div className='left-panel'
-               style={{ ...flexChild, backgroundColor: '#112' }}>
-            <WordEditor />
-          </div>
-
-          <section className='right-panel'
-              style={{ ...flexChild, ...columnParent }}>
-            <div className='master-panel'
-                 style={{ ...flexChild, ...flexNone, backgroundColor: '#112' }}>
-            </div>
-
-            <div className='word-list-panel'
-                 style={{ ...flexChild, ...flexAll, backgroundColor: '#211' }}>
-              <WordList />
-            </div>
-
-            <section style={{ ...flexChild, ...rowParent, ...flexNone }}>
-              <div style={{ ...flexChild }}>
-                LFO {'>'} OPACITY
-              </div>
-              <div style={{ ...flexChild, backgroundColor: '#211' }}>
-                SEQUENCER
-              </div>
-            </section>
-          </section>
+          <LeftPanel />
+          <RightPanel />
         </section>
+
         <footer style={{ ...flexChild, ...flexNone, ...narrowStyle }}>
         </footer>
       </section>
