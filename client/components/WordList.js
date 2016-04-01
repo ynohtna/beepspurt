@@ -3,12 +3,26 @@ import provide from 'react-redux-provide';
 import { columnParent, rowParent, flexContainer, flexChild, flexNone } from '../flexStyles';
 
 const WordEntry = props => {
+  const { index } = props;
+  const maybeDel = props.canDel ? (
+    <span className='del action flex-none'
+          onClick={() => props.onDel(index)}>
+      del
+    </span>
+  ) : null;
   return (
     <div className='word-entry'
-         style={{ ...flexChild, ...flexNone, ...flexContainer, ...rowParent }}>
+         style={{ ...flexNone, ...rowParent }}>
       <span className='edit action flex-none'>edit</span>
       <span className='word flex-auto'>{props.message}</span>
-      <span className='dup action flex-none'>dup</span>
+
+      {maybeDel}
+
+      <span className='dup action flex-none'
+            onClick={() => props.onDup(index)}>
+        dup
+      </span>
+
       <span className='swappers flex-none'>
         <span className='swapper up'>{'\u25b2'}</span>
         <span className='swapper down'>{'\u25bc'}</span>
@@ -20,12 +34,25 @@ const WordEntry = props => {
 @provide
 class WordList extends React.Component {
   static propTypes = {
-    wordList: PropTypes.array.isRequired
+    wordList: PropTypes.array.isRequired,
+    delWord: PropTypes.func.isRequired,
+    dupWord: PropTypes.func.isRequired
   };
 
+  onDup(index) {
+    this.props.dupWord(index);
+  }
+
+  onDel(index) {
+    this.props.delWord(index);
+  }
+
   renderWords(words) {
-    return words.map((entry, index) => (
-      <WordEntry key={index} { ...entry } />
+    return words.map((entry, index, array) => (
+      <WordEntry key={index} { ...entry } index={index}
+                 onDup={::this.onDup}
+                 onDel={::this.onDel}
+                 canDel={array.length !== 1}/>
     ));
   }
 
@@ -33,8 +60,7 @@ class WordList extends React.Component {
     const words = this.renderWords(this.props.wordList);
     return (
       <section className='word-list'
-               style={{ ...flexContainer, ...columnParent,
-                        overflowY: 'scroll' }}>
+               style={{ ...flexContainer, ...columnParent }}>
         {words}
       </section>
     );
