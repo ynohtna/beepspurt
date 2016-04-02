@@ -11,14 +11,19 @@
     <meta name="HandheldFriendly" content="True" />
     <script src="react-with-addons-0.14.7.js"></script>
     <script src="react-dom-0.14.7.js"></script>
+    <script src='fastclick.min.js'></script>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <div id="app"></div>
     <script>
+     document.addEventListener('DOMContentLoaded', function() {
+       var attachFastClick = Origami.fastclick;
+       attachFastClick(document.body);
+     }, false);
      document.body.addEventListener('touchmove', function(evt) {
        if(!evt._isScroller) {
-         evt.preventDefault()
+//         evt.preventDefault()
        }
      });
     </script>

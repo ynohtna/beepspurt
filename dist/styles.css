@@ -1,12 +1,45 @@
+/*
+ Minified CSS reset from https://github.com/murtaugh/HTML5-Reset/blob/master/assets/css/reset.css
+*/
+a,hr{padding:0}a,button,input,select,textarea{margin:0}article,aside,details,figure,footer,header,hr,nav,section,summary{display:block}abbr,address,article,aside,audio,b,blockquote,body,body div,caption,cite,code,dd,del,details,dfn,dl,dt,em,fieldset,figure,footer,form,h1,h2,h3,h4,h5,h6,header,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,p,pre,q,samp,section,small,span,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,ul,var,video{margin:0;padding:0;border:0;font-size:100%;font-weight:400;vertical-align:baseline;background:0 0}input[type=checkbox],th{vertical-align:bottom}html{box-sizing:border-box;overflow-y:scroll}*,:after,:before{box-sizing:inherit}embed,img,object{max-width:100%}ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:'';content:none}a{font-size:100%;vertical-align:baseline;background:0 0}del{text-decoration:line-through}abbr[title],dfn[title]{border-bottom:1px dotted #000;cursor:help}th{font-weight:700}td{font-weight:400;vertical-align:top}hr{height:1px;border:0;border-top:1px solid #ccc;margin:1em 0}input,select{vertical-align:middle}pre{white-space:pre;white-space:pre-wrap;white-space:pre-line;word-wrap:break-word}input[type=radio]{vertical-align:text-bottom}.ie7 input[type=checkbox]{vertical-align:baseline}.ie6 input{vertical-align:text-bottom}input,select,textarea{font:99% sans-serif}table{border-collapse:separate;border-spacing:0;font:100%}small{font-size:85%}strong{font-weight:700}td,td img{vertical-align:top}sub,sup{font-size:75%;line-height:0;position:relative}sup{top:-.5em}sub{bottom:-.25em}code,kbd,pre,samp{font-family:monospace,sans-serif}.clickable,button,input[type=button],input[type=file],input[type=submit],label{cursor:pointer}button,input[type=button]{width:auto;overflow:visible}.ie7 img{-ms-interpolation-mode:bicubic}.clearfix:after{content:" ";display:block;clear:both}
+
+/* -------------------- */
 html, body {
     height: 100%;
     width: 100%;
     margin: 0;
 }
 body {
-    font-family: Monaco, san-serif;
-    font-size: 100%;
+    font-family: Menlo, sans-serif;
+    font-size: 120%;
 }
+
+a {
+    cursor: pointer;
+}
+
+button {
+    font-size: 90%;
+    text-shadow: none;
+    box-shadow: none;
+    border: none;
+    outline: none;
+}
+
+h1 {
+    display: inline-block;
+    margin: 0 0.5rem;
+    color: white;
+}
+h2 {
+    color: grey;
+}
+
+input[type='checkbox'] {
+    margin: 0 8px 3px 0;
+}
+
+/* -------------------- */
 #app {
     height: 100%;
     width: 100%;
@@ -14,6 +47,181 @@ body {
     color: #ffe;
 }
 
+.left-panel {
+    padding: 0 12px 8px 8px;
+    margin-top: 8px;
+    border-right: 1px solid grey;
+}
+.right-panel {
+    padding: 0 8px 8px 12px;
+}
+.word-list-panel {
+    padding: 8px 8px 0 0;
+    border-bottom: 1px solid grey;
+    margin-bottom: 12px;
+}
+
+/* -------------------- */
+.round-button {
+    height: 2rem;
+    margin: 0.5rem;
+    padding: 0.2rem 1rem;
+    color: black;
+    background: #eee;
+    border-radius: 16px;
+    outline: none;
+}
+
+/* -------------------- */
+.notify {
+    color: gold;
+}
+.warning {
+    color: orange;
+}
+.danger {
+    color: crimson;
+}
+
+.flex-auto {
+    flex: 1 1 auto;
+}
+.flex-none {
+    flex: 0 0 auto;
+}
+
+/* ---- HEADER ---- */
+header {
+    margin: 4px 8px 0;
+    height: 1.6rem;
+    font-size: 110%;
+}
+header .ping {
+    font-size: 90%;
+    margin-left: 4px;
+}
+header a {
+    position: relative;
+    top: -2px;
+    margin-left: 6px;
+    font-size: 65%;
+    text-decoration: underline;
+}
+
+header .unknown {
+    color: purple;
+}
+header .open {
+    color: #7d9;
+}
+header .error {
+    color: crimson;
+}
+header .closed {
+    color: burlywood;
+}
+
+header .reload {
+    margin: 0 0.5rem;
+    color: #4a6;
+}
+
+/* ---- FOOTER ---- */
+footer {
+    height: 1rem;
+    font-size: 50%;
+}
+
+/* ---- MASTER ---- */
+.master button {
+    padding: 2px 1.2rem;
+    margin: 0 0.6rem;
+    font-size: 80%;
+    background-color: #333;
+    color: silver;
+    border-radius: 6px;
+    outline: none;
+    border: 2px solid transparent;
+}
+.master button:hover {
+    color: white;
+    background-color: #666;
+}
+.master button.active {
+    color: #eee;
+    border: 2px solid sandybrown;
+}
+
+/* ---- WORD EDITOR ---- */
+.clear-link {
+    margin: 0 1rem;
+    font-size: 85%;
+    color: grey;
+    cursor: pointer;
+}
+
+.auto-send {
+    margin: 1.5rem 0 0.2rem 1rem;
+    font-size: 85%;
+    color: grey;
+}
+
+/* ---- WORD LIST ---- */
+.word-list {
+    display: block;
+}
+.word-entry {
+    padding: 1px;
+    margin-bottom: 3px;
+    border: 1px solid grey;
+    border-radius: 1px;
+    justifyContent: center;
+    position: relative;
+}
+.word-activator {
+    background-color: #333;
+    border-radius: 2px;
+    cursor: pointer;
+}
+.activated .word-activator {
+    background-color: #363;
+}
+.word-entry .word {
+    padding: 1px 1rem;
+}
+.word-entry .action {
+    padding: 1px 0 0;
+    margin: 4px 0.8rem;
+    font-size: 80%;
+    color: sandybrown;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.word-entry .action.editting {
+    color: greenyellow;
+}
+.word-entry .sigil {
+    position: absolute;
+    left: -3px;
+    top: 3px;
+    font-size: 94%;
+    color: greenyellow;
+}
+
+.swappers {
+    color: salmon;
+    margin: 1px 0.8rem 0 0.3rem;
+}
+.swappers .swapper {
+    margin: 0 0.4rem;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* ---- iPad styles ---- */
 @media screen and
 (device-width: 768px) and
 (device-height: 1024px) and
@@ -26,5 +234,19 @@ body {
     }
     button {
         font-size: 80%;
+    }
+    header {
+        margin-bottom: 20px;
+    }
+    .word-editor {
+        margin-bottom: 1rem;
+    }
+    .clear-link,
+    .auto-send {
+        font-size: 90%;
+        margin-bottom: 0.8rem;
+    }
+    .right-panel {
+        padding-right: 0;
     }
 }
