@@ -15,15 +15,11 @@ const defaultWordEditorState = {
 const reducers = {
   editor: (state = defaultWordEditorState, action) => {
     switch (action.type) {
-      case '/wordEditor/MERGE': {
-        const s = {
+      case '/wordEditor/MERGE':
+        return {
           ...state,
           ...action.payload
         };
-        console.log('MERGE', state, action);
-        console.log(s);
-        return s;
-      }
       case '/wordEditor/MESSAGE':
         return {
           ...state,
@@ -40,15 +36,7 @@ const reducers = {
   }
 };
 
-const middleware = store => next => action => {
-  console.log('WORD EDITOR', store.getState(), action);  // eslint-disable-line no-console
-  return (typeof action === 'function') ?	// thunk!
-         action(store.dispatch, store.getState) :
-         next(action);
-};
-
 export default {
   actions,
-  middleware,
   reducers
 };

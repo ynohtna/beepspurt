@@ -1,3 +1,4 @@
+/*
 // CLIENT PROVIDER!
 const RENDERER_STATE = '/renderer/MERGE_STATE';
 
@@ -27,3 +28,4 @@ const reducers = {
 export default {
   reducers
 };
+*/

@@ -28,7 +28,7 @@ const defaultWordList = [{
 
 const dup = (list, index) => {
   if (index < 0 || index >= list.length) {
-    console.warn(`Bad dup index ${index} for`, list);
+    console.warn(`Bad dup index ${index} for`, list); // eslint-disable-line no-console
     return list;
   }
   return [
@@ -41,7 +41,7 @@ const dup = (list, index) => {
 
 const del = (list, index) => {
   if (index < 0 || index >= list.length || list.length === 1) {
-    console.warn(`Bad del request at index ${index} for`, list);
+    console.warn(`Bad del request at index ${index} for`, list); // eslint-disable-line no-console
     return list;
   }
   return [
@@ -53,7 +53,8 @@ const del = (list, index) => {
 const nudge = (list, index, dir = 1) => {
   const dest = index + dir;
   if (index < 0 || index >= list.length || dest < 0 || dest >= list.length) {
-    console.warn(`Bad nudge request at ${index} & ${dest} for`, list, index, dir);
+    console.warn(`Bad nudge request at ${index} & ${dest} for`, // eslint-disable-line no-console
+                 list, index, dir);
     return list;
   }
   const l = list.slice();
@@ -114,17 +115,7 @@ const reducers = {
   }
 };
 
-/*
-const middleware = store => next => action => {
-  console.log('wordList MIDDLEWARE', store.getState(), action);  // eslint-disable-line no-console
-  return (typeof action === 'function') ?	// thunk!
-         action(store.dispatch, store.getState) :
-         next(action);
-};
-*/
-
 export default {
   actions,
-//  middleware,
   reducers
 };

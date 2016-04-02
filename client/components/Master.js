@@ -10,12 +10,12 @@ class Master extends React.Component {
   };
 
   stateChange(state) {
-    console.log('Master stateChange request', state);
+//    console.log('Master stateChange request', state);
     this.props.sendSocket('/renderer/STATE', state);
   }
 
   render() {
-    console.log('Master', this.props.masterState);
+//    console.log('Master', this.props.masterState);
     const { state } = this.props.masterState;
     const activeOff = (state === 'off') ? 'active' : null;
     const activeRun = (state === 'run') ? 'active' : null;
