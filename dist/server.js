@@ -883,7 +883,7 @@ $__System.registerDynamic("d", ["c"], true, function($__require, exports, module
 });
 
 $__System.register('e', ['f'], function (_export) {
-  var _extends, defaultRendererState, rendererState;
+  var _extends, defaultRendererState, validStates, rendererState;
 
   return {
     setters: [function (_f) {
@@ -900,15 +900,21 @@ $__System.register('e', ['f'], function (_export) {
         beatInterval: 1000,
         state: 'run' // 'pause', 'off'
       };
+      validStates = {
+        run: true,
+        pause: true,
+        off: true
+      };
 
       rendererState = function rendererState(state, action) {
         if (state === undefined) state = defaultRendererState;
 
         switch (action.type) {
           case '/renderer/STATE':
-            return _extends({}, state, {
+            //      console.log('**** /renderer/STATE', action);
+            return action.payload in validStates ? _extends({}, state, {
               state: action.payload
-            });
+            }) : state;
           case '/renderer/FRAME_BOUNDS':
             return _extends({}, state, {
               width: action.payload.width,
@@ -939,11 +945,13 @@ $__System.register('10', ['f'], function (_export) {
       _extends = _f['default'];
     }],
     execute: function () {
+      // SERVER IMPLEMENTATION! TODO: Share with client-side.
+
       'use strict';
 
       defaultVarsState = {
         message: '[beep]',
-        fontFamily: 'Roboto',
+        fontFamily: 'Rockwell',
         colour: [255, 255, 255, 255]
       };
 
@@ -951,9 +959,15 @@ $__System.register('10', ['f'], function (_export) {
         if (state === undefined) state = defaultVarsState;
 
         switch (action.type) {
+          case '/spurter/MERGE':
+            return _extends({}, state, action.payload);
           case '/spurter/MESSAGE':
             return _extends({}, state, {
               message: action.payload
+            });
+          case '/spurter/FONT_FAMILY':
+            return _extends({}, state, {
+              fontFamily: action.payload
             });
           case '/spurter/COLOUR':
             return _extends({}, state, {
@@ -999,8 +1013,8 @@ $__System.register('12', ['11', 'd'], function (_export) {
       createReduxStore = _d.createStore;
     }],
     execute: function () {
-      createStore = function createStore(middleware) {
-        var store = createReduxStore(combineReducers(reducers), applyMiddleware(middleware));
+      createStore = function createStore() {
+        var store = createReduxStore(combineReducers(reducers), applyMiddleware.apply(undefined, arguments));
         var dispatch = function dispatch(type) {
           var payload = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
           return store.dispatch({ type: type, payload: payload });
@@ -58094,8 +58108,39 @@ $__System.register('28', ['29', '2b'], function (_export) {
     }
   };
 });
-$__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4'], function (_export) {
-  var cancellablePromise, effects, isCancelError, restifyPlugins, _regeneratorRuntime, _Promise, _Object$keys, restify, Watershed, createHash, marked0$0, call, cancel, fork, race, put, take, SERVER_STARTED, SERVER_STOPPED, CLIENT_CONNECTED, CLIENT_UPGRADED, SERVER_ERROR, START_SERVER, STOP_SERVER, SERVER_SEND, toJS, serveApi, serverSource, mungeArgs, dispatchHandler, handlers, createServer;
+$__System.register('24a', [], function (_export) {
+  // FIXME: Reference from serverSaga or, better, collated actions module.
+  'use strict';
+
+  var SERVER_SEND, selectors;
+  return {
+    setters: [],
+    execute: function () {
+      SERVER_SEND = '/server/SEND';
+      selectors = [{
+        selector: function selector(state) {
+          return state.rendererState.state;
+        },
+        memo: function memo(state) {
+          return '' + state;
+        },
+        action: function action(state) {
+          return {
+            type: SERVER_SEND,
+            addr: '/renderer/STATE',
+            args: {
+              state: state
+            }
+          };
+        }
+      }];
+
+      _export('default', selectors);
+    }
+  };
+});
+$__System.register('24b', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4', '24a'], function (_export) {
+  var cancellablePromise, effects, isCancelError, restifyPlugins, _regeneratorRuntime, _Promise, _Object$keys, restify, Watershed, createHash, selectors, marked0$0, call, cancel, fork, race, put, select, take, SERVER_STARTED, SERVER_STOPPED, CLIENT_CONNECTED, CLIENT_UPGRADED, SERVER_ERROR, START_SERVER, STOP_SERVER, SERVER_SEND, UPDATE_CLIENTS, toJS, dontLog, serveApi, serverSource, mungeArgs, dispatchHandler, handlers, memos, createServer;
 
   function serveRequests(source) {
     var req, action;
@@ -58114,13 +58159,15 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
 
         case 5:
           if (!req) {
-            context$1$0.next = 21;
+            context$1$0.next = 20;
             break;
           }
 
           action = undefined;
 
-          console.log('**** request', req);
+          if (!req.addr || !(req.addr in dontLog)) {
+            console.log('**** request', req);
+          }
           if (req.addr && req.addr in handlers) {
             action = handlers[req.addr](req);
             //        console.log('.... handled action:=', action);
@@ -58131,51 +58178,161 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
             }
 
           if (!action) {
-            context$1$0.next = 15;
+            context$1$0.next = 14;
             break;
           }
 
-          console.log('>>>>', action);
-          context$1$0.next = 13;
+          context$1$0.next = 12;
           return put(action);
 
-        case 13:
-          context$1$0.next = 16;
+        case 12:
+          context$1$0.next = 15;
           break;
 
-        case 15:
+        case 14:
           console.log('^^^^ NO ACTION ^^^^\n');
 
-        case 16:
-          context$1$0.next = 18;
+        case 15:
+          context$1$0.next = 17;
           return call(source.nextRequest);
 
-        case 18:
+        case 17:
           req = context$1$0.sent;
           context$1$0.next = 5;
           break;
 
-        case 21:
-          context$1$0.next = 26;
+        case 20:
+          context$1$0.next = 25;
           break;
 
-        case 23:
-          context$1$0.prev = 23;
+        case 22:
+          context$1$0.prev = 22;
           context$1$0.t0 = context$1$0['catch'](0);
 
           if (!isCancelError(context$1$0.t0)) {
             console.error('* serveRequests error', context$1$0.t0);
           }
 
-        case 26:
+        case 25:
         case 'end':
           return context$1$0.stop();
       }
-    }, marked0$0[0], this, [[0, 23]]);
+    }, marked0$0[0], this, [[0, 22]]);
+  }
+
+  function sendMessage(server, msg) {
+    var addr, id, args, wsc, packet, i, client;
+    return _regeneratorRuntime.wrap(function sendMessage$(context$1$0) {
+      while (1) switch (context$1$0.prev = context$1$0.next) {
+        case 0:
+          addr = msg.addr;
+          id = msg.id;
+          args = msg.args;
+
+          if (!id) {
+            context$1$0.next = 8;
+            break;
+          }
+
+          wsc = id in server._wsc && server._wsc[id];
+
+          if (wsc) {
+            packet = JSON.stringify({ addr: addr, args: args });
+
+            wsc.send(packet);
+            if (!(addr in dontLog)) {
+              console.log('--->', packet);
+            }
+          } else {
+            console.error('!!!! SERVER_SEND request on DEAD CHANNEL', id, server._wsc);
+          }
+          context$1$0.next = 19;
+          break;
+
+        case 8:
+          if (!server._wsc) {
+            context$1$0.next = 19;
+            break;
+          }
+
+          packet = JSON.stringify({ addr: addr, args: args });
+          context$1$0.t0 = _regeneratorRuntime.keys(server._wsc);
+
+        case 11:
+          if ((context$1$0.t1 = context$1$0.t0()).done) {
+            context$1$0.next = 19;
+            break;
+          }
+
+          i = context$1$0.t1.value;
+
+          if (server._wsc.hasOwnProperty(i)) {
+            context$1$0.next = 15;
+            break;
+          }
+
+          return context$1$0.abrupt('continue', 11);
+
+        case 15:
+          client = server._wsc[i];
+
+          if (client) {
+            console.log('[-=>', packet, i);
+            client.send(packet);
+          }
+          context$1$0.next = 11;
+          break;
+
+        case 19:
+        case 'end':
+          return context$1$0.stop();
+      }
+    }, marked0$0[1], this);
+  }
+
+  function updateSelector(_ref3, i) {
+    var selector = _ref3.selector;
+    var memo = _ref3.memo;
+    var action = _ref3.action;
+    var state, lastMemo, newMemo, act;
+    return _regeneratorRuntime.wrap(function updateSelector$(context$1$0) {
+      while (1) switch (context$1$0.prev = context$1$0.next) {
+        case 0:
+          context$1$0.next = 2;
+          return select(selector);
+
+        case 2:
+          state = context$1$0.sent;
+          lastMemo = memos[i];
+          newMemo = memo && memo(state);
+
+          if (!(lastMemo !== newMemo)) {
+            context$1$0.next = 11;
+            break;
+          }
+
+          act = action(state);
+
+          if (!act) {
+            context$1$0.next = 10;
+            break;
+          }
+
+          context$1$0.next = 10;
+          return put(act);
+
+        case 10:
+          memos[i] = newMemo;
+
+        case 11:
+        case 'end':
+          return context$1$0.stop();
+      }
+    }, marked0$0[2], this);
   }
 
   function sendMessages(server) {
-    var send, msg, addr, id, args, wsc, packet;
+    var send, msg, i;
     return _regeneratorRuntime.wrap(function sendMessages$(context$1$0) {
       while (1) switch (context$1$0.prev = context$1$0.next) {
         case 0:
@@ -58188,53 +58345,88 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
 
         case 4:
           if (!send) {
-            context$1$0.next = 14;
+            context$1$0.next = 26;
             break;
           }
 
           context$1$0.next = 7;
-          return take(SERVER_SEND);
+          return race({
+            send: take(SERVER_SEND),
+            update: take(UPDATE_CLIENTS),
+            upgraded: take(CLIENT_UPGRADED)
+          });
 
         case 7:
           msg = context$1$0.sent;
-          addr = msg.addr;
-          id = msg.id;
-          args = msg.args;
 
-          if (id) {
-            wsc = id in server._wsc && server._wsc[id];
-
-            if (wsc) {
-              packet = JSON.stringify({ addr: addr, args: args });
-
-              wsc.send(packet);
-              console.log('--->', packet);
-            } else {
-              console.error('!!!! SERVER_SEND request on DEAD CHANNEL', id, server._wsc);
-            }
-          } else {
-            console.log('* <-', addr, args);
+          if (!msg.send) {
+            context$1$0.next = 13;
+            break;
           }
+
+          context$1$0.next = 11;
+          return fork(sendMessage, server, msg.send);
+
+        case 11:
+          context$1$0.next = 24;
+          break;
+
+        case 13:
+          if (!msg.update) {
+            context$1$0.next = 23;
+            break;
+          }
+
+          i = 0;
+
+        case 15:
+          if (!(i < selectors.length)) {
+            context$1$0.next = 21;
+            break;
+          }
+
+          context$1$0.next = 18;
+          return fork(updateSelector, selectors[i], i);
+
+        case 18:
+          ++i;
+          context$1$0.next = 15;
+          break;
+
+        case 21:
+          context$1$0.next = 24;
+          break;
+
+        case 23:
+          if (msg.upgraded) {
+            // Clear out all memos so all clients get updates.
+            console.log('\n- UPGRADED - MEMO CLEAR -\n        ');
+            memos = [];
+          } else {
+            console.error(' how we got here?!!! ', msg);
+          }
+
+        case 24:
           context$1$0.next = 4;
           break;
 
-        case 14:
-          context$1$0.next = 19;
+        case 26:
+          context$1$0.next = 31;
           break;
 
-        case 16:
-          context$1$0.prev = 16;
+        case 28:
+          context$1$0.prev = 28;
           context$1$0.t0 = context$1$0['catch'](0);
 
           if (!isCancelError(context$1$0.t0)) {
             console.error('*sendMessages error', context$1$0.t0);
           }
 
-        case 19:
+        case 31:
         case 'end':
           return context$1$0.stop();
       }
-    }, marked0$0[1], this, [[0, 16]]);
+    }, marked0$0[3], this, [[0, 28]]);
   }
 
   function serverSaga() {
@@ -58294,9 +58486,9 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
           port = config.port || 9336;
 
           if (hostname === '127.0.0.1' || hostname === 'localhost') {
-            console.warn('---- **** SERVER LISTENING on LOCALHOST ONLY **** ' + hostname + ' ----');
+            console.warn('\n---- **** SERVER LISTENING on LOCALHOST ONLY **** ' + hostname + ' ----\n');
           } else if (hostname === '0.0.0.0') {
-            console.warn('---- **** SERVER LISTENING on ALL INTERFACES **** ----');
+            console.warn('\n---- **** SERVER LISTENING on ALL INTERFACES **** ----\n');
           }
           server.listen(port, hostname, function () {
             return server.emit('opened');
@@ -58347,7 +58539,7 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
         case 'end':
           return context$1$0.stop();
       }
-    }, marked0$0[2], this);
+    }, marked0$0[4], this);
   }
   return {
     setters: [function (_3) {
@@ -58369,6 +58561,8 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
       Watershed = _a2.Watershed;
     }, function (_c4) {
       createHash = _c4.createHash;
+    }, function (_a3) {
+      selectors = _a3['default'];
     }],
     execute: function () {
       /* eslint-disable no-console */
@@ -58377,12 +58571,13 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
       // Server notifications.
       'use strict';
 
-      marked0$0 = [serveRequests, sendMessages, serverSaga].map(_regeneratorRuntime.mark);
+      marked0$0 = [serveRequests, sendMessage, updateSelector, sendMessages, serverSaga].map(_regeneratorRuntime.mark);
       call = effects.call;
       cancel = effects.cancel;
       fork = effects.fork;
       race = effects.race;
       put = effects.put;
+      select = effects.select;
       take = effects.take;
       SERVER_STARTED = '/server/STARTED';
       SERVER_STOPPED = '/server/STOPPED';
@@ -58394,9 +58589,16 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
       START_SERVER = '/server/START';
       STOP_SERVER = '/server/STOP';
       SERVER_SEND = '/server/SEND';
+      UPDATE_CLIENTS = '/server/UPDATE_CLIENTS';
 
       toJS = function toJS(obj) {
         return JSON.stringify(obj);
+      };
+
+      dontLog = {
+        '/renderer/STATE': true,
+        '/ping': true,
+        '/pong': true
       };
 
       serveApi = function serveApi(req, res) {
@@ -58444,18 +58646,21 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
             return resolve(ex);
           }
           wsc.on('text', function (text) {
-            console.log('>>>> socket:text', text);
             var action = 'badmsg: ' + text;
             try {
               action = JSON.parse(text);
+              if (!(action.addr in dontLog)) {
+                console.log('>>>> socket:text', text, action);
+              }
             } catch (ex) {
+              console.error('>>>> ---- >>>> socket:text', text);
               console.error(text, ex);
             }
             resolve(action);
           });
           wsc.on('end', function (code, reason) {
+            console.log('---- socket:end [code, reason, remote]', code, reason, wsc._remote);
             server._wsc[id] = null;
-            console.log('---- socket:end', code, reason, server._wsc);
           });
           if (id) {
             wsc.send(JSON.stringify({ addr: '*HIHO*', id: id }));
@@ -58502,7 +58707,11 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
       };
 
       handlers = {
+        '/renderer/STATE': dispatchHandler,
+        '/spurter/MERGE': dispatchHandler,
         '/spurter/MESSAGE': dispatchHandler,
+        '/spurter/FONT_FAMILY': dispatchHandler,
+        '/spurter/COLOUR': dispatchHandler,
         '/ping': function ping(_ref2) {
           var args = _ref2.args;
           var id = _ref2.id;
@@ -58514,6 +58723,7 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
         connected: { type: CLIENT_CONNECTED },
         upgraded: { type: CLIENT_UPGRADED }
       };
+      memos = [];
 
       createServer = function createServer(config) {
         console.log('* createServer', config, '\n');
@@ -58545,21 +58755,33 @@ $__System.register('24a', ['28', '29', '167', '2a', '2b', '4d', 'd3', '17a', 'c4
   };
 });
 
+//        console.log('>>>>', action);
+
+//    console.log(' :: --==>', server._wsc);
+
+//      console.log(' :: --==>', i);
+
+//  console.log('up', state, lastMemo, newMemo);
+
+//    console.log('\n~~~ selector update ~~~\n', state, act);
+
+// Update clients with pieces of state as required.
+
 // Server always tries to start up.
 // Await user-initiated start server request.
 
-// Fork server handling.
+// Fork server request handling.
 
 // Race: didStop, stop, error, start.
-$__System.register('24b', ['27', '24a'], function (_export) {
+$__System.register('24c', ['27', '24b'], function (_export) {
   'use strict';
 
   var oscSaga, serverSaga;
   return {
     setters: [function (_) {
       oscSaga = _['default'];
-    }, function (_a) {
-      serverSaga = _a['default'];
+    }, function (_b) {
+      serverSaga = _b['default'];
     }],
     execute: function () {
       _export('oscSaga', oscSaga);
@@ -58611,7 +58833,7 @@ $__System.registerDynamic("22b", ["239", "3b", "226", "41"], true, function($__r
   return module.exports;
 });
 
-$__System.registerDynamic("24c", ["3c", "22b", "41"], true, function($__require, exports, module) {
+$__System.registerDynamic("24d", ["3c", "22b", "41"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -58628,32 +58850,32 @@ $__System.registerDynamic("24c", ["3c", "22b", "41"], true, function($__require,
   return module.exports;
 });
 
-$__System.registerDynamic("24d", ["23c", "23b", "24c"], true, function($__require, exports, module) {
+$__System.registerDynamic("24e", ["23c", "23b", "24d"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
   $__require('23c');
   $__require('23b');
-  module.exports = $__require('24c');
+  module.exports = $__require('24d');
   global.define = __define;
   return module.exports;
 });
 
-$__System.registerDynamic("24e", ["24d"], true, function($__require, exports, module) {
+$__System.registerDynamic("24f", ["24e"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
   module.exports = {
-    "default": $__require('24d'),
+    "default": $__require('24e'),
     __esModule: true
   };
   global.define = __define;
   return module.exports;
 });
 
-$__System.registerDynamic("24f", [], true, function($__require, exports, module) {
+$__System.registerDynamic("250", [], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -58663,7 +58885,7 @@ $__System.registerDynamic("24f", [], true, function($__require, exports, module)
   return module.exports;
 });
 
-$__System.registerDynamic("250", [], true, function($__require, exports, module) {
+$__System.registerDynamic("251", [], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -58678,13 +58900,13 @@ $__System.registerDynamic("250", [], true, function($__require, exports, module)
   return module.exports;
 });
 
-$__System.registerDynamic("14", ["251", "252"], true, function($__require, exports, module) {
+$__System.registerDynamic("14", ["252", "253"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  var IObject = $__require('251'),
-      defined = $__require('252');
+  var IObject = $__require('252'),
+      defined = $__require('253');
   module.exports = function(it) {
     return IObject(defined(it));
   };
@@ -58692,17 +58914,17 @@ $__System.registerDynamic("14", ["251", "252"], true, function($__require, expor
   return module.exports;
 });
 
-$__System.registerDynamic("253", ["24f", "250", "226", "14", "254"], true, function($__require, exports, module) {
+$__System.registerDynamic("254", ["250", "251", "226", "14", "255"], true, function($__require, exports, module) {
   "use strict";
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  var addToUnscopables = $__require('24f'),
-      step = $__require('250'),
+  var addToUnscopables = $__require('250'),
+      step = $__require('251'),
       Iterators = $__require('226'),
       toIObject = $__require('14');
-  module.exports = $__require('254')(Array, 'Array', function(iterated, kind) {
+  module.exports = $__require('255')(Array, 'Array', function(iterated, kind) {
     this._t = toIObject(iterated);
     this._i = 0;
     this._k = kind;
@@ -58728,12 +58950,12 @@ $__System.registerDynamic("253", ["24f", "250", "226", "14", "254"], true, funct
   return module.exports;
 });
 
-$__System.registerDynamic("23c", ["253", "226"], true, function($__require, exports, module) {
+$__System.registerDynamic("23c", ["254", "226"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  $__require('253');
+  $__require('254');
   var Iterators = $__require('226');
   Iterators.NodeList = Iterators.HTMLCollection = Iterators.Array;
   global.define = __define;
@@ -58754,13 +58976,13 @@ $__System.registerDynamic("228", [], true, function($__require, exports, module)
   return module.exports;
 });
 
-$__System.registerDynamic("255", ["228", "252"], true, function($__require, exports, module) {
+$__System.registerDynamic("256", ["228", "253"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
   var toInteger = $__require('228'),
-      defined = $__require('252');
+      defined = $__require('253');
   module.exports = function(TO_STRING) {
     return function(that, pos) {
       var s = String(defined(that)),
@@ -58788,12 +59010,12 @@ $__System.registerDynamic("3e", [], true, function($__require, exports, module) 
   return module.exports;
 });
 
-$__System.registerDynamic("36", ["256"], true, function($__require, exports, module) {
+$__System.registerDynamic("36", ["257"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  module.exports = $__require('256');
+  module.exports = $__require('257');
   global.define = __define;
   return module.exports;
 });
@@ -58829,7 +59051,7 @@ $__System.registerDynamic("34", ["37"], true, function($__require, exports, modu
   return module.exports;
 });
 
-$__System.registerDynamic("256", ["17", "3d", "34"], true, function($__require, exports, module) {
+$__System.registerDynamic("257", ["17", "3d", "34"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -58846,7 +59068,7 @@ $__System.registerDynamic("256", ["17", "3d", "34"], true, function($__require, 
   return module.exports;
 });
 
-$__System.registerDynamic("257", ["17", "3d", "39", "256", "3b"], true, function($__require, exports, module) {
+$__System.registerDynamic("258", ["17", "3d", "39", "257", "3b"], true, function($__require, exports, module) {
   "use strict";
   ;
   var global = this,
@@ -58856,7 +59078,7 @@ $__System.registerDynamic("257", ["17", "3d", "39", "256", "3b"], true, function
       descriptor = $__require('3d'),
       setToStringTag = $__require('39'),
       IteratorPrototype = {};
-  $__require('256')(IteratorPrototype, $__require('3b')('iterator'), function() {
+  $__require('257')(IteratorPrototype, $__require('3b')('iterator'), function() {
     return this;
   });
   module.exports = function(Constructor, NAME, next) {
@@ -58899,7 +59121,7 @@ $__System.registerDynamic("39", ["17", "33", "3b"], true, function($__require, e
   return module.exports;
 });
 
-$__System.registerDynamic("254", ["3e", "35", "36", "256", "33", "226", "257", "39", "17", "3b"], true, function($__require, exports, module) {
+$__System.registerDynamic("255", ["3e", "35", "36", "257", "33", "226", "258", "39", "17", "3b"], true, function($__require, exports, module) {
   "use strict";
   ;
   var global = this,
@@ -58908,10 +59130,10 @@ $__System.registerDynamic("254", ["3e", "35", "36", "256", "33", "226", "257", "
   var LIBRARY = $__require('3e'),
       $export = $__require('35'),
       redefine = $__require('36'),
-      hide = $__require('256'),
+      hide = $__require('257'),
       has = $__require('33'),
       Iterators = $__require('226'),
-      $iterCreate = $__require('257'),
+      $iterCreate = $__require('258'),
       setToStringTag = $__require('39'),
       getProto = $__require('17').getProto,
       ITERATOR = $__require('3b')('iterator'),
@@ -58986,14 +59208,14 @@ $__System.registerDynamic("254", ["3e", "35", "36", "256", "33", "226", "257", "
   return module.exports;
 });
 
-$__System.registerDynamic("23b", ["255", "254"], true, function($__require, exports, module) {
+$__System.registerDynamic("23b", ["256", "255"], true, function($__require, exports, module) {
   "use strict";
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  var $at = $__require('255')(true);
-  $__require('254')(String, 'String', function(iterated) {
+  var $at = $__require('256')(true);
+  $__require('255')(String, 'String', function(iterated) {
     this._t = String(iterated);
     this._i = 0;
   }, function() {
@@ -59090,7 +59312,7 @@ $__System.registerDynamic("226", [], true, function($__require, exports, module)
   return module.exports;
 });
 
-$__System.registerDynamic("258", ["239", "3b", "226", "41"], true, function($__require, exports, module) {
+$__System.registerDynamic("259", ["239", "3b", "226", "41"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -59106,39 +59328,39 @@ $__System.registerDynamic("258", ["239", "3b", "226", "41"], true, function($__r
   return module.exports;
 });
 
-$__System.registerDynamic("259", ["23c", "23b", "258"], true, function($__require, exports, module) {
+$__System.registerDynamic("25a", ["23c", "23b", "259"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
   $__require('23c');
   $__require('23b');
-  module.exports = $__require('258');
+  module.exports = $__require('259');
   global.define = __define;
   return module.exports;
 });
 
-$__System.registerDynamic("25a", ["259"], true, function($__require, exports, module) {
+$__System.registerDynamic("25b", ["25a"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
   module.exports = {
-    "default": $__require('259'),
+    "default": $__require('25a'),
     __esModule: true
   };
   global.define = __define;
   return module.exports;
 });
 
-$__System.registerDynamic("25b", ["24e", "25a"], true, function($__require, exports, module) {
+$__System.registerDynamic("25c", ["24f", "25b"], true, function($__require, exports, module) {
   "use strict";
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  var _getIterator = $__require('24e')["default"];
-  var _isIterable = $__require('25a')["default"];
+  var _getIterator = $__require('24f')["default"];
+  var _isIterable = $__require('25b')["default"];
   exports["default"] = (function() {
     function sliceIterator(arr, i) {
       var _arr = [];
@@ -59181,12 +59403,12 @@ $__System.registerDynamic("25b", ["24e", "25a"], true, function($__require, expo
   return module.exports;
 });
 
-$__System.register('25c', ['25b'], function (_export) {
-  var _slicedToArray, init, draw;
+$__System.register('25d', ['25c'], function (_export) {
+  var _slicedToArray, init, lastFontFamily, draw;
 
   return {
-    setters: [function (_b) {
-      _slicedToArray = _b['default'];
+    setters: [function (_c) {
+      _slicedToArray = _c['default'];
     }],
     execute: function () {
       /* eslint-disable no-console */
@@ -59198,7 +59420,7 @@ $__System.register('25c', ['25b'], function (_export) {
       'use strict';
 
       init = function init(paint, settings) {
-        paint.setFontFamily('Rockwell', '14');
+        paint.setFontFamily('Rockwell', 0);
         paint.setTextSize(128);
         paint.setFakeBoldText(true);
         paint.setAntiAlias(true);
@@ -59206,6 +59428,8 @@ $__System.register('25c', ['25b'], function (_export) {
         paint.setLCDRenderText(true);
         paint.setAutohinted(true);
       };
+
+      lastFontFamily = undefined;
 
       draw = function draw(canvas, paint, state) {
         var rendererState = state.rendererState;
@@ -59218,9 +59442,16 @@ $__System.register('25c', ['25b'], function (_export) {
         var g = _spurterState$colour[1];
         var b = _spurterState$colour[2];
         var a = _spurterState$colour[3];
+        var fontFamily = spurterState.fontFamily;
         var frame = rendererState.frame;
 
-        if (frame >> 3 & 0x01) {
+        if (fontFamily !== lastFontFamily) {
+          paint.setFontFamily(fontFamily, 0);
+          lastFontFamily = fontFamily;
+          console.log('\n\n===== NEW FONT ' + fontFamily + ' =====\n\n');
+        }
+
+        if (frame & 0x01) {
           paint.setColor(r, g, b, a * 255 | 0);
           //      paint.setColor(255, 255, 255, 255);
           var bounds = paint.measureTextBounds(message);
@@ -59388,7 +59619,7 @@ $__System.registerDynamic("17", [], true, function($__require, exports, module) 
   return module.exports;
 });
 
-$__System.registerDynamic("252", [], true, function($__require, exports, module) {
+$__System.registerDynamic("253", [], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -59402,12 +59633,12 @@ $__System.registerDynamic("252", [], true, function($__require, exports, module)
   return module.exports;
 });
 
-$__System.registerDynamic("4b", ["252"], true, function($__require, exports, module) {
+$__System.registerDynamic("4b", ["253"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  var defined = $__require('252');
+  var defined = $__require('253');
   module.exports = function(it) {
     return Object(defined(it));
   };
@@ -59428,7 +59659,7 @@ $__System.registerDynamic("30", [], true, function($__require, exports, module) 
   return module.exports;
 });
 
-$__System.registerDynamic("251", ["30"], true, function($__require, exports, module) {
+$__System.registerDynamic("252", ["30"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -59457,14 +59688,14 @@ $__System.registerDynamic("37", [], true, function($__require, exports, module) 
   return module.exports;
 });
 
-$__System.registerDynamic("25d", ["17", "4b", "251", "37"], true, function($__require, exports, module) {
+$__System.registerDynamic("25e", ["17", "4b", "252", "37"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
   var $ = $__require('17'),
       toObject = $__require('4b'),
-      IObject = $__require('251');
+      IObject = $__require('252');
   module.exports = $__require('37')(function() {
     var a = Object.assign,
         A = {},
@@ -59500,13 +59731,13 @@ $__System.registerDynamic("25d", ["17", "4b", "251", "37"], true, function($__re
   return module.exports;
 });
 
-$__System.registerDynamic("25e", ["35", "25d"], true, function($__require, exports, module) {
+$__System.registerDynamic("25f", ["35", "25e"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
   var $export = $__require('35');
-  $export($export.S + $export.F, 'Object', {assign: $__require('25d')});
+  $export($export.S + $export.F, 'Object', {assign: $__require('25e')});
   global.define = __define;
   return module.exports;
 });
@@ -59523,37 +59754,37 @@ $__System.registerDynamic("41", [], true, function($__require, exports, module) 
   return module.exports;
 });
 
-$__System.registerDynamic("25f", ["25e", "41"], true, function($__require, exports, module) {
+$__System.registerDynamic("260", ["25f", "41"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  $__require('25e');
+  $__require('25f');
   module.exports = $__require('41').Object.assign;
   global.define = __define;
   return module.exports;
 });
 
-$__System.registerDynamic("260", ["25f"], true, function($__require, exports, module) {
+$__System.registerDynamic("261", ["260"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
   module.exports = {
-    "default": $__require('25f'),
+    "default": $__require('260'),
     __esModule: true
   };
   global.define = __define;
   return module.exports;
 });
 
-$__System.registerDynamic("f", ["260"], true, function($__require, exports, module) {
+$__System.registerDynamic("f", ["261"], true, function($__require, exports, module) {
   "use strict";
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  var _Object$assign = $__require('260')["default"];
+  var _Object$assign = $__require('261')["default"];
   exports["default"] = _Object$assign || function(target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
@@ -59570,7 +59801,7 @@ $__System.registerDynamic("f", ["260"], true, function($__require, exports, modu
   return module.exports;
 });
 
-$__System.register('261', ['f'], function (_export) {
+$__System.register('262', ['f'], function (_export) {
   var _extends, name, port, hostname, version, appServer, settings, appSettings;
 
   return {
@@ -59599,7 +59830,8 @@ $__System.register('261', ['f'], function (_export) {
               path: /^\/[^\/]*$/,
               config: {
                 'default': onDevelopment ? 'index.html' : 'index.min.html',
-                directory: './dist'
+                directory: './dist',
+                maxAge: onDevelopment ? 0 : 60 * 60
               }
             }
           }
@@ -59733,7 +59965,7 @@ $__System.registerDynamic("7e", ["7f"], true, function($__require, exports, modu
   return module.exports;
 });
 
-$__System.registerDynamic("262", ["7e"], true, function($__require, exports, module) {
+$__System.registerDynamic("263", ["7e"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -59743,17 +59975,17 @@ $__System.registerDynamic("262", ["7e"], true, function($__require, exports, mod
   return module.exports;
 });
 
-$__System.registerDynamic("8", ["262"], true, function($__require, exports, module) {
+$__System.registerDynamic("8", ["263"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  module.exports = $__require('262');
+  module.exports = $__require('263');
   global.define = __define;
   return module.exports;
 });
 
-$__System.registerDynamic("263", ["8"], true, function($__require, exports, module) {
+$__System.registerDynamic("264", ["8"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
@@ -59795,18 +60027,18 @@ $__System.registerDynamic("263", ["8"], true, function($__require, exports, modu
   return module.exports;
 });
 
-$__System.registerDynamic("264", ["263"], true, function($__require, exports, module) {
+$__System.registerDynamic("265", ["264"], true, function($__require, exports, module) {
   ;
   var global = this,
       __define = global.define;
   global.define = undefined;
-  module.exports = $__require('263');
+  module.exports = $__require('264');
   global.define = __define;
   return module.exports;
 });
 
-$__System.register('1', ['12', '23', '29', '261', '264', '25b', '24b', '25c'], function (_export) {
-  var createStore, Socket, createSagaMiddleware, appSettings, perfnow, _slicedToArray, oscSaga, serverSaga, renderer, Plask, ON_DEV, log, settings, sagaMiddleware, _createStore, store, dispatch, fps, maxFrameTime, lastFrame, lastClock;
+$__System.register('1', ['12', '23', '29', '262', '265', '25c', '24c', '25d'], function (_export) {
+  var createStore, Socket, createSagaMiddleware, appSettings, perfnow, _slicedToArray, oscSaga, serverSaga, renderer, Plask, ON_DEV, log, settings, sagaMiddleware, _createStore, store, dispatch, fps, reportInterval, reportFrames, realFrame, maxFrameTime, lastFrame, lastClock;
 
   return {
     setters: [function (_2) {
@@ -59819,13 +60051,13 @@ $__System.register('1', ['12', '23', '29', '261', '264', '25b', '24b', '25c'], f
       appSettings = _4['default'];
     }, function (_5) {
       perfnow = _5['default'];
-    }, function (_b) {
-      _slicedToArray = _b['default'];
-    }, function (_b2) {
-      oscSaga = _b2.oscSaga;
-      serverSaga = _b2.serverSaga;
     }, function (_c) {
-      renderer = _c['default'];
+      _slicedToArray = _c['default'];
+    }, function (_c2) {
+      oscSaga = _c2.oscSaga;
+      serverSaga = _c2.serverSaga;
+    }, function (_d) {
+      renderer = _d['default'];
     }],
     execute: function () {
       // import 'babel-polyfill';
@@ -59859,6 +60091,9 @@ $__System.register('1', ['12', '23', '29', '261', '264', '25b', '24b', '25c'], f
       sagaMiddleware.run(serverSaga, settings.server);
 
       fps = settings.framerate || 30;
+      reportInterval = 5;
+      reportFrames = fps * reportInterval;
+      realFrame = 0;
       maxFrameTime = 0;
       lastFrame = undefined;
       lastClock = undefined;
@@ -59877,6 +60112,8 @@ $__System.register('1', ['12', '23', '29', '261', '264', '25b', '24b', '25c'], f
         },
 
         draw: function draw() {
+          realFrame += 1;
+
           var canvas = this.canvas;
           var paint = this.paint;
 
@@ -59888,6 +60125,7 @@ $__System.register('1', ['12', '23', '29', '261', '264', '25b', '24b', '25c'], f
           if (state !== 'pause') {
             dispatch('/renderer/FRAME_ADVANCE');
           }
+          dispatch('/server/UPDATE_CLIENTS');
 
           var now = perfnow();
           if (lastFrame) {
@@ -59899,9 +60137,9 @@ $__System.register('1', ['12', '23', '29', '261', '264', '25b', '24b', '25c'], f
           lastFrame = now;
 
           // Every expected second show amortised draw timing stats.
-          if (frame % fps === 0) {
-            var mspf = lastClock ? (now - lastClock) / fps : 0;
-            log('#' + frame + ' : ' + now + ' : ' + mspf + ' : ' + maxFrameTime);
+          if (realFrame % reportFrames === 0) {
+            var mspf = lastClock ? (now - lastClock) / reportFrames : 0;
+            log('#' + realFrame + '/' + frame + ': ' + state + ' : ' + now + ' : ' + mspf + ' : ' + maxFrameTime);
             lastClock = now;
             maxFrameTime = 0;
           }
@@ -59910,8 +60148,8 @@ $__System.register('1', ['12', '23', '29', '261', '264', '25b', '24b', '25c'], f
             // No need to do any clearing or rendering.
             return;
           } else if (state === 'off') {
-            // FIXME: Only clear to black once.
-            canvas.clear(0, 0, 0, 255);
+            // FIXME: Only clear once.
+            canvas.clear(0, 0, 0, 0);
             return;
           }
 
