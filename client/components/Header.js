@@ -34,6 +34,10 @@ class Header extends React.Component {
     this.props.openSocket();
   }
 
+  reload() {
+    window.location.reload();
+  }
+
   render() {
 //    console.log('Header', this.props);
     const { pingInfo, socketStatus } = this.props;
@@ -67,6 +71,7 @@ class Header extends React.Component {
         </span>
         {reconnect}
         <h1>[beep]spurter</h1>
+        <a className='reload' onClick={::this.reload}>reload</a>
       </span>
     );
   }

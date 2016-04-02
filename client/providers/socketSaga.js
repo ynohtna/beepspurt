@@ -27,6 +27,12 @@ const actionCreators = {
   openSocket: () => ({ type: OPEN_SOCKET })
 };
 
+// FIXME: Replace with a check for action having a truthy 'dontLog' field.
+const dontLog = {
+  '/ping': true,
+  '/pong': true
+};
+
 /* eslint no-param-reassign: [2, {"props": false }] */
 const socketSource = websocket => {
   const messageQueue = [];
@@ -82,7 +88,8 @@ const noop = () => noopAction;
 
 const handlers = {
   '*HIHO*': noop,
-  '/pong': ({ args }) => ({ type: PONG_RECV, args })
+  '/pong': ({ args }) => ({ type: PONG_RECV, args, dontLog: true }),
+  '/renderer/STATE': ({ args }) => ({ type: '/renderer/STATE', payload: args, root: true })
 };
 
 function* fetchSocket(source) {
@@ -92,7 +99,9 @@ function* fetchSocket(source) {
 
     let msg = yield call(source.nextMessage);
     while (msg) {
-      console.log(':::: MSG', msg);
+      if (!(msg.addr in dontLog)) {
+        console.log(':::: MSG', msg);
+      }
       if (msg.type && msg.type === SOCKET_RECV) {
         let action;
         // Sanitize remote actions against registered handlers.
@@ -101,7 +110,9 @@ function* fetchSocket(source) {
         }
         if (action) {
           if (action !== noopAction) {
-//            console.log('>:>|', action);
+            if (!action.dontLog) {
+              console.log('>:>|', action);
+            }
             yield put(action);
           }
         } else {
@@ -143,7 +154,9 @@ function *sendSocket(websocket) {
       const { addr, args } = msg;
       const id = websocket._id;
       const data = JSON.stringify({ addr, args: mungeArgs(args), id });
-      console.log('> socketSend', data);
+      if (!(addr in dontLog)) {
+        console.log('> socketSend', data);
+      }
       websocket.send(data);
     }
   } catch (error) {
@@ -266,6 +279,21 @@ const actions = {
 };
 
 const reducers = {
+  masterState(state = { state: 'unknown' }, action) {
+    switch (action.type) {
+      case '/renderer/STATE': {
+//        console.error('MERGE_STATE ()()()()()', state, action.payload);
+        const r = {
+          ...state,
+          ...action.payload
+        };
+//        console.log('post-merge master state', r);
+        return r;
+      }
+      default:
+        return state;
+    }
+  },
   pingInfo(state = -1, action) {
     switch (action.type) {
       case SET_PING_INFO:

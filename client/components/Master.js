@@ -5,15 +5,38 @@ import provide from 'react-redux-provide';
 class Master extends React.Component {
   static propTypes = {
     // TODO: rendererState
-    // setRendererState
+    masterState: PropTypes.any,
+    sendSocket: PropTypes.func.isRequired
   };
 
+  stateChange(state) {
+    console.log('Master stateChange request', state);
+    this.props.sendSocket('/renderer/STATE', state);
+  }
+
   render() {
+    console.log('Master', this.props.masterState);
+    const { state } = this.props.masterState;
+    const activeOff = (state === 'off') ? 'active' : null;
+    const activeRun = (state === 'run') ? 'active' : null;
+    const activePause = (state === 'pause') ? 'active' : null;
     return (
       <span className='master'>
-        <button>off</button>
-        <button>play</button>
-        <button>pause</button>
+        <button className={activeOff}
+                onClick={() => this.stateChange('off')}
+        >
+          off
+        </button>
+        <button className={activeRun}
+                onClick={() => this.stateChange('run')}
+        >
+          run
+        </button>
+        <button className={activePause}
+                onClick={() => this.stateChange('pause')}
+        >
+          pause
+        </button>
       </span>
     );
   }

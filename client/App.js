@@ -8,11 +8,6 @@ import WordList from './components/WordList';
 import { columnParent, rowParent, flexContainer,
          flexChild, flexAll, flexNone } from './flexStyles';
 
-const narrowStyle = {
-  height: '1.6rem',
-  fontSize: '110%'
-};
-
 const LeftPanel = () => (
   <div className='left-panel'
        style={{ ...flexChild }}>
@@ -44,7 +39,7 @@ class App extends React.Component {
   render() {
     return (
       <section style={{ ...flexChild, ...columnParent, ...flexContainer }}>
-        <header style={{ ...flexChild, ...flexNone, ...narrowStyle }}>
+        <header style={{ ...flexChild, ...flexNone }}>
           <Header />
           <Master />
         </header>
@@ -54,7 +49,7 @@ class App extends React.Component {
           <RightPanel />
         </section>
 
-        <footer style={{ ...flexChild, ...flexNone, ...narrowStyle }}>
+        <footer style={{ ...flexChild, ...flexNone }}>
         </footer>
       </section>
     );

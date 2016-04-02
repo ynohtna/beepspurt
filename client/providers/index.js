@@ -1,9 +1,11 @@
+import miscProvider from './miscProvider';
 import socketSaga from './socketSaga';
-import spurterState from './spurterState';
+import wordEditor from './wordEditorProvider';
 import wordList from './wordListProvider';
 
 export default {
-  spurterState,
+  miscProvider,
   socketSaga,
-  wordList
+  wordList,
+  wordEditor
 };
