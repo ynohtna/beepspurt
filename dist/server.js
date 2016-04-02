@@ -59419,7 +59419,7 @@ $__System.register('25d', ['25c'], function (_export) {
       // Call init on each, then draw on chosen & active.
       'use strict';
 
-      init = function init(paint, settings) {
+      init = function init(paint /* , settings */) {
         paint.setFontFamily('Rockwell', 0);
         paint.setTextSize(128);
         paint.setFakeBoldText(true);
@@ -59448,7 +59448,7 @@ $__System.register('25d', ['25c'], function (_export) {
         if (fontFamily !== lastFontFamily) {
           paint.setFontFamily(fontFamily, 0);
           lastFontFamily = fontFamily;
-          console.log('\n\n===== NEW FONT ' + fontFamily + ' =====\n\n');
+          console.log('\n===== NEW FONT ' + fontFamily + ' =====\n');
         }
 
         if (frame & 0x01) {
@@ -59461,19 +59461,19 @@ $__System.register('25d', ['25c'], function (_export) {
           var y1 = bounds[3];
           var w = x1 - x0;
           var h = y1 - y0;
-          var mx = x0 + (x1 - x0) / 2;
-          var my = y0 + (y1 - y0) / 2;
+          //    const mx = x0 + (x1 - x0) / 2;
+          //    const my = y0 + (y1 - y0) / 2;
           var sx = rendererState.width / w;
           var sy = rendererState.height / h;
           var scale = sx < sy ? sx : sy;
-          var ox = rendererState.width / 2 - w * sx;
-          var oy = rendererState.height / 2 - h * sy;
+          //    const ox = (rendererState.width / 2) - (w * sx);
+          //    const oy = (rendererState.height / 2) - (h * sy);
           canvas.resetMatrix();
           canvas.translate(0, (rendererState.height / 2 - h) / scale);
           canvas.scale(scale, scale);
           //      canvas.skew(0.5, -0.2);
-          var _top = false;
-          var y = _top ? 0 : rendererState.height - y1;
+          //    const top = false;
+          //    const y = top ? 0 : (rendererState.height - y1);
           canvas.drawText(paint, message, -x0, -y0);
 
           if (frame % 600 === 10) {
@@ -60038,7 +60038,7 @@ $__System.registerDynamic("265", ["264"], true, function($__require, exports, mo
 });
 
 $__System.register('1', ['12', '23', '29', '262', '265', '25c', '24c', '25d'], function (_export) {
-  var createStore, Socket, createSagaMiddleware, appSettings, perfnow, _slicedToArray, oscSaga, serverSaga, renderer, Plask, ON_DEV, log, settings, sagaMiddleware, _createStore, store, dispatch, fps, reportInterval, reportFrames, realFrame, maxFrameTime, lastFrame, lastClock;
+  var createStore, Socket, createSagaMiddleware, appSettings, perfnow, _slicedToArray, oscSaga, serverSaga, renderer, Plask, ON_DEV, log, bootMsg, settings, sagaMiddleware, _createStore, store, dispatch, fps, reportInterval, reportFrames, realFrame, maxFrameTime, lastFrame, lastClock;
 
   return {
     setters: [function (_2) {
@@ -60061,6 +60061,8 @@ $__System.register('1', ['12', '23', '29', '262', '265', '25c', '24c', '25d'], f
     }],
     execute: function () {
       // import 'babel-polyfill';
+      // eslint-disable-line no-console
+
       'use strict';
 
       Plask = require('plask');
@@ -60069,14 +60071,12 @@ $__System.register('1', ['12', '23', '29', '262', '265', '25c', '24c', '25d'], f
         return console.log.apply(console, arguments);
       } // eslint-disable-line no-console
       : function noop() {};
+      bootMsg = '\n\n      --=-=-=-==-=-=-=--\n    ---=  PRODUCTION  =---\n      --=-=-=-==-=-=-=--\n\n';
 
       if (ON_DEV) {
-        console.log('\n\n    <<<<---->>>> DEVELOPMENT <<<<---->>>>\n\n');
-      } else {
-        console.log('\n\n      --=-=-=-==-=-=-=--\n    ---=  PRODUCTION  =---\n      --=-=-=-==-=-=-=--\n\n');
+        bootMsg = '\n\n    <<<<---->>>> DEVELOPMENT <<<<---->>>>\n\n';
       }
-
-      settings = appSettings(ON_DEV);
+      console.log(bootMsg);settings = appSettings(ON_DEV);
 
       log('Settings:', settings, '\n');
 
@@ -60112,8 +60112,6 @@ $__System.register('1', ['12', '23', '29', '262', '265', '25c', '24c', '25d'], f
         },
 
         draw: function draw() {
-          realFrame += 1;
-
           var canvas = this.canvas;
           var paint = this.paint;
 
@@ -60143,6 +60141,7 @@ $__System.register('1', ['12', '23', '29', '262', '265', '25c', '24c', '25d'], f
             lastClock = now;
             maxFrameTime = 0;
           }
+          realFrame += 1;
 
           if (state === 'pause') {
             // No need to do any clearing or rendering.
