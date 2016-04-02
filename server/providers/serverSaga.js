@@ -6,8 +6,9 @@ import { Watershed } from 'watershed';
 import { createHash } from 'crypto';
 
 import { effects, isCancelError } from 'redux-saga';
-const { call, cancel, fork, race, put, take } = effects;
+const { call, cancel, fork, race, put, select, take } = effects;
 import { cancellablePromise } from '../utils';
+import selectors from './selectors';
 
 // Server notifications.
 const SERVER_STARTED = '/server/STARTED';
@@ -20,8 +21,15 @@ const SERVER_ERROR = '/server/ERROR';
 const START_SERVER = '/server/START';
 const STOP_SERVER = '/server/STOP';
 const SERVER_SEND = '/server/SEND';
+const UPDATE_CLIENTS = '/server/UPDATE_CLIENTS';
 
 const toJS = obj => JSON.stringify(obj);
+
+const dontLog = {
+  '/renderer/STATE': true,
+  '/ping': true,
+  '/pong': true
+};
 
 const serveApi = (req, res) => {
   console.log(`
@@ -73,18 +81,21 @@ const serverSource = (server) => {
       return resolve(ex);
     }
     wsc.on('text', text => {
-      console.log('>>>> socket:text', text);
       let action = `badmsg: ${text}`;
       try {
         action = JSON.parse(text);
+        if (!(action.addr in dontLog)) {
+          console.log('>>>> socket:text', text, action);
+        }
       } catch (ex) {
+        console.error('>>>> ---- >>>> socket:text', text);
         console.error(text, ex);
       }
       resolve(action);
     });
     wsc.on('end', (code, reason) => {
+      console.log('---- socket:end [code, reason, remote]', code, reason, wsc._remote);
       server._wsc[id] = null;
-      console.log('---- socket:end', code, reason, server._wsc);
     });
     if (id) {
       wsc.send(JSON.stringify({ addr: '*HIHO*', id }));
@@ -121,7 +132,11 @@ const dispatchHandler = ({ addr, id, args }) => ({ type: addr,
                                                    payload: mungeArgs(args) });
 
 const handlers = {
+  '/renderer/STATE': dispatchHandler,
+  '/spurter/MERGE': dispatchHandler,
   '/spurter/MESSAGE': dispatchHandler,
+  '/spurter/FONT_FAMILY': dispatchHandler,
+  '/spurter/COLOUR': dispatchHandler,
   '/ping': ({ args, id }) => ({ type: SERVER_SEND, addr: '/pong', args, id }),
   // ---- internal notifications ----
   opened: { type: SERVER_STARTED },
@@ -137,7 +152,9 @@ function* serveRequests(source) {
     let req = yield call(source.nextRequest);
     while (req) {
       let action;
-      console.log('**** request', req);
+      if (!req.addr || !(req.addr in dontLog)) {
+        console.log('**** request', req);
+      }
       if (req.addr && req.addr in handlers) {
         action = handlers[req.addr](req);
 //        console.log('.... handled action:=', action);
@@ -161,24 +178,77 @@ function* serveRequests(source) {
   }
 }
 
+function* sendMessage(server, msg) {
+  const { addr, id, args } = msg;
+  if (id) {
+    const wsc = (id in server._wsc) && server._wsc[id];
+    if (wsc) {
+      const packet = JSON.stringify({ addr, args });
+      wsc.send(packet);
+      if (!(addr in dontLog)) {
+        console.log('--->', packet);
+      }
+    } else {
+      console.error('!!!! SERVER_SEND request on DEAD CHANNEL', id, server._wsc);
+    }
+  } else if (server._wsc) {
+//    console.log(' :: --==>', server._wsc);
+    const packet = JSON.stringify({ addr, args });
+    for (const i in server._wsc) {
+//      console.log(' :: --==>', i);
+      if (!server._wsc.hasOwnProperty(i)) {
+        continue;
+      }
+      const client = server._wsc[i];
+      if (client) {
+        console.log('[-=>', packet, i);
+        client.send(packet);
+      }
+    }
+  }
+}
+
+let memos = [];
+function* updateSelector({ selector, memo, action }, i) {
+  const state = yield select(selector);
+  const lastMemo = memos[i];
+  const newMemo = memo && memo(state);
+//  console.log('up', state, lastMemo, newMemo);
+  if (lastMemo !== newMemo) {
+    const act = action(state);
+//    console.log('\n~~~ selector update ~~~\n', state, act);
+    if (act) {
+      yield put(act);
+    }
+    memos[i] = newMemo;
+  }
+}
+
 function* sendMessages(server) {
   try {
     yield take(SERVER_STARTED);
     const send = true;
     while (send) {
-      const msg = yield take(SERVER_SEND);
-      const { addr, id, args } = msg;
-      if (id) {
-        const wsc = (id in server._wsc) && server._wsc[id];
-        if (wsc) {
-          const packet = JSON.stringify({ addr, args });
-          wsc.send(packet);
-          console.log('--->', packet);
-        } else {
-          console.error('!!!! SERVER_SEND request on DEAD CHANNEL', id, server._wsc);
+      const msg = yield race({
+        send: take(SERVER_SEND),
+        update: take(UPDATE_CLIENTS),
+        upgraded: take(CLIENT_UPGRADED)
+      });
+      if (msg.send) {
+        yield fork(sendMessage, server, msg.send);
+      } else if (msg.update) {
+        // Update clients with pieces of state as required.
+        for (let i = 0; i < selectors.length; ++i) {
+          yield fork(updateSelector, selectors[i], i);
         }
+      } else if (msg.upgraded) {
+        // Clear out all memos so all clients get updates.
+        console.log(`
+- UPGRADED - MEMO CLEAR -
+        `);
+        memos = [];
       } else {
-        console.log('* <-', addr, args);
+        console.error(' how we got here?!!! ', msg);
       }
     }
   } catch (error) {
@@ -232,7 +302,7 @@ function* serverSaga(...args) {
       console.log(START_SERVER);
     }
 
-    // Fork server handling.
+    // Fork server request handling.
     const requestsTask = yield fork(serveRequests, source);
 
     // Start server listening.
@@ -240,9 +310,13 @@ function* serverSaga(...args) {
     const hostname = config.hostname || '127.0.0.1';
     const port = config.port || 9336;
     if ((hostname === '127.0.0.1') || (hostname === 'localhost')) {
-      console.warn(`---- **** SERVER LISTENING on LOCALHOST ONLY **** ${hostname} ----`);
+      console.warn(`
+---- **** SERVER LISTENING on LOCALHOST ONLY **** ${hostname} ----
+`);
     } else if (hostname === '0.0.0.0') {
-      console.warn('---- **** SERVER LISTENING on ALL INTERFACES **** ----');
+      console.warn(`
+---- **** SERVER LISTENING on ALL INTERFACES **** ----
+`);
     }
     server.listen(port, hostname, () =>
       server.emit('opened')

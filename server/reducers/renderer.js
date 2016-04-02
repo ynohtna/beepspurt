@@ -8,7 +8,7 @@ const defaultRendererState = {
 };
 
 const validStates = {
-  play: true,
+  run: true,
   pause: true,
   off: true
 };
@@ -16,6 +16,7 @@ const validStates = {
 const rendererState = (state = defaultRendererState, action) => {
   switch (action.type) {
     case '/renderer/STATE':
+//      console.log('**** /renderer/STATE', action);
       return (action.payload in validStates) ? {
         ...state,
         state: action.payload

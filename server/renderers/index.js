@@ -5,7 +5,7 @@
 // TODO: Refactor into list of declared renderers, each with chosen/active states.
 // Call init on each, then draw on chosen & active.
 const init = (paint, settings) => {
-  paint.setFontFamily('Rockwell', '14');
+  paint.setFontFamily('Rockwell', 0);
   paint.setTextSize(128);
   paint.setFakeBoldText(true);
   paint.setAntiAlias(true);
@@ -14,12 +14,24 @@ const init = (paint, settings) => {
   paint.setAutohinted(true);
 };
 
+let lastFontFamily;
+
 const draw = (canvas, paint, state) => {
   const { rendererState, spurterState } = state;
-  const { message, colour: [r, g, b, a] } = spurterState;
+  const { message, colour: [r, g, b, a], fontFamily } = spurterState;
   const { frame } = rendererState;
 
-  if ((frame >> 3) & 0x01) {
+  if (fontFamily !== lastFontFamily) {
+    paint.setFontFamily(fontFamily, 0);
+    lastFontFamily = fontFamily;
+    console.log(`
+
+===== NEW FONT ${fontFamily} =====
+
+`);
+  }
+
+  if ((frame) & 0x01) {
     paint.setColor(r, g, b, (a * 255) | 0);
     //      paint.setColor(255, 255, 255, 255);
     const bounds = paint.measureTextBounds(message);

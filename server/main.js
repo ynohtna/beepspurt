@@ -38,6 +38,9 @@ sagaMiddleware.run(serverSaga, settings.server);
 
 import perfnow from 'performance-now';
 const fps = settings.framerate || 30;
+const reportInterval = 5;
+const reportFrames = fps * reportInterval;
+let realFrame = 0;
 let maxFrameTime = 0;
 let lastFrame;
 let lastClock;
@@ -55,6 +58,8 @@ Plask.simpleWindow({
   },
 
   draw() {
+    realFrame += 1;
+
     const { canvas, paint } = this;
     const storeState = store.getState();
     const { rendererState } = storeState;
@@ -63,6 +68,7 @@ Plask.simpleWindow({
     if (state !== 'pause') {
       dispatch('/renderer/FRAME_ADVANCE');
     }
+    dispatch('/server/UPDATE_CLIENTS');
 
     const now = perfnow();
     if (lastFrame) {
@@ -75,9 +81,9 @@ Plask.simpleWindow({
 
 
     // Every expected second show amortised draw timing stats.
-    if ((frame % fps) === 0) {
-      const mspf = lastClock ? ((now - lastClock) / fps) : 0;
-      log(`#${frame} : ${now} : ${mspf} : ${maxFrameTime}`);
+    if ((realFrame % reportFrames) === 0) {
+      const mspf = lastClock ? ((now - lastClock) / reportFrames) : 0;
+      log(`#${realFrame}/${frame}: ${state} : ${now} : ${mspf} : ${maxFrameTime}`);
       lastClock = now;
       maxFrameTime = 0;
     }
@@ -86,8 +92,8 @@ Plask.simpleWindow({
       // No need to do any clearing or rendering.
       return;
     } else if (state === 'off') {
-      // FIXME: Only clear to black once.
-      canvas.clear(0, 0, 0, 255);
+      // FIXME: Only clear once.
+      canvas.clear(0, 0, 0, 0);
       return;
     }
 
