@@ -9,21 +9,22 @@ import renderer from './renderers/index';
 const ON_DEV = (process.env.NODE_ENV && process.env.NODE_ENV.startsWith('dev'));
 const log = ON_DEV ? (...args) => console.log(...args) // eslint-disable-line no-console
   : function noop() {};
-if (ON_DEV) {
-  console.log(`
 
-    <<<<---->>>> DEVELOPMENT <<<<---->>>>
-
-`);
-} else {
-  console.log(`
+let bootMsg = `
 
       --=-=-=-==-=-=-=--
     ---=  PRODUCTION  =---
       --=-=-=-==-=-=-=--
 
-`);
+`;
+if (ON_DEV) {
+  bootMsg = `
+
+    <<<<---->>>> DEVELOPMENT <<<<---->>>>
+
+`;
 }
+console.log(bootMsg); // eslint-disable-line no-console
 
 import appSettings from './settings';
 const settings = appSettings(ON_DEV);
@@ -58,8 +59,6 @@ Plask.simpleWindow({
   },
 
   draw() {
-    realFrame += 1;
-
     const { canvas, paint } = this;
     const storeState = store.getState();
     const { rendererState } = storeState;
@@ -87,6 +86,7 @@ Plask.simpleWindow({
       lastClock = now;
       maxFrameTime = 0;
     }
+    realFrame += 1;
 
     if (state === 'pause') {
       // No need to do any clearing or rendering.
