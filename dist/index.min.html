@@ -15,10 +15,11 @@
   <body>
     <div id="app"></div>
     <script>
-     document.addEventListener('DOMContentLoaded', function() {
-       var attachFastClick = Origami.fastclick;
-       attachFastClick(document.body);
-     }, false);
+     if (window.Origami && window.Origami.fastclick) {
+       document.addEventListener('DOMContentLoaded', function() {
+         window.Origami.fastclick(document.body);
+       }, false);
+     }
      document.body.addEventListener('touchmove', function(evt) {
        if(!evt._isScroller) {
          evt.preventDefault()
