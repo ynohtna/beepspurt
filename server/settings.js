@@ -9,7 +9,7 @@ const appServer = onDevelopment => ({
   hostname,
   version,
   autoStart: true,
-  gzip: false,
+  gzip: true,
 
   statics: {
     index: {
