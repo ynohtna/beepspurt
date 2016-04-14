@@ -1,13 +1,12 @@
-/*
- Minified CSS reset from https://github.com/murtaugh/HTML5-Reset/blob/master/assets/css/reset.css
-*/
-a,hr{padding:0}a,button,input,select,textarea{margin:0}article,aside,details,figure,footer,header,hr,nav,section,summary{display:block}abbr,address,article,aside,audio,b,blockquote,body,body div,caption,cite,code,dd,del,details,dfn,dl,dt,em,fieldset,figure,footer,form,h1,h2,h3,h4,h5,h6,header,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,p,pre,q,samp,section,small,span,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,ul,var,video{margin:0;padding:0;border:0;font-size:100%;font-weight:400;vertical-align:baseline;background:0 0}input[type=checkbox],th{vertical-align:bottom}html{box-sizing:border-box;overflow-y:scroll}*,:after,:before{box-sizing:inherit}embed,img,object{max-width:100%}ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:'';content:none}a{font-size:100%;vertical-align:baseline;background:0 0}del{text-decoration:line-through}abbr[title],dfn[title]{border-bottom:1px dotted #000;cursor:help}th{font-weight:700}td{font-weight:400;vertical-align:top}hr{height:1px;border:0;border-top:1px solid #ccc;margin:1em 0}input,select{vertical-align:middle}pre{white-space:pre;white-space:pre-wrap;white-space:pre-line;word-wrap:break-word}input[type=radio]{vertical-align:text-bottom}.ie7 input[type=checkbox]{vertical-align:baseline}.ie6 input{vertical-align:text-bottom}input,select,textarea{font:99% sans-serif}table{border-collapse:separate;border-spacing:0;font:100%}small{font-size:85%}strong{font-weight:700}td,td img{vertical-align:top}sub,sup{font-size:75%;line-height:0;position:relative}sup{top:-.5em}sub{bottom:-.25em}code,kbd,pre,samp{font-family:monospace,sans-serif}.clickable,button,input[type=button],input[type=file],input[type=submit],label{cursor:pointer}button,input[type=button]{width:auto;overflow:visible}.ie7 img{-ms-interpolation-mode:bicubic}.clearfix:after{content:" ";display:block;clear:both}
-
-/* -------------------- */
+html {	/* Prevent fonts getting bigger in landscape. */
+    -webkit-text-size-adjust: 100%;
+}
 html, body {
     height: 100%;
     width: 100%;
     margin: 0;
+    background: #111;
+    color: #ffe;
 }
 body {
     font-family: Menlo, sans-serif;
@@ -16,14 +15,6 @@ body {
 
 a {
     cursor: pointer;
-}
-
-button {
-    font-size: 90%;
-    text-shadow: none;
-    box-shadow: none;
-    border: none;
-    outline: none;
 }
 
 h1 {
@@ -40,11 +31,49 @@ input[type='checkbox'] {
 }
 
 /* -------------------- */
+button {
+    font-size: 90%;
+    text-shadow: none;
+    box-shadow: none;
+    border: none;
+    outline: none;
+}
+
+.text-button {
+    font-size: 100%;
+    color: #888;
+    background: transparent;
+    padding: 0 2px;
+    justify-content: center;
+}
+.text-button:hover {
+    color: #ccc;
+}
+
+.round-button {
+    height: 2rem;
+    margin: 0.5rem;
+    padding: 0.2rem 1.1rem;
+    justify-content: center;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    color: black;
+    background: #eee;
+    outline: none;
+}
+.round-button:hover,
+.round-button:active {
+    color: white;
+    text-shadow: 0 1px 1px black;
+}
+.round-button:active {
+    border: 2px solid white;
+}
+
+/* -------------------- */
 #app {
     height: 100%;
     width: 100%;
-    background: #111;
-    color: #ffe;
 }
 
 .left-panel {
@@ -59,17 +88,6 @@ input[type='checkbox'] {
     padding: 8px 8px 0 0;
     border-bottom: 1px solid grey;
     margin-bottom: 12px;
-}
-
-/* -------------------- */
-.round-button {
-    height: 2rem;
-    margin: 0.5rem;
-    padding: 0.2rem 1rem;
-    color: black;
-    background: #eee;
-    border-radius: 16px;
-    outline: none;
 }
 
 /* -------------------- */
@@ -137,33 +155,166 @@ footer {
     padding: 2px 1.2rem;
     margin: 0 0.6rem;
     font-size: 80%;
-    background-color: #333;
-    color: silver;
+    background-color: #666;
+    color: black;
     border-radius: 6px;
     outline: none;
     border: 2px solid transparent;
 }
 .master button:hover {
     color: white;
-    background-color: #666;
+    text-shadow: 0 1px 1px black;
+}
+.master button:active {
+    border: 2px solid sandybrown;
 }
 .master button.active {
-    color: #eee;
+    color: white;
+    text-shadow: 0 1px 1px black;
     border: 2px solid sandybrown;
 }
 
 /* ---- WORD EDITOR ---- */
-.clear-link {
-    margin: 0 1rem;
-    font-size: 85%;
-    color: grey;
-    cursor: pointer;
+.word-area {
+  height: 7.5rem;
+  margin: 4px;
+  padding: 6px;
+  font-size: 120%;
+  color: #ffe;
+  background: #363;
+  border: 0;
+  border-radius: 12px;
+  resize: vertical;
+  outline-style: dotted;
+  outline-width: 2px;
+  outline-offset: 3px;
+  outline-color: whitesmoke;
 }
 
 .auto-send {
-    margin: 1.5rem 0 0.2rem 1rem;
+    margin: 1.2rem 0 0.4rem 1rem;
     font-size: 85%;
     color: grey;
+}
+.auto-send.checked {
+    color: darkseagreen;
+}
+.send {
+    margin: 0 0 0 1rem;
+    background-color: darkseagreen;
+}
+.clear-link {
+    margin: 1rem 1rem;
+    font-size: 85%;
+    padding-left: 2px;
+    color: grey;
+    cursor: pointer;
+}
+.save {
+    background-color: sandybrown;
+}
+.save-new {
+    background-color: salmon;
+}
+
+.vertical-alignment {
+    width: 2.2rem;
+    margin: 5px 3px 0 0;
+}
+
+.horizontal-alignment {
+    margin-left: 2.2rem;
+    align-items: center;
+}
+.horizontal-alignment > * {
+    margin: 0 1rem 0 5px;
+    vertical-align: middle;
+}
+
+.styling {
+    justify-content: center;
+    align-items: flex-end;
+    font-size: 120%;
+    padding-bottom: 3px;
+}
+.styling > * {
+    margin: 0 0.5rem;
+    font-size: 80%;
+    max-height: 1.5rem;
+    padding: 0 5px;
+}
+.styling .bold {
+    font-weight: bolder;
+}
+.styling .italic {
+    font-style: italic;
+}
+.styling .off {
+    color: #888;
+}
+
+/* ---- FONT LIST ---- */
+.font-list {
+    margin-top: 0.5rem;
+    overflow-y: hidden;
+    max-height: 20rem;;
+    transition: max-height 0.1s ease-out;
+}
+.font-list.hide-fonts {
+    font-size: 0;
+    opacity: 0;
+    padding: 0;
+    margin-top: 0;
+    max-height: 0;
+    /* fade out, then shrink */
+    transition: opacity .0.5s,
+    			margin-top .05s,
+    			padding .05s,
+                max-height 0 0s,
+    			font-size .05s .05s;
+}
+.font-list.show-fonts {
+    /* unshrink, then fade in */
+    transition: font-size .05s,
+                margin-top .05s,
+                padding .05s,
+                max-height 0 0s,
+                opacity .1s .05s;
+}
+
+.font-list li {
+    list-style-type: none;
+    line-height: 1.5rem;
+    margin: 6px 0.8rem 6px 0;
+    padding: 3px 0.8rem;
+    font-size: 80%;
+    color: black;
+    background-color: #666;
+    border: 2px solid transparent;
+    border-radius: 16px;
+}
+.font-list.hide-fonts li {
+    line-height: 0;
+    margin: 0 0.8rem 0 0;
+    transition: line-height 0 .05s,
+    			margin 0 .05s;
+}
+.font-list li.selected {
+    color: white;
+    border: 2px solid sandybrown;
+    text-shadow: 0 1px 1px black;
+}
+.font-list li:hover {
+    color: white;
+    cursor: pointer;
+    text-shadow: 0 1px 1px black;
+}
+
+/* ---- WORD FX ---- */
+.word-fx {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid grey;
 }
 
 /* ---- WORD LIST ---- */
@@ -197,7 +348,7 @@ footer {
     text-decoration: underline;
     cursor: pointer;
 }
-.word-entry .action.editting {
+.word-entry .action.editing {
     color: greenyellow;
 }
 .word-entry .sigil {
