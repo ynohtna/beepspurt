@@ -20,10 +20,14 @@ const actions = {
 
 const defaultWordList = [{
   message: '[beep]',
-  fontFamily: 'Rockwell'
+  fontFamily: 'Rockwell',
+  alignment: 1,
+  fontStyle: 1
 }, {
   message: 'TECHNO',
-  fontFamily: 'Roboto'
+  fontFamily: 'Roboto',
+  alignment: 2,
+  fontStyle: 2
 }];
 
 const dup = (list, index) => {
@@ -63,7 +67,7 @@ const nudge = (list, index, dir = 1) => {
   return l;
 };
 
-const edit = (list, index) => list.map((w, i) => ({ ...w, editting: (i === index) }));
+const edit = (list, index) => list.map((w, i) => ({ ...w, editing: (i === index) }));
 const activate = (list, index) => list.map((w, i) => ({ ...w, activated: (i === index) }));
 
 const findIndex = (list, fn) => {
@@ -75,14 +79,14 @@ const findIndex = (list, fn) => {
   return -1;
 };
 
-const saveNew = (list, word) => [...list.map(w => ({ ...w, editting: false })),
-                                 { message: word, fontFamily: 'Roboto', editting: true }];
+const saveNew = (list, word) => [...list.map(w => ({ ...w, editing: false })),
+                                 { message: word, fontFamily: 'Roboto', editing: true }];
 
 const save = (list, word) => {
-  const index = findIndex(list, w => (w.editting === true));
+  const index = findIndex(list, w => (w.editing === true));
   let l;
   if (index === -1) {
-    l = [...list, { message: word, fontFamily: 'Roboto', editting: true }];
+    l = [...list, { message: word, fontFamily: 'Roboto', editing: true }];
   } else {
     l = list.slice();
     l[index].message = word;

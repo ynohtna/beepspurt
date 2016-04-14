@@ -1,6 +1,15 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
-import { columnParent, rowParent, flexContainer, flexChild, flexNone } from '../flexStyles';
+import { columnParent, rowParent, flexContainer, flexNone } from '../flexStyles';
+
+const alignmentHorizStyles = [{
+  justifyContent: 'flex-start'
+}, {
+  justifyContent: 'center'
+}, {
+  justifyContent: 'flex-end'
+}, {
+}];
 
 const WordEntry = props => {
   const { index } = props;
@@ -11,8 +20,9 @@ const WordEntry = props => {
     </span>
   ) : null;
   const activeClass = props.activated ? ' activated' : '';
-  const editClass = props.editting ? ' editting' : '';
-  const editSigil = props.editting ? (<span className='sigil'>{'\u25c0'}</span>) : null;
+  const editClass = props.editing ? ' editing' : '';
+  const editSigil = props.editing ? (<span className='sigil'>{'\u25c0'}</span>) : null;
+  const alignment = alignmentHorizStyles[(props.alignment % 3) || 0];
   return (
     <div className={`word-entry${activeClass}`}
          style={{ ...flexNone, ...rowParent }}>
@@ -25,7 +35,10 @@ const WordEntry = props => {
 
       <span className='word-activator flex-auto'
             onClick={() => props.activate(index)}>
-        <span className='word flex-auto' style={{ ...props.style, display: 'flex' }}>
+        <span className='word flex-auto'
+              style={{ ...props.style,
+                       display: 'flex',
+                       ...alignment }}>
           {props.message}
         </span>
       </span>
