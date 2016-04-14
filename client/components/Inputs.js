@@ -14,13 +14,21 @@ const CheckBox = props => (
 );
 
 const Button = props => (
-  <button { ...props } children={null}>
+  <button type='button' { ...props } children={null}>
+    {props.children}
+  </button>
+);
+
+const TextButton = props => (
+  <button type='button' { ...props } children={null}
+          className={props.className ? `text-button ${props.className}` : 'text-button'}>
     {props.children}
   </button>
 );
 
 export {
   Button,
+  TextButton,
   CheckBox,
   TextArea
 };
