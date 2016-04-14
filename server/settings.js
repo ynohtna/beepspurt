@@ -19,6 +19,13 @@ const appServer = onDevelopment => ({
         directory: './dist',
         maxAge: onDevelopment ? 0 : (60 * 60)
       }
+    },
+    fonts: {
+      path: /^\/fonts\/.*$/,
+      config: {
+        directory: './dist',
+        maxAge: onDevelopment ? 15 : (60 * 60)
+      }
     }
   }
 });
