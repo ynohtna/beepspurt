@@ -1,6 +1,8 @@
 // CLIENT PROVIDER!
+const DISPATCH_EDITOR_STATE = '/wordEditor/DISPATCH';
 const MERGE_EDITOR_STATE = '/wordEditor/MERGE';
 const SET_MESSAGE = '/wordEditor/MESSAGE';
+const SET_AUTO_DISPATCH = '/wordEditor/AUTO_DISPATCH';
 const SET_COLOUR = '/wordEditor/COLOUR';
 const SET_FONT = '/wordEditor/FONT';
 const SET_BOLD = '/wordEditor/BOLD';
@@ -11,8 +13,10 @@ const SET_VALIGN = '/wordEditor/VALIGN';
 const creator = type => payload => ({ type, payload });
 
 const actions = {
+  dispatchEditorState: () => ({ type: DISPATCH_EDITOR_STATE }),
   mergeEditorState: creator(MERGE_EDITOR_STATE),
   setMessage: creator(SET_MESSAGE),
+  setAutoDispatch: creator(SET_AUTO_DISPATCH),
   setColour: creator(SET_COLOUR),
   setFont: creator(SET_FONT),
   setBold: creator(SET_BOLD),
@@ -28,10 +32,11 @@ export const ALIGN = {
   BOTTOM: 2
 };
 
-// FIXME: Fetch from word list state the entry that's being edited, or index 0.
+// TODO: Replicate from localForage.
 const defaultWordEditorState = {
   message: 'let\'s go!',
-  fontFamily: 'Skia',
+  autoDispatch: false,
+  fontFamily: 'Heiti SC',
   bold: false,
   italic: false,
   halign: ALIGN.LEFT,
@@ -61,7 +66,7 @@ const FONT_LIST = [
   { family: 'Roboto', size: BASE_FONT_SIZE },
   { family: 'Rockwell', size: BASE_FONT_SIZE },
   { family: 'Share Tech Mono', size: 90 },
-  { family: 'Skia', size: BASE_FONT_SIZE },
+  { family: 'Skia', size: 90 },
   { family: 'Superclarendon', size: BASE_FONT_SIZE },
   { family: 'Times New Roman', size: BASE_FONT_SIZE },
   { family: 'Trebuchet MS', size: BASE_FONT_SIZE },
@@ -86,6 +91,11 @@ const reducers = {
         return {
           ...state,
           message: action.payload
+        };
+      case SET_AUTO_DISPATCH:
+        return {
+          ...state,
+          autoDispatch: action.payload
         };
       case SET_COLOUR:
         return {

@@ -4,6 +4,8 @@ import { Button, CheckBox, TextArea, TextButton } from './Inputs';
 import FontList from './FontList';
 import { columnParent, rowParent, flexContainer,
          flexAll, flexChild, flexNone } from '../flexStyles';
+import HorizontalAlignment from './HorizontalAlignment';
+import VerticalAlignment from './VerticalAlignment';
 
 function fixedFromCharCode(codePt) {
   let s;
@@ -19,50 +21,52 @@ function fixedFromCharCode(codePt) {
 @provide
 class WordEditor extends React.Component {
   static propTypes = {
+    dispatchEditorState: PropTypes.func.isRequired,
     sendSocket: PropTypes.func.isRequired,
     editor: PropTypes.object.isRequired,
     activateWord: PropTypes.func.isRequired,
     saveWord: PropTypes.func.isRequired,
     saveNewWord: PropTypes.func.isRequired,
+    setAutoDispatch: PropTypes.func.isRequired,
+    setMessage: PropTypes.func.isRequired,
     setFont: PropTypes.func.isRequired,
     setBold: PropTypes.func.isRequired,
     setItalic: PropTypes.func.isRequired,
     fontList: PropTypes.array.isRequired
   };
-  static defaultProps = {
-  };
   state = {
-    message: this.props.editor.message || '[beep]',
-    showFonts: false,
-    autoUpdate: false
+    showFonts: false
   };
-
-  // FIXME: Shouldn't need state at all, right?
-  componentWillReceiveProps(nextProps) {
-//    console.log('**** WORD EDITOR WILL RECEIVE PROPS', this.props, this.state);
-    if (nextProps.editor.message !== this.state.message) {
-      this.setState({
-        message: nextProps.editor.message
-      });
-    }
-  }
 
   componentDidUpdate(/* prevProps, prevState */) {
-    if (this.state.autoUpdate) {
-      console.warn('<<< SHOULD DISPATCH >>>');
+    if (this.props.editor.autoDispatch) {
+      console.warn('<<< SHOULD DISPATCH >>>', this.props.editor.message);
+      this.props.dispatchEditorState();
     }
   }
 
-  dispatch(message) {
-    this.props.sendSocket('/spurter/MESSAGE', message);
-    this.props.activateWord(-1);
+  changeFont(fontName) {
+    this.props.setFont(fontName);
+  }
+
+  clearMessage() {
+    this.props.setMessage('');
+  }
+
+  dispatch() {
+    // TODO: Trigger middleware dispatch somehow.
+    //    this.props.sendSocket('/spurter/MESSAGE', message);
+    //    this.props.activateWord(-1);
+    this.props.dispatchEditorState();
   }
 
   updateMessage(message) {
-    this.setState({ message });
-    if (this.state.autoUpdate) {
-      this.dispatch(message);
-    }
+    this.props.setMessage(message);
+  }
+
+  toggleAutoDispatch() {
+    const { autoDispatch } = this.props.editor;
+    this.props.setAutoDispatch(!autoDispatch);
   }
 
   // TODO: Save font, styling and alignment with word.
@@ -75,51 +79,41 @@ class WordEditor extends React.Component {
     this.props.saveNewWord(message);
   }
 
-  changeFont(fontName) {
-    this.props.setFont(fontName);
-  }
-
   render() {
 //    console.log('**** WORD EDITOR', this.props, this.state);
-    const fontName = this.props.editor.fontFamily;
-    const fontInfo = this.props.fontList.find(font => font.family === fontName);
-    const fontFamily = { fontFamily: fontName };
-    const fontSize = { fontSize: fontInfo.size ? `${fontInfo.size}%` : null };
+    const {
+      message,
+      fontFamily,
+      bold, italic,
+      halign, valign
+    } = this.props.editor;
+    const fontInfo = this.props.fontList.find(font => font.family === fontFamily);
+    const fontSize = fontInfo.size ? `${fontInfo.size}%` : '100%';
+    const fontLarger = fontInfo.size ? `${fontInfo.size + 40}%` : '140%';
     const fontStyle = {
-      fontWeight: this.props.editor.bold ? 'bold' : 'normal',
-      fontStyle: this.props.editor.italic ? 'italic' : 'normal'
+      fontFamily,
+      fontSize,
+      fontWeight: bold ? 'bold' : 'normal',
+      fontStyle: italic ? 'italic' : 'normal'
     };
     const boldClass = this.props.editor.bold ? 'bold on' : 'bold off';
     const italicClass = this.props.editor.italic ? 'italic on' : 'italic off';
-    const autosendClassNames = `auto-send ${this.state.autoUpdate ? 'checked' : 'unchecked'}`;
+    const autoDispatch = this.props.editor.autoDispatch;
+    const autodispatchClassNames = `auto-send ${autoDispatch ? 'checked' : 'unchecked'}`;
     const showFontClass = this.state.showFonts ? 'show-fonts' : 'hide-fonts';
     return (
       <div>
         <div className='word-editor'
              style={{ ...rowParent, ...flexContainer }}>
-          <div className='vertical-alignment'
-               style={{ ...flexChild, ...columnParent, ...flexNone,
-                        justifyContent: 'space-between' }}>
-            <TextButton
-               style={{ ...flexChild, ...flexNone }}>
-              {'\u25b3'}
-            </TextButton>
-            <TextButton
-               style={{ ...flexChild, ...flexNone }}>
-              {'\u25c7'}
-            </TextButton>
-            <TextButton
-               style={{ ...flexChild, ...flexNone }}>
-              {'\u25bd'}
-            </TextButton>
-          </div>
+          <VerticalAlignment className='vertical-alignment'
+                             alignment={valign} />
 
           <TextArea className='word-area dbl-click'
                     style={{ ...flexChild,
                              ...fontStyle,
-                             ...fontFamily }}
+                             fontSize: fontLarger }}
                     autoComplete='off' cols={30} rows={4}
-                    value={this.state.message}
+                    value={message}
                     onChange={::this.updateMessage}
           />
 
@@ -127,39 +121,29 @@ class WordEditor extends React.Component {
                style={{ ...flexChild, ...columnParent, ...flexNone }}>
             <Button className='round-button send'
                     style={{ ...flexChild, ...flexNone }}
-                    onClick={() => this.dispatch(this.state.message)}>
+                    onClick={::this.dispatch}>
               send
             </Button>
-            <CheckBox className={autosendClassNames}
+            <CheckBox className={autodispatchClassNames}
                       style={{ ...flexChild, ...flexNone }}
-                      checked={this.state.autoUpdate}
-                      onChange={() => this.setState({ autoUpdate: !this.state.autoUpdate })}
+                      checked={autoDispatch}
+                      onChange={::this.toggleAutoDispatch}
             >
               auto-send
             </CheckBox>
             <a className='clear-link'
                style={{ ...flexChild, ...flexNone }}
-               onClick={() => this.updateMessage('')}
+               onClick={::this.clearMessage}
             >
-              {'\u00d7\u00a0'} clear
+              {'\u00d7\u00a0 clear'}
             </a>
           </div>
         </div>
 
         <div className='word-manipulation'
              style={{ ...rowParent, ...flexContainer }}>
-          <span className='horizontal-alignment'
-                style={{ ...flexChild, ...flexNone }}>
-            <TextButton>
-              {'\u25c0'}
-            </TextButton>
-            <TextButton>
-              {'\u25c6'}
-            </TextButton>
-            <TextButton>
-              {'\u25b6'}
-            </TextButton>
-          </span>
+          <HorizontalAlignment className='horizontal-alignment'
+                               alignment={halign} />
 
           <span className='styling'
                 style={{ ...flexChild, ...flexAll }}>
@@ -172,11 +156,11 @@ class WordEditor extends React.Component {
               {fixedFromCharCode(0x1d456)}
             </a>
             <a className={showFontClass}
-               style={{ ...fontFamily,
-                        ...fontSize,
+               style={{ fontSize,
+                        fontFamily,
                         maxHeight: '1.5rem' }}
                onClick={() => this.setState({ showFonts: !this.state.showFonts })}>
-              {fontName}
+              {fontFamily}
             </a>
           </span>
 
@@ -197,9 +181,9 @@ class WordEditor extends React.Component {
         <FontList className={`font-list ${showFontClass}`}
                   style={{ ...rowParent, ...flexContainer,
                            flexWrap: 'wrap',
-                           justifyContent: 'space-around' }}
+                           justifyContent: 'space-between' }}
                   fonts={this.props.fontList}
-                  selected={fontName}
+                  selected={fontFamily}
                   onClick={::this.changeFont}/>
 
         <div className='word-fx'
