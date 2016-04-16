@@ -27,7 +27,6 @@ System.config({
     "events": "github:jspm/nodelibs-events@0.1.1",
     "performance-now": "npm:performance-now@0.2.0",
     "plask": "@empty",
-    "react": "npm:react@0.14.7",
     "react-dom": "npm:react-dom@0.14.7",
     "react-redux-provide": "npm:react-redux-provide@5.2.3",
     "redux": "npm:redux@3.3.1",
