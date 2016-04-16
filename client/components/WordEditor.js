@@ -21,12 +21,11 @@ function fixedFromCharCode(codePt) {
 @provide
 class WordEditor extends React.Component {
   static propTypes = {
-    dispatchEditorState: PropTypes.func.isRequired,
     sendSocket: PropTypes.func.isRequired,
-    editor: PropTypes.object.isRequired,
     activateWord: PropTypes.func.isRequired,
     saveWord: PropTypes.func.isRequired,
     saveNewWord: PropTypes.func.isRequired,
+    editor: PropTypes.object.isRequired,
     setAutoDispatch: PropTypes.func.isRequired,
     setMessage: PropTypes.func.isRequired,
     setFont: PropTypes.func.isRequired,
@@ -40,8 +39,7 @@ class WordEditor extends React.Component {
 
   componentDidUpdate(/* prevProps, prevState */) {
     if (this.props.editor.autoDispatch) {
-      console.warn('<<< SHOULD DISPATCH >>>', this.props.editor.message);
-      this.props.dispatchEditorState();
+      this.dispatch();
     }
   }
 
@@ -54,10 +52,11 @@ class WordEditor extends React.Component {
   }
 
   dispatch() {
-    // TODO: Trigger middleware dispatch somehow.
-    //    this.props.sendSocket('/spurter/MESSAGE', message);
-    //    this.props.activateWord(-1);
-    this.props.dispatchEditorState();
+    // TODO: Trigger dispatch through middleware somehow, so component does not need to
+    // understand transmission mechanism.
+    this.props.activateWord(-1);
+    const { message, fontFamily, bold, italic, halign, valign } = this.props.editor;
+    this.props.sendSocket('/spurter/STATE', { message, fontFamily, bold, italic, halign, valign });
   }
 
   updateMessage(message) {

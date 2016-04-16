@@ -1,5 +1,4 @@
 // CLIENT PROVIDER!
-const DISPATCH_EDITOR_STATE = '/wordEditor/DISPATCH';
 const MERGE_EDITOR_STATE = '/wordEditor/MERGE';
 const SET_MESSAGE = '/wordEditor/MESSAGE';
 const SET_AUTO_DISPATCH = '/wordEditor/AUTO_DISPATCH';
@@ -13,7 +12,6 @@ const SET_VALIGN = '/wordEditor/VALIGN';
 const creator = type => payload => ({ type, payload });
 
 const actions = {
-  dispatchEditorState: () => ({ type: DISPATCH_EDITOR_STATE }),
   mergeEditorState: creator(MERGE_EDITOR_STATE),
   setMessage: creator(SET_MESSAGE),
   setAutoDispatch: creator(SET_AUTO_DISPATCH),
