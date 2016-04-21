@@ -18,16 +18,42 @@ const actions = {
   saveNewWord: word => ({ type: SAVE_NEW_WORD, word })
 };
 
+// TODO: Persist & restore from replicator.
 const defaultWordList = [{
   message: '[beep]',
   fontFamily: 'Rockwell',
-  alignment: 1,
-  fontStyle: 1
+  bold: true,
+  italic: true,
+  halign: 1,
+  valign: 0
 }, {
   message: 'TECHNO',
+  fontFamily: 'Wire One',
+  bold: false,
+  italic: false,
+  halign: 2,
+  valign: 0
+}, {
+  message: 'top left',
   fontFamily: 'Roboto',
-  alignment: 2,
-  fontStyle: 2
+  bold: false,
+  italic: false,
+  halign: 0,
+  valign: 0
+}, {
+  message: 'middle center',
+  fontFamily: 'Roboto',
+  bold: false,
+  italic: false,
+  halign: 1,
+  valign: 1
+}, {
+  message: 'multiple lines\nbottom right',
+  fontFamily: 'Roboto',
+  bold: false,
+  italic: false,
+  halign: 2,
+  valign: 2
 }];
 
 const dup = (list, index) => {
@@ -99,24 +125,36 @@ const reducers = {
     switch (action.type) {
       case SET_WORD_LIST:
         return action.list;
+
       case DEL_WORD:
         return del(state, action.index);
+
       case DUP_WORD:
         return dup(state, action.index);
+
       case NUDGE_WORD:
         return nudge(state, action.index, action.dir);
+
       case EDIT_WORD:
         return edit(state, action.index);
+
       case ACTIVATE_WORD:
         return activate(state, action.index);
+
       case SAVE_WORD:
         return save(state, action.word);
+
       case SAVE_NEW_WORD:
         return saveNew(state, action.word);
+
       default:
         return state;
     }
-  }
+  },
+  // FIXME: This needs to handle all word list actions that modify list:
+  // 		set, del, dup, nudge, activate.
+  //  activeWordIndex: (state = null, action) =>
+  //    ((action.type === ACTIVATE_WORD) ? action.index : state)
 };
 
 export default {
