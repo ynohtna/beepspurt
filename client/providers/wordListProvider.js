@@ -150,7 +150,7 @@ const reducers = {
       default:
         return state;
     }
-  },
+  }
   // FIXME: This needs to handle all word list actions that modify list:
   // 		set, del, dup, nudge, activate.
   //  activeWordIndex: (state = null, action) =>
