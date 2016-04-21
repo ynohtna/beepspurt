@@ -1,5 +1,5 @@
 {
-  "name": "beepspurt_sandbox",
+  "name": "beepspurt",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
@@ -60,6 +60,8 @@
   "jspm": {
     "dependencies": {
       "performance-now": "npm:performance-now@^0.2.0",
+      "react": "npm:react@^15.0.1",
+      "react-dom": "npm:react-dom@^15.0.1",
       "restify": "github:ynohtna/node-restify@hacks",
       "spdy": "npm:spdy@^3.2.3",
       "ynohtna/node-restify": "github:ynohtna/node-restify@hacks"
@@ -72,7 +74,6 @@
       "crypto": "github:jspm/nodelibs-crypto@^0.1.0",
       "dgram": "github:jspm/nodelibs-dgram@^0.1.0",
       "events": "github:jspm/nodelibs-events@^0.1.1",
-      "react-dom": "npm:react-dom@^0.14.7",
       "react-redux-provide": "npm:react-redux-provide@^5.2.3",
       "redux": "npm:redux@^3.3.1",
       "redux-saga": "npm:redux-saga@^0.9.5",
