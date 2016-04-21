@@ -21,3 +21,14 @@ export const endpointFromWindowLocation = location => {
   const socketString = ['ws://', pieces[0], ':', parseInt(pieces[1], 10)].join('');
   return socketString;
 };
+
+export const fixedFromCharCode = codePt => {
+  let s;
+  if (codePt > 0xFFFF) {
+    const code = codePt - 0x10000;
+    s = String.fromCharCode(0xD800 + (code >> 10), 0xDC00 + (code & 0x3FF));
+  } else {
+    s = String.fromCharCode(codePt);
+  }
+  return s;
+};
