@@ -49,6 +49,9 @@ button {
 .text-button:hover {
     color: #ccc;
 }
+.text-button.chosen {
+    color: #eee;
+}
 
 .round-button {
     height: 2rem;
@@ -103,9 +106,17 @@ button {
 
 .flex-auto {
     flex: 1 1 auto;
+    display: flex;
 }
 .flex-none {
     flex: 0 0 auto;
+    display: flex;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
 }
 
 /* ---- HEADER ---- */
@@ -218,11 +229,20 @@ footer {
 }
 
 .vertical-alignment {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
     width: 2.2rem;
     margin: 5px 3px 0 0;
 }
+.vertical-alignment > * {
+    display: flex;
+    flex: 1 0 auto;
+}
 
 .horizontal-alignment {
+    display: flex;
+    flex: 0 0 auto;
     margin-left: 2.2rem;
     align-items: center;
 }
@@ -255,6 +275,8 @@ footer {
 
 /* ---- FONT LIST ---- */
 .font-list {
+    flex-wrap: wrap;
+    justify-content: space-around;
     margin-top: 0.5rem;
     overflow-y: hidden;
     max-height: 20rem;;
@@ -270,7 +292,7 @@ footer {
     transition: opacity .0.5s,
     			margin-top .05s,
     			padding .05s,
-                max-height 0 0s,
+                max-height 0s 0s,
     			font-size .05s .05s;
 }
 .font-list.show-fonts {
@@ -278,7 +300,7 @@ footer {
     transition: font-size .05s,
                 margin-top .05s,
                 padding .05s,
-                max-height 0 0s,
+                max-height 0s 0s,
                 opacity .1s .05s;
 }
 
@@ -323,22 +345,86 @@ footer {
 }
 .word-entry {
     padding: 1px;
-    margin-bottom: 3px;
+    margin-bottom: 5px;
     border: 1px solid grey;
     border-radius: 1px;
-    justifyContent: center;
     position: relative;
+    align-items: center;
 }
 .word-activator {
-    background-color: #333;
+    background-color: #444;
     border-radius: 2px;
     cursor: pointer;
+    position: relative;
 }
+
+.word-align-sigil {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: #888;
+    border-style: solid;
+}
+.word-align-sigil.h-left.v-top {
+    left: 0;
+    top: 0;
+    border-top-width: 4px;
+    border-left-width: 4px;
+}
+.word-align-sigil.h-center.v-top {
+    left: 50%;
+    margin-left: -6px;
+    border-top-width: 4px;
+}
+.word-align-sigil.h-right.v-top {
+    right: 0;
+    top: 0;
+    border-top-width: 4px;
+    border-right-width: 4px;
+}
+.word-align-sigil.h-left.v-middle {
+    top: 50%;
+    margin-top: -6px;
+    border-left-width: 4px;
+}
+.word-align-sigil.h-center.v-middle {
+    left: 50%;
+    margin-left: -6px;
+    height: 100%;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+}
+.word-align-sigil.h-right.v-middle {
+    top: 50%;
+    right: 0;
+    margin-top: -6px;
+    border-right-width: 4px;
+}
+.word-align-sigil.h-left.v-bottom {
+    left: 0;
+    bottom: 0;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+}
+.word-align-sigil.h-center.v-bottom {
+    left: 50%;
+    bottom: 0;
+    margin-left: -6px;
+    border-bottom-width: 4px;
+}
+.word-align-sigil.h-right.v-bottom {
+    right: 0;
+    bottom: 0;
+    border-bottom-width: 4px;
+    border-right-width: 4px;
+}
+
 .activated .word-activator {
-    background-color: #363;
+    background-color: #474;
 }
 .word-entry .word {
     padding: 1px 1rem;
+    white-space: pre-wrap;
 }
 .word-entry .action {
     padding: 1px 0 0;
@@ -352,9 +438,8 @@ footer {
     color: greenyellow;
 }
 .word-entry .sigil {
-    position: absolute;
-    left: -3px;
-    top: 3px;
+    width: 3px;
+    margin-left: -3px;
     font-size: 94%;
     color: greenyellow;
 }
