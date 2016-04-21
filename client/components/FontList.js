@@ -1,3 +1,5 @@
+import React, { PropTypes } from 'react';
+
 const FontList = props => {
   const {
     fonts,
@@ -8,7 +10,7 @@ const FontList = props => {
 
   if (!fonts || !fonts.length) {
     // FIXME: Update React so stateless component can return null/false.
-    return (<script></script>);
+    return null;
   }
 
   const fontItems = fonts.map((font, index) => (
@@ -26,5 +28,11 @@ const FontList = props => {
       {fontItems}
     </ol>
   );
+};
+FontList.propTypes = {
+  fonts: PropTypes.array.isRequired,
+  // FIXME: Rename selected to selectedFontFamily:
+  selected: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired
 };
 export default FontList;
