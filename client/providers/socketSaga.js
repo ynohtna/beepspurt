@@ -142,6 +142,7 @@ function* fetchSocket(source) {
   }
 }
 
+const nullArgs = [];
 const mungeArgs = args => ((args.length === 1) ? args[0] : args);
 
 function *sendSocket(websocket) {
@@ -151,7 +152,7 @@ function *sendSocket(websocket) {
     const send = true;
     while (send) {
       const msg = yield take(SEND_SOCKET);
-      const { addr, args } = msg;
+      const { addr, args = nullArgs } = msg;
       const id = websocket._id;
       const data = JSON.stringify({ addr, args: mungeArgs(args), id });
       if (!(addr in dontLog)) {

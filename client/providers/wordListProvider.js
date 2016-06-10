@@ -18,43 +18,77 @@ const actions = {
   saveNewWord: word => ({ type: SAVE_NEW_WORD, word })
 };
 
-// TODO: Persist & restore from replicator.
-const defaultWordList = [{
+const defaultWordListInternal = [{
   message: '[beep]',
-  fontFamily: 'Rockwell',
-  bold: true,
-  italic: true,
-  halign: 1,
-  valign: 0
+  styling: {
+    fontFamily: 'Rockwell',
+    bold: true,
+    italic: true
+  },
+  alignment: {
+    halign: 1,
+    valign: 0
+  }
 }, {
   message: 'TECHNO',
-  fontFamily: 'Wire One',
-  bold: false,
-  italic: false,
-  halign: 2,
-  valign: 0
+  styling: {
+    fontFamily: 'Wire One',
+    bold: false,
+    italic: false
+  },
+  alignment: {
+    halign: 2,
+    valign: 0
+  }
 }, {
   message: 'top left',
-  fontFamily: 'Roboto',
-  bold: false,
-  italic: false,
-  halign: 0,
-  valign: 0
+  styling: {
+    fontFamily: 'Roboto',
+    bold: false,
+    italic: false
+  },
+  alignment: {
+    halign: 0,
+    valign: 0
+  }
 }, {
   message: 'middle center',
-  fontFamily: 'Roboto',
-  bold: false,
-  italic: false,
-  halign: 1,
-  valign: 1
+  styling: {
+    fontFamily: 'Roboto',
+    bold: false,
+    italic: false
+  },
+  alignment: {
+    halign: 1,
+    valign: 1
+  }
 }, {
   message: 'multiple lines\nbottom right',
-  fontFamily: 'Roboto',
-  bold: false,
-  italic: false,
-  halign: 2,
-  valign: 2
+  styling: {
+    fontFamily: 'Roboto',
+    bold: false,
+    italic: false
+  },
+  alignment: {
+    halign: 2,
+    valign: 2
+  }
 }];
+const savedWordList = window.localStorage &&
+                      !window.location.hash.includes('noload') &&
+                      window.localStorage.getItem('wordListProvider');
+const defaultWordList = savedWordList ? JSON.parse(savedWordList).data : defaultWordListInternal;
+
+const del = (list, index) => {
+  if (index < 0 || index >= list.length || list.length === 1) {
+    console.warn(`Bad del request at index ${index} for`, list); // eslint-disable-line no-console
+    return list;
+  }
+  return [
+    ...list.slice(0, index),
+    ...list.slice(index + 1)
+  ];
+};
 
 const dup = (list, index) => {
   if (index < 0 || index >= list.length) {
@@ -65,17 +99,6 @@ const dup = (list, index) => {
     ...list.slice(0, index),
     list[index],
     list[index],
-    ...list.slice(index + 1)
-  ];
-};
-
-const del = (list, index) => {
-  if (index < 0 || index >= list.length || list.length === 1) {
-    console.warn(`Bad del request at index ${index} for`, list); // eslint-disable-line no-console
-    return list;
-  }
-  return [
-    ...list.slice(0, index),
     ...list.slice(index + 1)
   ];
 };
@@ -96,26 +119,18 @@ const nudge = (list, index, dir = 1) => {
 const edit = (list, index) => list.map((w, i) => ({ ...w, editing: (i === index) }));
 const activate = (list, index) => list.map((w, i) => ({ ...w, activated: (i === index) }));
 
-const findIndex = (list, fn) => {
-  for (let i = 0; i < list.length; ++i) {
-    if (fn(list[i], i, list)) {
-      return i;
-    }
-  }
-  return -1;
-};
-
 const saveNew = (list, word) => [...list.map(w => ({ ...w, editing: false })),
-                                 { message: word, fontFamily: 'Roboto', editing: true }];
+                                 { ...word, editing: true }];
 
 const save = (list, word) => {
-  const index = findIndex(list, w => (w.editing === true));
+//  console.log('save', list, word);
+  const index = list.findIndex(w => (w.editing === true));
   let l;
   if (index === -1) {
-    l = [...list, { message: word, fontFamily: 'Roboto', editing: true }];
+    l = [...list, { ...word, editing: true }];
   } else {
     l = list.slice();
-    l[index].message = word;
+    l[index] = { ...word, editing: true };
   }
   return l;
 };
@@ -151,13 +166,26 @@ const reducers = {
         return state;
     }
   }
-  // FIXME: This needs to handle all word list actions that modify list:
-  // 		set, del, dup, nudge, activate.
+  // FIXME: This needs to handle all word list actions that modify list indices.
+  // 		i.e.: set, del, dup, nudge, activate.
   //  activeWordIndex: (state = null, action) =>
   //    ((action.type === ACTIVATE_WORD) ? action.index : state)
 };
 
+const middleware = store => next => action => {
+  const result = next(action);
+  const wordList = store.getState().wordList;
+  // FIXME: word lists should be stored as named presets, with
+  //		an entry named init that references the actual named preset to load.
+  const listState = JSON.stringify({ data: wordList });
+  // FIXME: Only persist upon actual state changes: check via diff, or pure referential equality.
+  window.localStorage.setItem('wordListProvider', listState);
+  console.warn('+ wordListProvider persisted to localStorage +'); // eslint-disable-line no-console
+  return result;
+};
+
 export default {
   actions,
-  reducers
+  reducers,
+  middleware
 };

@@ -1,24 +1,28 @@
 // CLIENT PROVIDER!
-const MERGE_EDITOR_STATE = '/wordEditor/MERGE';
+// import { shallowEqual } from '../utils';
+
+// const TRANSMIT_MESSAGE = '/wordEditor/TRANSMIT';
+const MERGE_STATE = '/wordEditor/MERGE';
+const CLEAR_MESSAGE = '/wordEditor/CLEAR_MESSAGE';
 const SET_MESSAGE = '/wordEditor/MESSAGE';
-const SET_AUTO_DISPATCH = '/wordEditor/AUTO_DISPATCH';
-const SET_COLOUR = '/wordEditor/COLOUR';
-const SET_FONT = '/wordEditor/FONT';
 const SET_BOLD = '/wordEditor/BOLD';
 const SET_ITALIC = '/wordEditor/ITALIC';
+const SET_FONT = '/wordEditor/FONT';
 const SET_HALIGN = '/wordEditor/HALIGN';
 const SET_VALIGN = '/wordEditor/VALIGN';
 
 const creator = type => payload => ({ type, payload });
 
 const actions = {
-  mergeEditorState: creator(MERGE_EDITOR_STATE),
+//  transmitMessage: creator(TRANSMIT_MESSAGE),
+  mergeState: creator(MERGE_STATE),
+  clearMessage: creator(CLEAR_MESSAGE),
   setMessage: creator(SET_MESSAGE),
-  setAutoDispatch: creator(SET_AUTO_DISPATCH),
-  setColour: creator(SET_COLOUR),
   setFont: creator(SET_FONT),
   setBold: creator(SET_BOLD),
-  setItalic: creator(SET_ITALIC)
+  setItalic: creator(SET_ITALIC),
+  setHorizontalAlignment: creator(SET_HALIGN),
+  setVerticalAlignment: creator(SET_VALIGN)
 };
 
 export const ALIGN = {
@@ -31,16 +35,18 @@ export const ALIGN = {
 };
 
 // TODO: Replicate from localForage.
-const defaultWordEditorState = {
-  message: 'let\'s go!',
-  autoDispatch: false,
-  fontFamily: 'Heiti SC',
+const defaultMessage = 'do it';
+const defaultStyling = {
   bold: false,
   italic: false,
-  halign: ALIGN.LEFT,
-  valign: ALIGN.TOP,
-  colour: [255, 255, 255, 255]
+  fontFamily: 'Heiti SC',
+  fontSize: 80
 };
+const defaultAlignment = {
+  halign: ALIGN.LEFT,
+  valign: ALIGN.TOP
+};
+
 
 const BASE_FONT_SIZE = 80;
 const FONT_LIST = [
@@ -76,61 +82,76 @@ const FONT_LIST = [
   { family: 'Zapfino', size: 60 },
   { family: 'Zeyada', size: 120 }
 ];
+const FONT_MAP = FONT_LIST.reduce((total, cur) => ({ ...total,
+                                                     [cur.family]: {
+                                                       family: cur.family,
+                                                       size: cur.size
+                                                     } }));
 
 const reducers = {
-  editor: (state = defaultWordEditorState, action) => {
-    switch (action.type) {
-      case MERGE_EDITOR_STATE:
-        return {
-          ...state,
-          ...action.payload
-        };
+  message: (state = defaultMessage, { type, payload }) => {
+    switch (type) {
+      case CLEAR_MESSAGE:
+        return '';
       case SET_MESSAGE:
-        return {
-          ...state,
-          message: action.payload
-        };
-      case SET_AUTO_DISPATCH:
-        return {
-          ...state,
-          autoDispatch: action.payload
-        };
-      case SET_COLOUR:
-        return {
-          ...state,
-          colour: action.payload
-        };
-      case SET_FONT:
-        return {
-          ...state,
-          fontFamily: action.payload
-        };
-      case SET_BOLD:
-        return {
-          ...state,
-          bold: !!action.payload
-        };
-      case SET_ITALIC:
-        return {
-          ...state,
-          italic: !!action.payload
-        };
+        return payload;
+      case MERGE_STATE:
+        return payload.message || state;
+      default:
+        return state;
+    }
+  },
+  alignment: (state = defaultAlignment, { type, payload }) => {
+    switch (type) {
       case SET_HALIGN:
         return {
           ...state,
-          halign: action.payload
+          halign: payload
         };
       case SET_VALIGN:
         return {
           ...state,
-          valign: action.payload
+          valign: payload
+        };
+      case MERGE_STATE:
+        return {
+          ...state,
+          ...payload.alignment
+        };
+      default:
+        return state;
+    }
+  },
+  styling: (state = defaultStyling, { type, payload }) => {
+    switch (type) {
+      case SET_BOLD:
+        return {
+          ...state,
+          bold: !!payload
+        };
+      case SET_ITALIC:
+        return {
+          ...state,
+          italic: !!payload
+        };
+      case SET_FONT:
+        return {
+          ...state,
+          fontFamily: payload,
+          fontSize: FONT_MAP[payload] ? FONT_MAP[payload].size : BASE_FONT_SIZE
+        };
+      case MERGE_STATE:
+        return {
+          ...state,
+          ...payload.styling
         };
       default:
         return state;
     }
   },
 
-  fontList: () => FONT_LIST
+  fontList: () => FONT_LIST,
+  fontMap: () => FONT_MAP
 };
 
 export default {

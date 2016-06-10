@@ -133,6 +133,7 @@ const dispatchHandler = ({ addr, id, args }) => ({ type: addr,
 
 const handlers = {
   '/renderer/STATE': dispatchHandler,
+  '/spurter/STATE': dispatchHandler,
   '/spurter/MERGE': dispatchHandler,
   '/spurter/MESSAGE': dispatchHandler,
   '/spurter/FONT_FAMILY': dispatchHandler,
@@ -311,11 +312,11 @@ function* serverSaga(...args) {
     const port = config.port || 9336;
     if ((hostname === '127.0.0.1') || (hostname === 'localhost')) {
       console.warn(`
----- **** SERVER LISTENING on LOCALHOST ONLY **** ${hostname} ----
+---- **** SERVER LISTENING on LOCALHOST ONLY **** [ ${hostname}:${port} ] ----
 `);
     } else if (hostname === '0.0.0.0') {
       console.warn(`
----- **** SERVER LISTENING on ALL INTERFACES **** ----
+---- **** SERVER LISTENING on ALL INTERFACES **** [ *:${port} ] ----
 `);
     }
     server.listen(port, hostname, () =>

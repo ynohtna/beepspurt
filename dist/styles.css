@@ -112,6 +112,10 @@ button {
     flex: 0 0 auto;
     display: flex;
 }
+.flex-all {
+    flex: 1 0 auto;
+    display: flex;
+}
 
 .flex-row {
     display: flex;
@@ -187,39 +191,79 @@ footer {
 
 /* ---- WORD EDITOR ---- */
 .word-area {
-  height: 7.5rem;
-  margin: 4px;
-  padding: 6px;
-  font-size: 120%;
-  color: #ffe;
-  background: #363;
-  border: 0;
-  border-radius: 12px;
-  resize: vertical;
-  outline-style: dotted;
-  outline-width: 2px;
-  outline-offset: 3px;
-  outline-color: whitesmoke;
+    height: 7.5rem;
+    margin: 4px;
+    padding: 6px;
+    font-size: 120%;
+    color: #ffe;
+    background: #363;
+    text-shadow: 0 1px 1px black;
+    border: 0;
+    border-radius: 12px;
+    resize: vertical;
+    outline-style: dotted;
+    outline-width: 2px;
+    outline-offset: 3px;
+    outline-color: whitesmoke;
+}
+.word-area:focus {
+    outline-style: solid;
+}
+.word-area.h-left {
+    text-align: left;
+}
+.word-area.h-center {
+    text-align: center;
+}
+.word-area.h-right {
+    text-align: right;
+}
+
+.transmission-container {
+    display: flex;
+    flex-direction: column;
+}
+
+button.send {
+    display: flex;
+    margin: 0 0 0 1rem;
+    background-color: darkseagreen;
+}
+
+.sender {
+    margin: .7rem 0 0 1rem;
+    height: 5px;
+    width: 5px;
+    align-self: center;
+    background-color: grey;
+    border: 2px solid #000;
+    border-radius: 3px;
+}
+.sender.sending {
+    background-color: darkseagreen;
+    border-color: transparent;
 }
 
 .auto-send {
-    margin: 1.2rem 0 0.4rem 1rem;
+    margin: 0.4rem 0 0.4rem 1rem;
     font-size: 85%;
     color: grey;
 }
 .auto-send.checked {
     color: darkseagreen;
 }
-.send {
-    margin: 0 0 0 1rem;
-    background-color: darkseagreen;
-}
+
 .clear-link {
+    display: flex;
     margin: 1rem 1rem;
     font-size: 85%;
     padding-left: 2px;
     color: grey;
     cursor: pointer;
+}
+.save,
+.save-new {
+    margin: 0.7rem 0 0 1rem;
 }
 .save {
     background-color: sandybrown;
@@ -252,10 +296,11 @@ footer {
 }
 
 .styling {
-    justify-content: center;
+    justify-content: flex-start;
+    margin-left: 3rem;
     align-items: flex-end;
     font-size: 120%;
-    padding-bottom: 3px;
+    padding-bottom: 5px;
 }
 .styling > * {
     margin: 0 0.5rem;
@@ -275,6 +320,7 @@ footer {
 
 /* ---- FONT LIST ---- */
 .font-list {
+    display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
     margin-top: 0.5rem;
@@ -289,19 +335,19 @@ footer {
     margin-top: 0;
     max-height: 0;
     /* fade out, then shrink */
-    transition: opacity .0.5s,
-    			margin-top .05s,
-    			padding .05s,
-                max-height 0s 0s,
-    			font-size .05s .05s;
+    transition: opacity .05s,
+    margin-top .05s,
+    padding .05s,
+    max-height 0s .05s,
+    font-size .05s .05s;
 }
 .font-list.show-fonts {
     /* unshrink, then fade in */
     transition: font-size .05s,
-                margin-top .05s,
-                padding .05s,
-                max-height 0s 0s,
-                opacity .1s .05s;
+    margin-top .05s,
+    padding .05s,
+    max-height 0s .05s,
+    opacity .1s .05s;
 }
 
 .font-list li {
@@ -319,11 +365,12 @@ footer {
     line-height: 0;
     margin: 0 0.8rem 0 0;
     transition: line-height 0 .05s,
-    			margin 0 .05s;
+    margin 0 .05s;
 }
 .font-list li.selected {
     color: white;
     border: 2px solid sandybrown;
+    background-color: darkolivegreen;
     text-shadow: 0 1px 1px black;
 }
 .font-list li:hover {

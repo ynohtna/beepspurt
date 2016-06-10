@@ -14,20 +14,31 @@ class WordList extends React.Component {
     nudgeWord: PropTypes.func.isRequired,
     editWord: PropTypes.func.isRequired,
     activateWord: PropTypes.func.isRequired,
-    mergeEditorState: PropTypes.func.isRequired,
+    mergeState: PropTypes.func.isRequired,
     sendSocket: PropTypes.func.isRequired
   };
 
   activate(index) {
     const word = this.props.wordList[index];
     this.props.activateWord(index);
-    const { message, fontFamily, bold, italic, halign, valign } = word;
-    this.props.sendSocket('/spurter/MERGE', { message, fontFamily, bold, italic, halign, valign });
+    this.props.sendSocket('/spurter/STATE', word);
   }
 
   edit(index) {
     const word = this.props.wordList[index];
-    this.props.mergeEditorState(word);
+//    console.log('** mergeState', word); // eslint-disable-line no-console
+    this.props.mergeState({
+      message: word.message,
+      alignment: {
+        halign: word.halign,
+        valign: word.valign
+      },
+      styling: {
+        bold: word.bold,
+        italic: word.italic,
+        fontFamily: word.fontFamily
+      }
+    });
     this.props.editWord(index);
   }
 
@@ -48,8 +59,8 @@ class WordList extends React.Component {
       <WordEntry key={index} { ...word } index={index}
                  style={{ fontFamily: word.fontFamily,
                           fontWeight: word.bold ? 'bold' : 'normal',
-                          fontStyle: word.italic ? 'italic' : 'normal'
-                     // TODO: lookup fontFamily in fontList and set fontSize accordingly.
+                          fontStyle: word.italic ? 'italic' : 'normal',
+                          fontSize: word.fontSize ? `${word.fontSize}%` : '100%'
                    }}
                  activate={::this.activate}
                  edit={::this.edit}

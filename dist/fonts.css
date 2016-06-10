@@ -167,3 +167,14 @@
        url('/fonts/zeyada-v6-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
        url('/fonts/zeyada-v6-latin-regular.svg#Zeyada') format('svg'); /* Legacy iOS */
 }
+/* Skia */
+@font-face {
+    font-family: 'Skia';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Skia'),
+    url('Skia.ttf.woff') format('woff'),
+    url('Skia.ttf.svg#Skia') format('svg'),
+    url('Skia.ttf.eot'),
+    url('Skia.ttf.eot?#iefix') format('embedded-opentype');
+}
