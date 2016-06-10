@@ -1,6 +1,6 @@
 {
   "throwError": true,
-  "extends": "airbnb/base",
+  "extends": ["airbnb/base", "plugin:react/recommended"],
   "env": {
     "browser": true,
     "node": true
@@ -10,7 +10,8 @@
     "ecmaVersion": 7,
     "sourceType": "module",
     "ecmaFeatures": {
-      "jsx": true
+      "jsx": true,
+      "experimentalObjectRestSpread": true
     }
   },
   "plugins": [
@@ -21,6 +22,7 @@
     "comma-dangle": [2, "never"],
     "indent": [2, 2, {"SwitchCase": 1}],
     "jsx-quotes": [1, "prefer-single"],
+    "react/jsx-no-bind": [1, { "allowArrowFunctions": true }],
     "no-console": 1,
 	"no-unused-vars": 1,
     "prefer-const": 1

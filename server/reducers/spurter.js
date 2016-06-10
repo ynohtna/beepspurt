@@ -3,11 +3,16 @@
 const defaultVarsState = {
   message: '[beep]',
   fontFamily: 'Rockwell',
-  colour: [255, 255, 255, 255]
+  colour: [255, 255, 255, 255],
+  bold: false,
+  italic: false,
+  halign: 1,	// 0: left; 1: center; 2: right
+  valign: 1		// 0: top; 1: middle; 2: bottom
 };
 
 const spurterState = (state = defaultVarsState, action) => {
   switch (action.type) {
+    case '/spurter/STATE':
     case '/spurter/MERGE':
       return {
         ...state,

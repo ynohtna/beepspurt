@@ -3,14 +3,24 @@
   <head>
     <meta charset="utf-8">
     <title>[beep]spurter .min.</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="it kinda spurts words to elsewhere">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
     <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
-    <meta name="HandheldFriendly" content="True" />
-    <script src="react-with-addons-0.14.7.min.js"></script>
-    <script src="react-dom-0.14.7.min.js"></script>
-    <script src='fastclick.min.js'></script>
-    <link rel="stylesheet" href="styles.css" />
+          content="initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="apple-touch-icon" sizes="76x76" href="apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png">
+    <link rel="apple-touch-startup-image" sizes="1024x748" href="startup-1024x748.png"
+          media="screen and (min-width: 481px) and (max-width: 1024px) and (orientation: landscape)">
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src='fastclick.js'></script>
+    <script src="react-with-addons-15.0.1.min.js"></script>
+    <script src="react-dom-15.0.1.min.js"></script>
   </head>
   <body>
     <div id="app"></div>
@@ -20,11 +30,32 @@
          window.Origami.fastclick(document.body);
        }, false);
      }
-     document.body.addEventListener('touchmove', function(evt) {
-       if(!evt._isScroller) {
-         evt.preventDefault()
+//     document.body.addEventListener('touchmove', function(evt) {
+//       if(!evt._isScroller) {
+//         evt.preventDefault()
+//       }
+//     });
+     function ClearSelection() {
+       if (window.getSelection)
+         window.getSelection().removeAllRanges();
+       else if (document.selection)
+         document.selection.empty();
+     }
+     var _tripleClickTimer = 0;
+     document.ondblclick = function DoubleClick(e) {
+       if (e && e.target && e.target.className && e.target.className.indexOf('dbl-click') >= 0) {
+         return;
        }
-     });
+       ClearSelection();
+       window.clearTimeout(_tripleClickTimer);
+       //handle triple click selecting whole paragraph
+       document.onclick = function() {
+         ClearSelection();
+       };
+       _tripleClickTimer = window.setTimeout(function() {
+         document.onclick = null;
+       }, 1000);
+     };
     </script>
     <script src="client.min.js"></script>
   </body>

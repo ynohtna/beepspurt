@@ -9,7 +9,7 @@ const appServer = onDevelopment => ({
   hostname,
   version,
   autoStart: true,
-  gzip: false,
+  gzip: true,
 
   statics: {
     index: {
@@ -19,6 +19,13 @@ const appServer = onDevelopment => ({
         directory: './dist',
         maxAge: onDevelopment ? 0 : (60 * 60)
       }
+    },
+    fonts: {
+      path: /^\/fonts\/.*$/,
+      config: {
+        directory: './dist',
+        maxAge: onDevelopment ? (15 * 60) : (24 * 60 * 60)	// 15 minutes : 24 hours.
+      }
     }
   }
 });
@@ -26,7 +33,8 @@ const appServer = onDevelopment => ({
 const settings = {
   width: 800,
   height: 600,
-  center: true,
+  position: { x: 400, y: 1200 },
+//  center: true,
   framerate: 30,
   title: name,
 

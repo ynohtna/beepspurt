@@ -30,7 +30,7 @@ class Header extends React.Component {
   }
 
   reconnect() {
-    console.log('... RECONNECTING ...');
+    console.log('... RECONNECTING ...');	// eslint-disable-line no-console
     this.props.openSocket();
   }
 

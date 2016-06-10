@@ -1,4 +1,3 @@
-// import 'babel-polyfill';
 const Plask = require('plask');
 import createSagaMiddleware from 'redux-saga';
 import createStore from './store';
@@ -43,6 +42,7 @@ const reportInterval = 5;
 const reportFrames = fps * reportInterval;
 let realFrame = 0;
 let maxFrameTime = 0;
+let lastState;
 let lastFrame;
 let lastClock;
 
@@ -52,6 +52,7 @@ Plask.simpleWindow({
   settings,
 
   init() {
+//    this.setTitle('-- test --');
     const { paint } = this;
     renderer.init(paint, settings);
     dispatch('/plask/INIT');
@@ -90,18 +91,18 @@ Plask.simpleWindow({
 
     if (state === 'pause') {
       // No need to do any clearing or rendering.
-      return;
     } else if (state === 'off') {
-      // FIXME: Only clear once.
-      canvas.clear(0, 0, 0, 0);
-      return;
+      if (lastState !== 'off') {
+        canvas.clear(0, 0, 0, 0);	// Only clear once.
+      }
+    } else {
+      // Clear canvas.
+      const { clearColour: [clrr, clrg, clrb, clra] } = rendererState;
+      canvas.clear(clrr, clrg, clrb, clra);
+
+      // Perform render.
+      renderer.draw(canvas, paint, storeState);
     }
-
-    // Clear canvas.
-    const { clearColour: [clrr, clrg, clrb, clra] } = rendererState;
-    canvas.clear(clrr, clrg, clrb, clra);
-
-    // Perform render.
-    renderer.draw(canvas, paint, storeState);
+    lastState = state;
   }
 });

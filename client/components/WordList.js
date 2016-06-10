@@ -1,57 +1,9 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
-import { columnParent, rowParent, flexContainer, flexChild, flexNone } from '../flexStyles';
+import WordEntry from './WordEntry';
 
-const WordEntry = props => {
-  const { index } = props;
-  const maybeDel = props.canDel ? (
-    <span className='del action flex-none'
-          onClick={() => props.del(index)}>
-      del
-    </span>
-  ) : null;
-  const activeClass = props.activated ? ' activated' : '';
-  const editClass = props.editting ? ' editting' : '';
-  const editSigil = props.editting ? (<span className='sigil'>{'\u25c0'}</span>) : null;
-  return (
-    <div className={`word-entry${activeClass}`}
-         style={{ ...flexNone, ...rowParent }}>
-    {editSigil}
-      <span className={`edit action flex-none${editClass}`}
-            onClick={() => props.edit(index)}
-      >
-        edit
-      </span>
-
-      <span className='word-activator flex-auto'
-            onClick={() => props.activate(index)}>
-        <span className='word flex-auto' style={{ ...props.style, display: 'flex' }}>
-          {props.message}
-        </span>
-      </span>
-
-      {maybeDel}
-
-      <span className='dup action flex-none'
-            onClick={() => props.dup(index)}>
-        dup
-      </span>
-
-      <span className='swappers flex-none'>
-        <span className='swapper up'
-              onClick={() => props.nudge(index, -1)}
-        >
-          {'\u25b2'}
-        </span>
-        <span className='swapper down'
-              onClick={() => props.nudge(index, 1)}
-        >
-          {'\u25bc'}
-        </span>
-      </span>
-    </div>
-  );
-};
+// TODO: Refactor into CSS styles applied to .word-list
+import { columnParent, flexContainer } from '../flexStyles';
 
 @provide
 class WordList extends React.Component {
@@ -62,19 +14,31 @@ class WordList extends React.Component {
     nudgeWord: PropTypes.func.isRequired,
     editWord: PropTypes.func.isRequired,
     activateWord: PropTypes.func.isRequired,
-    mergeEditorState: PropTypes.func.isRequired,
+    mergeState: PropTypes.func.isRequired,
     sendSocket: PropTypes.func.isRequired
   };
 
   activate(index) {
     const word = this.props.wordList[index];
     this.props.activateWord(index);
-    this.props.sendSocket('/spurter/MESSAGE', word.message);
+    this.props.sendSocket('/spurter/STATE', word);
   }
 
   edit(index) {
     const word = this.props.wordList[index];
-    this.props.mergeEditorState(word);
+//    console.log('** mergeState', word); // eslint-disable-line no-console
+    this.props.mergeState({
+      message: word.message,
+      alignment: {
+        halign: word.halign,
+        valign: word.valign
+      },
+      styling: {
+        bold: word.bold,
+        italic: word.italic,
+        fontFamily: word.fontFamily
+      }
+    });
     this.props.editWord(index);
   }
 
@@ -91,9 +55,13 @@ class WordList extends React.Component {
   }
 
   renderWords(words) {
-    return words.map((entry, index, array) => (
-      <WordEntry key={index} { ...entry } index={index}
-                 style={{ fontFamily: entry.fontFamily }}
+    return words.map((word, index, array) => (
+      <WordEntry key={index} { ...word } index={index}
+                 style={{ fontFamily: word.fontFamily,
+                          fontWeight: word.bold ? 'bold' : 'normal',
+                          fontStyle: word.italic ? 'italic' : 'normal',
+                          fontSize: word.fontSize ? `${word.fontSize}%` : '100%'
+                   }}
                  activate={::this.activate}
                  edit={::this.edit}
                  dup={::this.dup}

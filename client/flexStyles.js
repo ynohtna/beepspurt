@@ -18,6 +18,7 @@ const columnParent = {
 };
 
 const flexChild = {
+  display: 'flex',
   flex: '1 0 0', // flexGrow, flexShrink, flexBasis
   alignSelf: 'auto'
 };
