@@ -1,0 +1,8 @@
+mprogram MagicProgram {
+  program: WebGLProgram {},
+  set_uMVMatrix: [Function],
+  location_uMVMatrix: WebGLUniformLocation {},
+  set_uPMatrix: [Function],
+  location_uPMatrix: WebGLUniformLocation {},
+  location_aVertexPosition: 0
+}
