@@ -1,25 +1,41 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 
+const nullClass = '';
+
 @provide
 class Master extends React.Component {
   static propTypes = {
-    // TODO: rendererState
     masterState: PropTypes.any,
-    sendSocket: PropTypes.func.isRequired
+    sendSocket: PropTypes.func.isRequired,
+    invertedOutput: PropTypes.bool.isRequired,
+    invertOutput: PropTypes.func.isRequired
   };
 
   stateChange(state) {
-//    console.log('Master stateChange request', state);
     this.props.sendSocket('/renderer/STATE', state);
   }
 
+  invert() {
+    const { invertOutput, invertedOutput, sendSocket } = this.props;
+    invertOutput();
+
+    const colours = [[255, 255, 255, 255],
+                     [0, 0, 0, 255]];
+    const i = invertedOutput | 0;
+    sendSocket('/renderer/CLEAR_COLOUR', colours[i]);
+    sendSocket('/spurter/COLOUR', colours[1 - i]);
+  }
+
   render() {
-//    console.log('Master', this.props.masterState);
-    const { state } = this.props.masterState;
-    const activeOff = (state === 'off') ? 'active' : null;
-    const activeRun = (state === 'run') ? 'active' : null;
-    const activePause = (state === 'pause') ? 'active' : null;
+    const { invertedOutput, masterState } = this.props;
+    const { state } = masterState;
+
+    const activeOff = (state === 'off') ? 'active' : nullClass;
+    const activeRun = (state === 'run') ? 'active' : nullClass;
+    const activePause = (state === 'pause') ? 'active' : nullClass;
+    const activeInvert = invertedOutput ? 'active' : nullClass;
+
     return (
       <span className='master'>
         <button className={activeOff}
@@ -36,6 +52,11 @@ class Master extends React.Component {
                 onClick={() => this.stateChange('pause')}
         >
           pause
+        </button>
+        <button className={`inverter ${activeInvert}`}
+                onClick={() => this.invert()}
+        >
+          invert
         </button>
       </span>
     );

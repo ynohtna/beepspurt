@@ -13,7 +13,7 @@ export const delayedResolve = ms => new Promise(resolve => setTimeout(() => reso
 
 // ---- URL stuff: convert browser location to websocket endpoint.
 const domainRegex = /[a-zA-Z0-9\-\.]+/;
-const portRegex = /(\:(6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}))/;
+const portRegex = /(:(6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}))/;
 
 export const endpointFromWindowLocation = location => {
   const loc = (typeof location === 'string') ? location : location.toString();

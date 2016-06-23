@@ -2,7 +2,7 @@ const defaultRendererState = {
   frame: 0,
   width: 800,
   height: 600,
-  clearColour: [0, 0, 0, 1],
+  clearColour: [0, 0, 0, 255],
   beatInterval: 1000,
   state: 'run' // 'pause', 'off'
 };

@@ -1,6 +1,4 @@
 import React from 'react';
-import { rowParent, flexAll } from '../flexStyles';
-
 import TextAreaContainer from './TextAreaContainer';
 import FontListContainer from './FontListContainer';
 import SendAutoSendClear from './SendAutoSendClear';
@@ -8,13 +6,13 @@ import StylingContainer from './StylingContainer';
 import SaveButtonContainer from './SaveButtonContainer';
 import HorizontalAlignmentContainer from './HorizontalAlignmentContainer';
 import VerticalAlignmentContainer from './VerticalAlignmentContainer';
+import WordFxContainer from './WordFxContainer';
 
 class WordEditor extends React.Component {
   render() {
     return (
       <div>
-        <div className='word-editor'
-             style={{ ...rowParent }}>
+        <div className='word-editor flex-row'>
           <VerticalAlignmentContainer />
 
           <TextAreaContainer />
@@ -22,8 +20,7 @@ class WordEditor extends React.Component {
           <SendAutoSendClear />
         </div>
 
-        <div className='word-manipulation'
-             style={{ ...rowParent }}>
+        <div className='word-manipulation flex-row'>
           <HorizontalAlignmentContainer />
 
           <StylingContainer />
@@ -33,9 +30,8 @@ class WordEditor extends React.Component {
 
         <FontListContainer/>
 
-        <div className='word-fx'
-             style={{ ...flexAll }}>
-          <h2>Word FX</h2>
+        <div className='word-fx flex-all'>
+          <WordFxContainer />
         </div>
       </div>
     );

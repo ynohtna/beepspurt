@@ -189,6 +189,24 @@ footer {
     border: 2px solid sandybrown;
 }
 
+.master button.inverter {
+    padding: 2px 0.8rem;
+    margin-left: 2.4rem;
+    border-radius: 12px;
+    color: white;
+    background-color: black;
+    border-color: gray;
+}
+.master button.inverter:hover {
+    border-color: white;
+}
+.master button.inverter.active {
+    color: black;
+    text-shadow: none;
+    background-color: white;
+}
+
+
 /* ---- WORD EDITOR ---- */
 .word-area {
     height: 7.5rem;

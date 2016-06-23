@@ -1,12 +1,15 @@
 /* eslint-disable no-console */
 /* eslint no-param-reassign: [2, {"props": false }] */
+/* eslint no-underscore-dangle: [2, { "allow": ['_wsc', '_remote'] }] */
 import restify from 'restify';
 import restifyPlugins from 'restify-plugins';
 import { Watershed } from 'watershed';
 import { createHash } from 'crypto';
-
+import chalk from 'chalk';
+const util = require('util');
 import { effects, isCancelError } from 'redux-saga';
 const { call, cancel, fork, race, put, select, take } = effects;
+
 import { cancellablePromise } from '../utils';
 import selectors from './selectors';
 
@@ -23,6 +26,11 @@ const STOP_SERVER = '/server/STOP';
 const SERVER_SEND = '/server/SEND';
 const UPDATE_CLIENTS = '/server/UPDATE_CLIENTS';
 
+const conlog = (...msgs) => console.log(chalk.green.bold(...msgs));
+const connote = (...msgs) => console.log(chalk.magenta.bold(...msgs));
+const conwarn = (...msgs) => console.warn(chalk.bgYellow.black(...msgs));
+const conerr = (...msgs) => console.error(chalk.bgRed.bold.white(...msgs));
+
 const toJS = obj => JSON.stringify(obj);
 
 const dontLog = {
@@ -32,11 +40,11 @@ const dontLog = {
 };
 
 const serveApi = (req, res) => {
-  console.log(`
+  console.log(chalk.bgGreen.white.bold(`
 ${req.serverName}$ ${req.method} ${req.url}
     ${req.headers.host} ${req.headers['user-agent']} ${req.headers.accept}
     ${toJS(req.params)}
-`);
+`));
   res.send({ ok: 'OK', request: req.url });
 };
 
@@ -54,16 +62,16 @@ const serverSource = (server) => {
   };
   server._wsc = {};
   server.on('opened', () => {
-    console.log('server/opened');
+    conwarn('server/opened');
     resolve('opened');
   });
   server.on('connect', (request /* , socket, head */) => {
-    console.log('server/connect', request);
+    conwarn('server/connect', request);
     resolve('connect');
   });
   server.on('upgrade', (request, socket, head) => {
-    console.log('**** socket:upgrade', request.headers.origin,
-                request.headers['sec-websocket-key']);
+    console.log(chalk.bgYellow.white.bold('**** socket:upgrade', request.headers.origin,
+                                          request.headers['sec-websocket-key']));
     let wsc;
     let id;
     try {
@@ -76,7 +84,7 @@ const serverSource = (server) => {
       hash.update(`${rand}`);
       id = hash.digest('hex');
     } catch (ex) {
-      console.error('**** socket:error', ex);
+      conerr('**** socket:error', ex);
       socket.end();
       return resolve(ex);
     }
@@ -85,31 +93,31 @@ const serverSource = (server) => {
       try {
         action = JSON.parse(text);
         if (!(action.addr in dontLog)) {
-          console.log('>>>> socket:text', text, action);
+          conlog('>>>> socket:text', text, util.inspect(action));
         }
       } catch (ex) {
-        console.error('>>>> ---- >>>> socket:text', text);
-        console.error(text, ex);
+        conerr('>>>> ---- >>>> socket:text', text);
+        conerr(text, ex);
       }
       resolve(action);
     });
     wsc.on('end', (code, reason) => {
-      console.log('---- socket:end [code, reason, remote]', code, reason, wsc._remote);
+      conlog('---- socket:end [code, reason, remote]', code, reason, wsc._remote);
       server._wsc[id] = null;
     });
     if (id) {
       wsc.send(JSON.stringify({ addr: '*HIHO*', id }));
       server._wsc[id] = wsc;
-      console.log('++ :: %%', id, wsc._remote);
+      conwarn('++ HIHO:', id, wsc._remote);
     }
     return resolve('upgraded');
   });
   server.on('clientError', (ex, socket) => {
-    console.log('**** clientError', ex, socket);
+    conerr('**** clientError', ex, socket);
     resolve('clienterror');
   });
   server.on('close', () => {
-    console.log('---- server/closed');
+    conerr('---- server/closed');
     resolve('closed');
   });
 
@@ -133,6 +141,7 @@ const dispatchHandler = ({ addr, id, args }) => ({ type: addr,
 
 const handlers = {
   '/renderer/STATE': dispatchHandler,
+  '/renderer/CLEAR_COLOUR': dispatchHandler,
   '/spurter/STATE': dispatchHandler,
   '/spurter/MERGE': dispatchHandler,
   '/spurter/MESSAGE': dispatchHandler,
@@ -148,13 +157,13 @@ const handlers = {
 
 function* serveRequests(source) {
   try {
-    console.log('* serveRequests');
+    conlog('* serveRequests');
 
     let req = yield call(source.nextRequest);
     while (req) {
       let action;
       if (!req.addr || !(req.addr in dontLog)) {
-        console.log('**** request', req);
+        connote('**** request', util.inspect(req));
       }
       if (req.addr && req.addr in handlers) {
         action = handlers[req.addr](req);
@@ -162,13 +171,13 @@ function* serveRequests(source) {
       } else if ((typeof req === 'string') && (req in handlers)) {
         action = handlers[req];
       } else {
-        console.error('^^^^^ UNHANDLED SERVER REQUEST !!!!!\n');
+        conerr('^^^^^ UNHANDLED SERVER REQUEST !!!!!\n');
       }
       if (action) {
 //        console.log('>>>>', action);
         yield put(action);
       } else {
-        console.log('^^^^ NO ACTION ^^^^\n');
+        conwarn('^^^^ NO ACTION ^^^^\n');
       }
       req = yield call(source.nextRequest);
     }
@@ -181,7 +190,7 @@ function* serveRequests(source) {
 
 function* sendMessage(server, msg) {
   const { addr, id, args } = msg;
-  if (id) {
+  if (id) {	// Send message to specific recipient.
     const wsc = (id in server._wsc) && server._wsc[id];
     if (wsc) {
       const packet = JSON.stringify({ addr, args });
@@ -190,19 +199,17 @@ function* sendMessage(server, msg) {
         console.log('--->', packet);
       }
     } else {
-      console.error('!!!! SERVER_SEND request on DEAD CHANNEL', id, server._wsc);
+      conerr('!!!! SERVER_SEND request on DEAD CHANNEL', id, server._wsc);
     }
   } else if (server._wsc) {
+    // Broadcast message to all clients.
 //    console.log(' :: --==>', server._wsc);
     const packet = JSON.stringify({ addr, args });
-    for (const i in server._wsc) {
-//      console.log(' :: --==>', i);
-      if (!server._wsc.hasOwnProperty(i)) {
-        continue;
-      }
+    const ids = Object.keys(server._wsc);
+    for (const i of ids) {
       const client = server._wsc[i];
       if (client) {
-        console.log('[-=>', packet, i);
+        conlog('[-=>', packet, i);
         client.send(packet);
       }
     }
@@ -244,23 +251,21 @@ function* sendMessages(server) {
         }
       } else if (msg.upgraded) {
         // Clear out all memos so all clients get updates.
-        console.log(`
-- UPGRADED - MEMO CLEAR -
-        `);
+        conwarn('- UPGRADED - MEMO CLEAR -');
         memos = [];
       } else {
-        console.error(' how we got here?!!! ', msg);
+        conerr(' how we got here?!!! ', msg);
       }
     }
   } catch (error) {
     if (!isCancelError(error)) {
-      console.error('*sendMessages error', error);
+      conerr('*sendMessages error', error);
     }
   }
 }
 
 const createServer = config => {
-  console.log('* createServer', config, '\n');
+  conlog('* createServer\n', util.inspect(config), '\n');
   const server = restify.createServer(config);
 
   server.pre(restify.CORS()); // eslint-disable-line new-cap
@@ -276,7 +281,7 @@ const createServer = config => {
   const statics = config.statics;
   Object.keys(statics).forEach(key => {
     const cfg = statics[key];
-    console.log('** static:', key, cfg, '\n');
+    conlog('** static:', key, '\n', util.inspect(cfg), '\n');
     const handler = restifyPlugins.serveStatic(cfg.config);
     server.get(cfg.path, handler);
   });
@@ -288,7 +293,7 @@ function* serverSaga(...args) {
   const config = args[1];
 
   yield take('/plask/INIT');
-  console.log('* serverSaga/INIT');
+  conlog('* serverSaga/INIT');
 
   const server = createServer(config);
   const source = serverSource(server);
@@ -307,17 +312,15 @@ function* serverSaga(...args) {
     const requestsTask = yield fork(serveRequests, source);
 
     // Start server listening.
-    console.log('socket/opening...');
+    conlog('socket/opening...');
     const hostname = config.hostname || '127.0.0.1';
     const port = config.port || 9336;
     if ((hostname === '127.0.0.1') || (hostname === 'localhost')) {
-      console.warn(`
----- **** SERVER LISTENING on LOCALHOST ONLY **** [ ${hostname}:${port} ] ----
-`);
+      conwarn(`
+---- **** SERVER LISTENING on LOCALHOST ONLY **** [ ${hostname}:${port} ] ----`);
     } else if (hostname === '0.0.0.0') {
-      console.warn(`
----- **** SERVER LISTENING on ALL INTERFACES **** [ *:${port} ] ----
-`);
+      conwarn(`
+---- **** SERVER LISTENING on ALL INTERFACES **** [ *:${port} ] ----`);
     }
     server.listen(port, hostname, () =>
       server.emit('opened')
@@ -333,14 +336,14 @@ function* serverSaga(...args) {
       stop: take(STOP_SERVER),
       start: take(START_SERVER)
     });
-    console.log('***** serveSaga race!', winner,
-                requestsTask.isRunning(), sendTask.isRunning());
+    conlog('***** serveSaga race!', winner,
+           requestsTask.isRunning(), sendTask.isRunning());
 
     // Cancel fetch & send tasks.
-    console.log('cancelling server request handling');
+    conlog('cancelling server request handling');
     yield cancel(requestsTask);
 
-    console.log('cancelling server sending');
+    conlog('cancelling server sending');
     yield cancel(sendTask);
 
     // TODO: Dispatch socket status as per the race winner.

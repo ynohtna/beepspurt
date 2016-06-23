@@ -21,6 +21,7 @@ System.config({
     "babel": "npm:babel-core@5.8.38",
     "babel-plugin-transform-object-rest-spread": "npm:babel-plugin-transform-object-rest-spread@6.6.5",
     "babel-runtime": "npm:babel-runtime@5.8.38",
+    "chalk": "npm:chalk@1.1.3",
     "core-js": "npm:core-js@1.2.6",
     "crypto": "github:jspm/nodelibs-crypto@0.1.0",
     "dgram": "github:jspm/nodelibs-dgram@0.1.0",
@@ -38,7 +39,7 @@ System.config({
     "watershed": "npm:watershed@0.3.1",
     "ynohtna/node-restify": "github:ynohtna/node-restify@hacks",
     "github:jspm/nodelibs-assert@0.1.0": {
-      "assert": "npm:assert@1.3.0"
+      "assert": "npm:assert@1.4.1"
     },
     "github:jspm/nodelibs-buffer@0.1.0": {
       "buffer": "npm:buffer@3.6.0"
@@ -83,7 +84,7 @@ System.config({
       "path-browserify": "npm:path-browserify@0.0.0"
     },
     "github:jspm/nodelibs-process@0.1.2": {
-      "process": "npm:process@0.11.2"
+      "process": "npm:process@0.11.4"
     },
     "github:jspm/nodelibs-querystring@0.1.0": {
       "querystring": "npm:querystring@0.2.0"
@@ -177,7 +178,10 @@ System.config({
       "stream": "github:jspm/nodelibs-stream@0.1.0",
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
-    "npm:assert@1.3.0": {
+    "npm:assert@1.4.1": {
+      "assert": "github:jspm/nodelibs-assert@0.1.0",
+      "buffer": "github:jspm/nodelibs-buffer@0.1.0",
+      "process": "github:jspm/nodelibs-process@0.1.2",
       "util": "npm:util@0.10.3"
     },
     "npm:babel-plugin-syntax-object-rest-spread@6.5.0": {
@@ -274,6 +278,14 @@ System.config({
       "safe-json-stringify": "npm:safe-json-stringify@1.0.3",
       "stream": "github:jspm/nodelibs-stream@0.1.0",
       "util": "github:jspm/nodelibs-util@0.1.0"
+    },
+    "npm:chalk@1.1.3": {
+      "ansi-styles": "npm:ansi-styles@2.2.1",
+      "escape-string-regexp": "npm:escape-string-regexp@1.0.5",
+      "has-ansi": "npm:has-ansi@2.0.0",
+      "process": "github:jspm/nodelibs-process@0.1.2",
+      "strip-ansi": "npm:strip-ansi@3.0.1",
+      "supports-color": "npm:supports-color@2.0.0"
     },
     "npm:cipher-base@1.0.2": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0",
@@ -444,6 +456,9 @@ System.config({
       "process": "github:jspm/nodelibs-process@0.1.2",
       "util": "github:jspm/nodelibs-util@0.1.0"
     },
+    "npm:has-ansi@2.0.0": {
+      "ansi-regex": "npm:ansi-regex@2.0.0"
+    },
     "npm:hash.js@1.0.3": {
       "inherits": "npm:inherits@2.0.1"
     },
@@ -602,6 +617,9 @@ System.config({
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:process@0.11.2": {
+      "assert": "github:jspm/nodelibs-assert@0.1.0"
+    },
+    "npm:process@0.11.4": {
       "assert": "github:jspm/nodelibs-assert@0.1.0"
     },
     "npm:pseudomap@1.0.2": {
@@ -792,6 +810,12 @@ System.config({
     },
     "npm:string_decoder@0.10.31": {
       "buffer": "github:jspm/nodelibs-buffer@0.1.0"
+    },
+    "npm:strip-ansi@3.0.1": {
+      "ansi-regex": "npm:ansi-regex@2.0.0"
+    },
+    "npm:supports-color@2.0.0": {
+      "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:through2@0.6.5": {
       "process": "github:jspm/nodelibs-process@0.1.2",

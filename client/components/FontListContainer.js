@@ -2,12 +2,6 @@ import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 import FontList from './FontList';
 
-/*
-   style={{ ...rowParent, ...flexContainer,
-   flexWrap: 'wrap',
-   justifyContent: 'space-between' }}
- */
-
 @provide
 class FontListContainer extends React.Component {
   static propTypes = {
