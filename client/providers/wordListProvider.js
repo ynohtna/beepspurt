@@ -172,15 +172,28 @@ const reducers = {
   //    ((action.type === ACTIVATE_WORD) ? action.index : state)
 };
 
+let lastSavedState = null;
+
 const middleware = store => next => action => {
   const result = next(action);
   const wordList = store.getState().wordList;
   // FIXME: word lists should be stored as named presets, with
   //		an entry named init that references the actual named preset to load.
-  const listState = JSON.stringify({ data: wordList });
-  // FIXME: Only persist upon actual state changes: check via diff, or pure referential equality.
-  window.localStorage.setItem('wordListProvider', listState);
-  console.warn('+ wordListProvider persisted to localStorage +'); // eslint-disable-line no-console
+
+  // Only persist upon actual state changes. TODO: check via diff.
+  if (lastSavedState === wordList) {
+    return result;
+  }
+
+  try {
+    const listState = JSON.stringify({ data: wordList });
+    window.localStorage.setItem('wordListProvider', listState);
+    console.warn('+ wordListProvider persisted +'); // eslint-disable-line no-console
+    lastSavedState = wordList;
+  } catch (e) {
+    console.error('Failed to persist wordList: ', e); // eslint-disable-line no-console
+  }
+
   return result;
 };
 
