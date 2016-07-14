@@ -8,6 +8,7 @@ import chalk from 'chalk';
 const util = require('util');
 
 const ON_DEV = (process.env.NODE_ENV && process.env.NODE_ENV.startsWith('dev'));
+const NO_RENDER = process.env.NO_RENDER !== undefined;
 const log = ON_DEV ? (...args) => console.log(...args) // eslint-disable-line no-console
   : function noop() {};
 
@@ -16,16 +17,20 @@ let bootMsg = `
       --=-=-=-==-=-=-=--
     ---=  PRODUCTION  =---
       --=-=-=-==-=-=-=--
-
 `;
 if (ON_DEV) {
   bootMsg = `
 
     <<<<---->>>> DEVELOPMENT <<<<---->>>>
-
 `;
 }
-console.log(chalk.bgMagenta.white.bold(bootMsg)); // eslint-disable-line no-console
+log(chalk.bgMagenta.white.bold(bootMsg));
+if (NO_RENDER) {
+  log(chalk.bgRed.white.bold(`
+
+    [[ XX ]] RENDERING DISABLED [[ XX ]]
+`));
+}
 
 import appSettings from './settings';
 const settings = appSettings(ON_DEV);
@@ -81,6 +86,9 @@ Plask.simpleWindow({
     }
     lastFrame = now;
 
+    if (NO_RENDER) {
+      return;
+    }
 
     // Every expected second show amortised draw timing stats.
     if ((realFrame % reportFrames) === 0) {
@@ -91,7 +99,9 @@ Plask.simpleWindow({
     }
     realFrame += 1;
 
-    const { clearColour: [clrr, clrg, clrb, clra] } = rendererState;
+    const { foreground, background, invert } = rendererState;
+    const [clrr, clrg, clrb, clra] = invert ? foreground : background;
+
     if (state === 'pause') {
       // No need to do any clearing or rendering.
     } else if (state === 'off') {
@@ -99,12 +109,11 @@ Plask.simpleWindow({
         canvas.clear(clrr, clrg, clrb, clra);
       }
     } else {
-      // Clear canvas.
+      // Clear canvas, then render.
       canvas.clear(clrr, clrg, clrb, clra);
-
-      // Perform render.
       renderer.draw(gl, canvas, paint, storeState);
     }
+
     lastState = state;
   }
 });

@@ -3,8 +3,10 @@ const defaultRendererState = {
   width: 800,
   height: 600,
   clearColour: [0, 0, 0, 255],
-  beatInterval: 1000,
-  state: 'run' // 'pause', 'off'
+  state: 'run', // 'pause', 'off'
+  foreground: [255, 255, 255, 255],
+  background: [0, 0, 0, 255],
+  invert: false
 };
 
 const validStates = {
@@ -32,10 +34,25 @@ const rendererState = (state = defaultRendererState, action) => {
         ...state,
         frame: state.frame + 1
       };
-    case '/renderer/CLEAR_COLOUR':
+    case '/renderer/FOREGROUND':
       return {
         ...state,
-        clearColour: action.payload
+        foreground: action.payload
+      };
+    case '/renderer/BACKGROUND':
+      return {
+        ...state,
+        background: action.payload
+      };
+    case '/renderer/INVERT':
+      return {
+        ...state,
+        invert: action.payload
+      };
+    case '/renderer/REQUEST':
+      return {
+        ...state,
+        [`req_${action.payload}`]: state.frame
       };
     default:
       return state;

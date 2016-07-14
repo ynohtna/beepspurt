@@ -13,6 +13,8 @@ const { call, cancel, fork, race, put, select, take } = effects;
 import { cancellablePromise } from '../utils';
 import selectors from './selectors';
 
+import wsHandlers from './wsHandlers';
+
 // Server notifications.
 const SERVER_STARTED = '/server/STARTED';
 const SERVER_STOPPED = '/server/STOPPED';
@@ -134,21 +136,10 @@ const serverSource = (server) => {
   };
 };
 
-const mungeArgs = args => ((args.length === 1) ? args[0] : args);
-const dispatchHandler = ({ addr, id, args }) => ({ type: addr,
-                                                   id,
-                                                   payload: mungeArgs(args) });
-
 const handlers = {
-  '/renderer/STATE': dispatchHandler,
-  '/renderer/CLEAR_COLOUR': dispatchHandler,
-  '/spurter/STATE': dispatchHandler,
-  '/spurter/MERGE': dispatchHandler,
-  '/spurter/MESSAGE': dispatchHandler,
-  '/spurter/FONT_FAMILY': dispatchHandler,
-  '/spurter/COLOUR': dispatchHandler,
-  '/ping': ({ args, id }) => ({ type: SERVER_SEND, addr: '/pong', args, id }),
+  ...wsHandlers,
   // ---- internal notifications ----
+  '/ping': ({ args, id }) => ({ type: SERVER_SEND, addr: '/pong', args, id }), // ping => pong
   opened: { type: SERVER_STARTED },
   closed: { type: SERVER_STOPPED },
   connected: { type: CLIENT_CONNECTED },

@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 /* eslint no-param-reassign: [2, {"props": false }] */
+const util = require('util');
 import chalk from 'chalk';
 import { effects, isCancelError } from 'redux-saga';
 const { call, cancel, fork, put, race, take } = effects;
@@ -19,7 +20,7 @@ const SOCKET_CLOSE = '/socket/CLOSE';
 
 const conlog = (...msgs) => console.log(chalk.blue.bold(...msgs));
 const conwarn = (...msgs) => console.warn(chalk.magenta.bold(...msgs));
-const conerr = (...msgs) => console.err(chalk.blue.inverse.white.bold(...msgs));
+const conerr = (...msgs) => console.error(chalk.blue.inverse.white.bold(...msgs));
 
 const oscSource = socket => {
   const messageQueue = [];
@@ -49,7 +50,7 @@ const oscSource = socket => {
       type: OSC_RECV,
       ...event
     };
-    conlog('OSC socket/receive', res);
+    conlog('OSC socket/receive', util.inspect(res));
     resolve(res);
   });
   return {
@@ -59,13 +60,11 @@ const oscSource = socket => {
   };
 };
 
-const handlers = {
-  '*': msg => ({
-    type: msg.addr,
-    payload: (msg.args.length === 1) ? msg.args[0] : msg.args
-  }),
-  ...oscHandlers
-};
+// FIXME: Replace with explicit whitelisting of all accepted OSC verbs in oscHandlers.js.
+const defaultOscHandler = msg => ({
+  type: msg.addr,
+  payload: (msg.args.length === 1) ? msg.args[0] : msg.args
+});
 
 function* fetchSocket(source) {
   try {
@@ -75,14 +74,15 @@ function* fetchSocket(source) {
     while (msg) {
       if (msg.type && msg.type === OSC_RECV) {
         let action = null;
-        if (handlers.hasOwnProperty(msg.addr)) {
-          action = handlers[msg.addr](msg);
+        if (oscHandlers.hasOwnProperty(msg.addr)) {
+          action = oscHandlers[msg.addr](msg);
+          conlog('using OSC/RECV handler for msg:', util.inspect(msg), '=>', action);
         } else {
-          conwarn('using default OSC/RECV handler for msg:', msg);
-          action = handlers['*'](msg);
+          conwarn('using default OSC/RECV handler for msg:', util.inspect(msg));
+          action = defaultOscHandler(msg);
         }
         if (action) {
-          conlog('> OSC put', action);
+          conlog('> OSC put', util.inspect(action));
           yield put(action);
         }
       } else if (msg === 'opened') {

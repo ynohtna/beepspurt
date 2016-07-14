@@ -1,9 +1,8 @@
 // SERVER IMPLEMENTATION! TODO: Share with client-side.
 
 const defaultVarsState = {
-  message: '[beep]',
+  message: 'deep\ndeep\n[beep]',
   fontFamily: 'Rockwell',
-  colour: [255, 255, 255, 255],
   bold: false,
   italic: false,
   halign: 1,	// 0: left; 1: center; 2: right
@@ -28,10 +27,25 @@ const spurterState = (state = defaultVarsState, action) => {
         ...state,
         fontFamily: action.payload
       };
-    case '/spurter/COLOUR':
+    case '/spurter/BOLD':
       return {
         ...state,
-        colour: action.payload
+        bold: action.payload
+      };
+    case '/spurter/ITALIC':
+      return {
+        ...state,
+        italic: action.payload
+      };
+    case '/spurter/HALIGN_':
+      return {
+        ...state,
+        halign: action.payload
+      };
+    case '/spurter/VALIGN':
+      return {
+        ...state,
+        valign: action.payload
       };
     default:
       return state;
