@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
+import Tapper from './Tapper.js';
 
 const nullClass = '';
 
@@ -16,15 +17,12 @@ class Master extends React.Component {
     this.props.sendSocket('/renderer/STATE', state);
   }
 
-  invert() {
+  invert = () => {
     const { invertOutput, invertedOutput, sendSocket } = this.props;
     invertOutput();
 
-    const colours = [[255, 255, 255, 255],
-                     [0, 0, 0, 255]];
-    const i = invertedOutput | 0;
-    sendSocket('/renderer/CLEAR_COLOUR', colours[i]);
-    sendSocket('/spurter/COLOUR', colours[1 - i]);
+    const inverted = 1 - (invertedOutput | 0);
+    sendSocket('/renderer/INVERT', inverted);
   }
 
   render() {
@@ -38,28 +36,34 @@ class Master extends React.Component {
 
     return (
       <span className='master'>
-        <button className={activeOff}
-                onClick={() => this.stateChange('off')}
-        >
-          off
-        </button>
-        <button className={activeRun}
-                onClick={() => this.stateChange('run')}
-        >
-          run
-        </button>
-        <button className={activePause}
-                onClick={() => this.stateChange('pause')}
-        >
-          pause
-        </button>
+        <span className='rendererControls'>
+          <button className={activeOff}
+                  onClick={() => this.stateChange('off')}
+          >
+            off
+          </button>
+          <button className={activeRun}
+                  onClick={() => this.stateChange('run')}
+          >
+            run
+          </button>
+          <button className={activePause}
+                  onClick={() => this.stateChange('pause')}
+          >
+            pause
+          </button>
+        </span>
         <button className={`inverter ${activeInvert}`}
-                onClick={() => this.invert()}
+                onClick={this.invert}
         >
           invert
         </button>
+        <Tapper
+            onPulse={this.invert}
+        />
       </span>
     );
   }
 }
+
 export default Master;
