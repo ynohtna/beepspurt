@@ -18,6 +18,7 @@ const CheckBox = props => (
   </label>
 );
 CheckBox.propTypes = {
+  onChange: PropTypes.func,
   className: PropTypes.string,
   style: PropTypes.object,
   children: PropTypes.node
@@ -29,6 +30,7 @@ const Button = props => (
   </button>
 );
 Button.propTypes = {
+  onClick: PropTypes.func,
   children: PropTypes.node
 };
 
@@ -39,6 +41,7 @@ const TextButton = props => (
   </button>
 );
 TextButton.propTypes = {
+  onChange: PropTypes.func,
   className: PropTypes.string,
   children: PropTypes.node
 };
