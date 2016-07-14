@@ -14,7 +14,7 @@ jspm install restify=github:ynohtna/node-restify@hacks
 This fork removes an attempt by `lib/dtrace.js` to `require('dtrace-provider')` at runtime, which
 also fails in the Plask node environment, as well as branching off the latest release on github.
 
-The default branch/version served by npm which installs a very old 1.32.5 version of `spdy` that
+The default branch/version served by npm installs a very old 1.32.5 version of `spdy` that
 tries to `require('_http_commmon')` (line 12, `lib/spdy/stream.js`) at runtime and, again, fails.
 
 ## react-redux-provide
