@@ -125,7 +125,7 @@ button {
 
 /* ---- HEADER ---- */
 header {
-    margin: 4px 8px 0;
+    margin: 4px 8px;
     height: 1.6rem;
     font-size: 110%;
 }
@@ -153,9 +153,15 @@ header .error {
 header .closed {
     color: burlywood;
 }
+.closed .status {
+    padding: 0 6px;
+    color: black;
+    background-color: tomato;
+    border-radius: 12px;
+}
 
 header .reload {
-    margin: 0 0.5rem;
+    margin: 0 0.6rem;
     color: #4a6;
 }
 
@@ -166,7 +172,14 @@ footer {
 }
 
 /* ---- MASTER ---- */
-.master button {
+.master {
+    margin-left: 0.6rem;
+}
+.rendererControls {
+    display: inline-block;
+    vertical-align: top;
+}
+.rendererControls button {
     padding: 2px 1.2rem;
     margin: 0 0.6rem;
     font-size: 80%;
@@ -176,36 +189,61 @@ footer {
     outline: none;
     border: 2px solid transparent;
 }
-.master button:hover {
+.rendererControls button:hover {
     color: white;
     text-shadow: 0 1px 1px black;
 }
-.master button:active {
+.rendererControls button:active {
     border: 2px solid sandybrown;
 }
-.master button.active {
+.rendererControls button.active {
     color: white;
     text-shadow: 0 1px 1px black;
     border: 2px solid sandybrown;
 }
 
-.master button.inverter {
+.master .inverter {
+    vertical-align: top;
     padding: 2px 0.8rem;
-    margin-left: 2.4rem;
+    margin-left: 1.2rem;
+    margin-right: 4px;
     border-radius: 12px;
-    color: white;
+    color: #eee;
     background-color: black;
-    border-color: gray;
+    border: 2px solid #666;
 }
-.master button.inverter:hover {
-    border-color: white;
+.master .inverter:hover {
+    border-color: #eee;
 }
-.master button.inverter.active {
-    color: black;
+.master .inverter.active {
+    color: #000;
     text-shadow: none;
-    background-color: white;
+    background-color: #eee;
 }
 
+/* ---- TAPPER ---- */
+.tapper {
+    display: inline-flex;
+    border: 2px solid #666;
+    border-left-style: dashed;
+    border-radius: 6px;
+}
+.tapper.flash {
+    border: 2px solid #ccc;
+}
+.tapper .enable {
+    margin: 0;
+}
+.tapper .enable input[type='checkbox'] {
+    margin: 4px 8px;
+}
+.tapper .tap-button {
+    margin: 0;
+    padding-left: 9px;
+    padding-right: 9px;
+    background-color: #666;
+    border-radius: 6px;
+}
 
 /* ---- WORD EDITOR ---- */
 .word-area {
@@ -500,6 +538,9 @@ button.send {
     cursor: pointer;
 }
 .word-entry .action.editing {
+    margin-bottom: 2px;
+    font-style: italic;
+    text-decoration: none;
     color: greenyellow;
 }
 .word-entry .sigil {
