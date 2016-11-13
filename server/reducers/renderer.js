@@ -2,10 +2,10 @@ const defaultRendererState = {
   frame: 0,
   width: 800,
   height: 600,
-  clearColour: [0, 0, 0, 255],
   state: 'run', // 'pause', 'off'
   foreground: [255, 255, 255, 255],
   background: [0, 0, 0, 255],
+  clearColour: [0, 0, 0, 0],
   invert: false
 };
 
@@ -43,6 +43,11 @@ const rendererState = (state = defaultRendererState, action) => {
       return {
         ...state,
         background: action.payload
+      };
+    case '/renderer/CLEAR_COLOUR':
+      return {
+        ...state,
+        clearColour: action.payload
       };
     case '/renderer/INVERT':
       return {
