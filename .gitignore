@@ -1,5 +1,9 @@
 *~
 .DS_Store
+dist/server.*
+dist/client.*
+dist/proto.*
+server/*.png
 jspm_packages/
 node_modules/
 tmp/
