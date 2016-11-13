@@ -167,8 +167,9 @@ header .reload {
 
 /* ---- FOOTER ---- */
 footer {
-    height: 1rem;
+    height: 0.5rem;
     font-size: 50%;
+    color: #666;
 }
 
 /* ---- MASTER ---- */
@@ -561,6 +562,19 @@ button.send {
     display: inline-block;
     text-align: center;
     cursor: pointer;
+}
+
+/* ---- Sequencer ---- */
+.sequencer .round-button {
+    margin: 0 1rem;
+    padding: 0.2rem 1.5rem;
+}
+.sequencer .next {
+    background-color: darkseagreen;
+}
+.sequencer .small-text {
+    font-size: 90%;
+    margin: 0 1rem 0 0;
 }
 
 /* ---- iPad styles ---- */
