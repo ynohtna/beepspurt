@@ -1,7 +1,7 @@
 const name = '[beep]spurt';
 const port = 9336;
 const hostname = '0.0.0.0';
-const version = '1.0.0';
+const version = '1.0.2';
 
 const appServer = onDevelopment => ({
   name,
