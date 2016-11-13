@@ -1,7 +1,17 @@
+# Test
+
+* Updated React 15.3.2
+
 # Enhancements
 
-  * Server reducer support for /renderer/FLIP_COLOUR message so client doesn't have to
+  * Server reducer support of /renderer/FLIP_COLOUR message so client doesn't have to
     handle state then send two CLEAR & COLOUR messages.
+
+  * FX: component list
+
+  * FX: background photo
+
+  * FX: bounce customisable message to Arena
 
 # Builds
 
