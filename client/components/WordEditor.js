@@ -6,7 +6,7 @@ import StylingContainer from './StylingContainer';
 import SaveButtonContainer from './SaveButtonContainer';
 import HorizontalAlignmentContainer from './HorizontalAlignmentContainer';
 import VerticalAlignmentContainer from './VerticalAlignmentContainer';
-import WordFxContainer from './WordFxContainer';
+import WordFxContainer from './fx/WordFxContainer';
 
 class WordEditor extends React.Component {
   render() {
