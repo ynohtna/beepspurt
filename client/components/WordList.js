@@ -19,9 +19,15 @@ class WordList extends React.Component {
   };
 
   activate(index) {
-    const word = this.props.wordList[index];
+    const { uuid, ...word } = this.props.wordList[index];
+    console.log('** activate', word); // eslint-disable-line no-console
     this.props.activateWord(index);
     this.props.sendSocket('/spurter/STATE', word);
+
+    if (uuid) {
+      // TODO: Retrieve FX associated with this word entry and activate them accordingly.
+      console.log(`UUID: ${uuid}`); // eslint-disable-line no-console
+    }
   }
 
   edit(index) {

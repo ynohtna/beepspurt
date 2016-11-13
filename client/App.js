@@ -3,6 +3,7 @@ import provide from 'react-redux-provide';
 
 import Header from './components/Header';
 import Master from './components/Master';
+import Sequencer from './components/Sequencer';
 import WordEditor from './components/WordEditor';
 import WordList from './components/WordList';
 import { columnParent, rowParent, flexContainer,
@@ -27,8 +28,8 @@ const RightPanel = () => (
       <div style={{ ...flexChild }}>
         <h2>LFO {'>'} OPACITY</h2>
       </div>
-      <div style={{ ...flexChild }}>
-        <h2>SEQUENCER</h2>
+      <div style={{ ...flexChild, justifyContent: 'flex-end' }}>
+        <Sequencer />
       </div>
     </section>
   </section>
