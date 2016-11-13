@@ -70,7 +70,7 @@ Plask.simpleWindow({
     const { gl, canvas, paint } = this;
     const storeState = store.getState();
     const { rendererState } = storeState;
-    const { state, frame } = rendererState;
+    const { state, frame, clearColour } = rendererState;
 
     if (state !== 'pause') {
       dispatch('/renderer/FRAME_ADVANCE');
@@ -99,8 +99,7 @@ Plask.simpleWindow({
     }
     realFrame += 1;
 
-    const { foreground, background, invert } = rendererState;
-    const [clrr, clrg, clrb, clra] = invert ? foreground : background;
+    const [clrr, clrg, clrb, clra] = clearColour;
 
     if (state === 'pause') {
       // No need to do any clearing or rendering.
