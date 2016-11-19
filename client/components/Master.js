@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
-import Tapper from './Tapper.js';
+import Tapper from './Tapper';
 
 const nullClass = '';
 

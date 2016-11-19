@@ -207,7 +207,7 @@ footer {
     vertical-align: top;
     padding: 2px 0.8rem;
     margin-left: 1.2rem;
-    margin-right: 4px;
+    margin-right: 0;
     border-radius: 12px;
     color: #eee;
     background-color: black;
@@ -225,9 +225,9 @@ footer {
 /* ---- TAPPER ---- */
 .tapper {
     display: inline-flex;
-    border: 2px solid #666;
-    border-left-style: dashed;
-    border-radius: 6px;
+    border: 2px solid #444;
+    border-left-style: none;
+    border-radius: 0 20px 20px 0;
 }
 .tapper.flash {
     border: 2px solid #ccc;
@@ -243,7 +243,13 @@ footer {
     padding-left: 9px;
     padding-right: 9px;
     background-color: #666;
-    border-radius: 6px;
+    border-radius: 1rem;
+}
+.tapper .reset-button {
+    margin: 0 0.5rem;
+    padding-top: 0.5rem;
+    text-decoration: none;
+    color: #ccc;
 }
 
 /* ---- WORD EDITOR ---- */
@@ -441,6 +447,26 @@ button.send {
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid grey;
+}
+.fx-container {
+    width: 100%;
+}
+.fx-container h4 {
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+.fx-container button {
+    margin: 0 0.7rem;
+}
+.fx-container button.numeric {
+    display: inline-block;
+    min-width: 25px;
+    background-color: #666;
+    border-radius: 1rem;
+}
+
+.compass-spin input[type='checkbox'] {
+    margin-left: 1rem;
 }
 
 /* ---- WORD LIST ---- */

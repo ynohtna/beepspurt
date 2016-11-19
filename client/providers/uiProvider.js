@@ -1,7 +1,13 @@
 const panels = [
-  'Font'
+  'Font',
+  'Fx'
 ];
 
+const initialPanelStates = {
+  Fx: true
+};
+
+// --------------------
 const makeActionType = (panel, type) => `/ui/${panel}Panel/${type}`;
 
 const actions = panels.reduce((out, panel) => ({
@@ -35,7 +41,7 @@ const reducePanelState = (panel, initiallyOpen = false) => (state = initiallyOpe
 
 const reducers = panels.reduce((out, panel) => ({
   ...out,
-  [`${panel.toLowerCase()}PanelIsOpen`]: reducePanelState(panel)
+  [`${panel.toLowerCase()}PanelIsOpen`]: reducePanelState(panel, initialPanelStates[panel])
 }), {});
 
 export default {
