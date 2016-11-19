@@ -143,7 +143,8 @@ const handlers = {
   opened: { type: SERVER_STARTED },
   closed: { type: SERVER_STOPPED },
   connected: { type: CLIENT_CONNECTED },
-  upgraded: { type: CLIENT_UPGRADED }
+  upgraded: { type: CLIENT_UPGRADED },
+  clienterror: null
 };
 
 function* serveRequests(source) {
