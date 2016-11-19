@@ -35,7 +35,7 @@ export const ALIGN = {
 };
 
 // TODO: Replicate from localForage.
-const defaultMessage = 'do it';
+const defaultMessage = '[beep]';
 const defaultStyling = {
   bold: false,
   italic: false,
@@ -51,33 +51,33 @@ const defaultAlignment = {
 const BASE_FONT_SIZE = 80;
 const FONT_LIST = [
   { family: 'Aladin', size: 110 },
-  { family: 'American Typewriter', size: BASE_FONT_SIZE },
-  { family: 'Arial Black', size: BASE_FONT_SIZE },
-  { family: 'Bradley Hand', size: BASE_FONT_SIZE },
-  { family: 'Chalkduster', size: BASE_FONT_SIZE },
-  { family: 'Copperplate', size: BASE_FONT_SIZE },
-  { family: 'Courier New', size: BASE_FONT_SIZE },
-  { family: 'DIN Alternate', size: BASE_FONT_SIZE },
-  { family: 'Futura', size: BASE_FONT_SIZE },
-  { family: 'Georgia', size: BASE_FONT_SIZE },
-  { family: 'Gill Sans', size: BASE_FONT_SIZE },
-  { family: 'Heiti SC', size: BASE_FONT_SIZE },
-  { family: 'Helvetica', size: BASE_FONT_SIZE },
-  { family: 'Marker Felt', size: BASE_FONT_SIZE },
-  { family: 'Menlo', size: BASE_FONT_SIZE },
-  { family: 'Optima', size: BASE_FONT_SIZE },
-  { family: 'Papyrus', size: BASE_FONT_SIZE },
-  { family: 'Roboto', size: BASE_FONT_SIZE },
-  { family: 'Rockwell', size: BASE_FONT_SIZE },
+  { family: 'American Typewriter' },
+  { family: 'Arial Black' },
+  { family: 'Bradley Hand' },
+  { family: 'Chalkduster' },
+  { family: 'Copperplate' },
+  { family: 'Courier New' },
+  { family: 'DIN Alternate' },
+  { family: 'Futura' },
+  { family: 'Georgia' },
+  { family: 'Gill Sans' },
+  { family: 'Heiti SC' },
+  { family: 'Helvetica' },
+  { family: 'Marker Felt' },
+  { family: 'Menlo' },
+  { family: 'Optima' },
+  { family: 'Papyrus' },
+  { family: 'Roboto' },
+  { family: 'Rockwell' },
   { family: 'Share Tech Mono', size: 90 },
   { family: 'Skia', size: 90 },
-  { family: 'Superclarendon', size: BASE_FONT_SIZE },
-  { family: 'Times New Roman', size: BASE_FONT_SIZE },
-  { family: 'Trebuchet MS', size: BASE_FONT_SIZE },
-  { family: 'Ultra', size: BASE_FONT_SIZE },
-  { family: 'Underdog', size: BASE_FONT_SIZE },
+  { family: 'Superclarendon' },
+  { family: 'Times New Roman' },
+  { family: 'Trebuchet MS' },
+  { family: 'Ultra' },
+  { family: 'Underdog' },
   { family: 'Unica One', size: 90 },
-  { family: 'Wallpoet', size: BASE_FONT_SIZE },
+  { family: 'Wallpoet' },
   { family: 'Wire One', size: 120 },
   { family: 'Zapfino', size: 60 },
   { family: 'Zeyada', size: 120 }
@@ -85,7 +85,7 @@ const FONT_LIST = [
 const FONT_MAP = FONT_LIST.reduce((total, cur) => ({ ...total,
                                                      [cur.family]: {
                                                        family: cur.family,
-                                                       size: cur.size
+                                                       size: cur.size || BASE_FONT_SIZE
                                                      } }));
 
 const reducers = {
