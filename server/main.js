@@ -2,7 +2,8 @@ const Plask = require('plask');
 import createSagaMiddleware from 'redux-saga';
 import createStore from './store';
 import Socket from './socket';
-import { oscSaga, serverSaga } from './providers/index';
+import OscSender from './oscSender';
+import { extSaga, oscSaga, serverSaga } from './providers/index';
 import renderer from './renderers/index';
 import chalk from 'chalk';
 const util = require('util');
@@ -42,6 +43,7 @@ log(chalk.cyan.bold('Initial state: ', util.inspect(store.getState()), '\n'));
 
 sagaMiddleware.run(oscSaga, new Socket(settings.osc));
 sagaMiddleware.run(serverSaga, settings.server);
+sagaMiddleware.run(extSaga(new OscSender({ port: 7000 }), '/ext/ARENA'));
 
 import perfnow from 'performance-now';
 const fps = settings.framerate || 30;

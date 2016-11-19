@@ -131,7 +131,7 @@ class Socket extends EventEmitter {
       exclusive: true,
       ...options
     };
-    this.socket__ = null;
+    this.socket_ = null;
   }
   open() {
     this.socket_ = createSocket('udp4');

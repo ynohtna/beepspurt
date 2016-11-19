@@ -21,7 +21,9 @@ const wsHandlers = {
   '/spurter/BOLD': dispatchHandler,
   '/spurter/ITALIC': dispatchHandler,
   '/spurter/HALIGN': dispatchHandler,
-  '/spurter/VALIGN': dispatchHandler
+  '/spurter/VALIGN': dispatchHandler,
+  '/ext/ARENA': dispatchHandler
+  // TODO: Update with full set of server exposed reducer actions.
 };
 
 export default wsHandlers;
