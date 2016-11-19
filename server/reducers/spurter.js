@@ -1,17 +1,17 @@
 // SERVER IMPLEMENTATION! TODO: Share with client-side.
 
 const defaultVarsState = {
-  message: '[peeb]\n[experimental]\n[elnicectro]\n[beep]',
+  message: '[beep]',
   fontFamily: 'Rockwell',
   bold: false,
   italic: false,
-  zoomScale: 1.0,
+  zoomScale: 0.3,
   halign: 1,				// 0: left; 1: center; 2: right
   valign: 1,				// 0: top; 1: middle; 2: bottom
   marginVH: 0.1,			// Ratio of margin to viewport height.
   lineSpacing: 1.0,			// Ratio of emHeight between subsequent lines of text.
   backgroundMode: 1,		  // 0: none, 1: tape, 2: shadow
-  backgroundOffsetRatio: 0.4, // offset = lineSpacing * backgroundOffsetRatio
+  backgroundOffsetRatio: 0.2, // offset = lineSpacing * backgroundOffsetRatio
   debug: false
 };
 

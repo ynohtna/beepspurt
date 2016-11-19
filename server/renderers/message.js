@@ -6,7 +6,7 @@ const Plask = require('plask');
 // ---- INIT ----
 const initMessage = (gl, canvas, paint /* , settings */) => {
   paint.setFontFamily('Rockwell', 0);
-  paint.setTextSize(256);
+  paint.setTextSize(320);
   paint.setFakeBoldText(true);
   paint.setAntiAlias(true);
   paint.setSubpixelText(true);
