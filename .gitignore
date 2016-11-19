@@ -7,3 +7,4 @@ server/*.png
 jspm_packages/
 node_modules/
 tmp/
+photos/
