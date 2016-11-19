@@ -1,6 +1,6 @@
 const defaultPhotoState = {
-  filename: 'are-you-a-robot.jpg',
-  fillmode: 'contain'	// none, fill, contain, cover, scale-down
+  filename: 'hail-satan.jpg',
+  fillmode: 'cover'	// none, fill, contain, cover, scale-down
 };
 
 const photoState = (state = defaultPhotoState, action) => {

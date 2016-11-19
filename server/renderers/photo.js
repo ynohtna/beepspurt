@@ -23,7 +23,7 @@ const getPhotos = dir => {
 };
 
 // ---- initPhoto ----
-const initPhoto = (gl, canvas, paint, settings) => {
+const initPhoto = (/* gl, canvas, paint, settings */) => {
   const cwd = process.cwd();
   photoDir = path.join(cwd, '/photos');
   console.log(chalk.green(`:::: photoDir: ${photoDir} ::::`));
@@ -37,12 +37,9 @@ const initPhoto = (gl, canvas, paint, settings) => {
 const calcPos = (dw, dh, sw, sh, fillmode) => {
   const xscale = dw / sw;
   const yscale = dh / sh;
-  const daspect = dw / dh;
-  const saspect = sw / sh;
 
   let w;
   let h;
-  let s;
   let dxm;
   let dym;
   let sxm;
@@ -74,15 +71,19 @@ const calcPos = (dw, dh, sw, sh, fillmode) => {
 
     case 'cover':
       if (yscale > xscale) {
+        // Source height will scale to fill exactly device height.
         // Source image will be cropped left/right.
+        w = dw / yscale;
+        sxm = ((sw * yscale) - dw) / 2;
         drawCoords = [0, 0, dw, dh,
-                      0, 0, sw, sh // TODO
-        ];
+                      sxm, 0, sxm + w, sh];
       } else {
+        // Source width will scale to fill exactly device width.
         // Source image will be cropped top/bottom.
+        h = dh / xscale;
+        sym = ((sh * xscale) - dh) / 2;
         drawCoords = [0, 0, dw, dh,
-                      0, 0, sw, sh // TODO
-        ];
+                      0, sym, sw, sym + h];
       }
       break;
 
