@@ -3,6 +3,15 @@ import React, { PropTypes } from 'react';
 import { Button, CheckBox } from './Inputs.js';
 import { now } from '../utils.js';
 
+const initialState = {
+  flash: false,
+  enabled: false,
+  lastPulse: null,
+  nextPulse: null,
+  lastTap: null,
+  interval: null
+};
+
 class Tapper extends React.Component {
   static propTypes = {
     onIntervalChange: PropTypes.func,
@@ -10,12 +19,7 @@ class Tapper extends React.Component {
   };
 
   state = {
-    flash: false,
-    enabled: false,
-    lastPulse: null,
-    nextPulse: null,
-    lastTap: null,
-    interval: null
+    ...initialState
   };
 
 /*
@@ -23,6 +27,22 @@ class Tapper extends React.Component {
     console.log('****', nextState);
   }
 */
+
+  componentWillUnmount() {
+    this.cancelTimer();
+  }
+
+  cancelTimer() {
+    if (this._timer) {
+      clearTimeout(this._timer);
+      this._timer = null;
+    }
+  }
+
+  onReset = () => {
+    this.cancelTimer();
+    this.setState(initialState);
+  };
 
   onEnableToggle = () => {
     this.setState({ enabled: !this.state.enabled });
@@ -75,7 +95,7 @@ class Tapper extends React.Component {
     const { onPulse } = this.props;
     if (enabled && onPulse) {
       onPulse();
-      console.log(`PULSED ${t} ${dt}`);
+//      console.log(`PULSED ${t} ${dt}`);
     }
 
     if (this._timer) {
@@ -100,6 +120,10 @@ class Tapper extends React.Component {
                 onClick={this.onTap}>
           {'•'}
         </Button>
+        <a className='reset-button'
+           onClick={this.onReset}>
+          {'\u00d7'}
+        </a>
       </span>
     );
   }
