@@ -14,6 +14,7 @@ const wsHandlers = {
   '/renderer/FOREGROUND': dispatchHandler,
   '/renderer/BACKGROUND': dispatchHandler,
   '/renderer/INVERT': dispatchHandler,
+
   '/spurter/STATE': dispatchHandler,
   '/spurter/MERGE': dispatchHandler,
   '/spurter/MESSAGE': dispatchHandler,
@@ -22,7 +23,14 @@ const wsHandlers = {
   '/spurter/ITALIC': dispatchHandler,
   '/spurter/HALIGN': dispatchHandler,
   '/spurter/VALIGN': dispatchHandler,
+  '/spurter/ZOOM_SCALE': dispatchHandler,
+  '/spurter/MARGIN_VH': dispatchHandler,
+  '/spurter/LINE_SPACING': dispatchHandler,
+  '/spurter/BACKGROUND_MODE': dispatchHandler,
+  '/spurter/BACKGROUND_OFFSET_RATIO': dispatchHandler,
+
   '/ext/ARENA': dispatchHandler
+
   // TODO: Update with full set of server exposed reducer actions.
 };
 

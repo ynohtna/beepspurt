@@ -5,7 +5,7 @@ const defaultVarsState = {
   fontFamily: 'Rockwell',
   bold: false,
   italic: false,
-  zoomScale: 0.3,
+  zoomScale: 3,				// percentage
   halign: 1,				// 0: left; 1: center; 2: right
   valign: 1,				// 0: top; 1: middle; 2: bottom
   marginVH: 0.1,			// Ratio of margin to viewport height.

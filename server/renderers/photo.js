@@ -12,9 +12,11 @@ let photoFillmode;
 let photoCanvas;
 let drawCoords;
 
-const getPhotos = dir => {
+
+const listPhotos = (dir = photoDir) => {
   try {
     const files = fs.readdirSync(dir);
+    console.log(chalk.green(`:::: ${dir} ::::\n${util.inspect(files)}`));
     return files;
   } catch (e) {
     console.error(e);
@@ -22,14 +24,14 @@ const getPhotos = dir => {
   }
 };
 
+
 // ---- initPhoto ----
 const initPhoto = (/* gl, canvas, paint, settings */) => {
   const cwd = process.cwd();
   photoDir = path.join(cwd, '/photos');
   console.log(chalk.green(`:::: photoDir: ${photoDir} ::::`));
 
-  const files = getPhotos(photoDir);
-  console.log(chalk.green(util.inspect(files)));
+  listPhotos();
 };
 
 
@@ -156,5 +158,6 @@ const drawPhoto = (gl, canvas, paint, state) => {
 
 export {
   initPhoto,
-  drawPhoto
+  drawPhoto,
+  listPhotos
 };

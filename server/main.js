@@ -66,6 +66,7 @@ Plask.simpleWindow({
     renderer.init(gl, canvas, paint, settings);
     dispatch('/plask/INIT');
     dispatch('/renderer/FRAME_INIT', settings);
+    dispatch('/photo/LIST');
   },
 
   draw() {

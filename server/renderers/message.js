@@ -220,7 +220,7 @@ const drawMessage = (gl, canvas, paint, state) => {
   const dstBoxH = height - (dstMargin * 2);
   const zoomW = dstBoxW / srcW;
   const zoomH = dstBoxH / srcH;
-  const zoomA = Math.min(zoomW, zoomH) * zoomScale;
+  const zoomA = Math.min(zoomW, zoomH) * (zoomScale / 100);
 
   const dstW = srcW * zoomA;
   const dstH = srcH * zoomA;
