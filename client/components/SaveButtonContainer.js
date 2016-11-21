@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 import { Button } from './Inputs';
-import { flexChild, flexNone } from '../flexStyles';
 
 @provide
 class SaveButtonContainer extends React.Component {
@@ -32,7 +31,7 @@ class SaveButtonContainer extends React.Component {
 
   render() {
     return (
-      <span style={{ ...flexChild, ...flexNone }}>
+      <span>
         <Button className='round-button save'
                 onClick={::this.saveWord}>
           save

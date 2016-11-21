@@ -30,7 +30,7 @@ class WordEditor extends React.Component {
 
         <FontListContainer/>
 
-        <div className='word-fx flex-all'>
+        <div className='word-fx-section flex-all'>
           <WordFxContainer />
         </div>
       </div>

@@ -22,6 +22,12 @@ const safeLookup = (a, i) => {
   }
 };
 
+const renderFxRow = (fxDesc, fxState) => (
+  (!fxDesc || !fxState)
+    ? <div className='word-fx-spacer'></div>
+	: <div className='word-fx'>{ fxDesc }</div>
+);
+
 const WordEntry = props => {
   const {
     index,
@@ -29,7 +35,9 @@ const WordEntry = props => {
     editing,
     canDel,
     halign,
-    valign
+    valign,
+    fxDesc,
+    fxState
   } = props;
   const maybeDel = canDel ? (
     <span className='del action flex-none'
@@ -43,44 +51,48 @@ const WordEntry = props => {
   const halignStyle = safeLookup(halignStyles, halign);
   const halignClass = safeLookup(halignClasses, halign);
   const valignClass = safeLookup(valignClasses, valign);
+  const fxRow = renderFxRow(fxDesc, fxState);
   return (
-    <div className={`word-entry ${activeClass} flex-row flex-none`}>
-      {editSigil}
-      <span className={`edit action flex-none${editClass}`}
-            onClick={() => props.edit(index)}
-      >
-        edit
-      </span>
-
-      <span className='word-activator flex-auto'
-            onClick={() => props.activate(index)}>
-        <span className={`word-align-sigil ${halignClass} ${valignClass}`}/>
-        <span className='word flex-auto'
-              style={{ ...props.style,
-                       ...halignStyle }}>
-          {props.message}
-        </span>
-      </span>
-
-      {maybeDel}
-
-      <span className='dup action flex-none'
-            onClick={() => props.dup(index)}>
-        dup
-      </span>
-
-      <span className='swappers flex-none'>
-        <span className='swapper up'
-              onClick={() => props.nudge(index, -1)}
+    <div>
+      <div className={`word-entry ${activeClass} flex-row flex-none`}>
+        {editSigil}
+        <span className={`edit action flex-none${editClass}`}
+              onClick={() => props.edit(index)}
         >
-          {'\u25b2'}
+          edit
         </span>
-        <span className='swapper down'
-              onClick={() => props.nudge(index, 1)}
-        >
-          {'\u25bc'}
+
+        <span className='word-activator flex-auto'
+              onClick={() => props.activate(index)}>
+          <span className={`word-align-sigil ${halignClass} ${valignClass}`}/>
+          <span className='word flex-auto'
+                style={{ ...props.style,
+                         ...halignStyle }}>
+            {props.message}
+          </span>
         </span>
-      </span>
+
+        {maybeDel}
+
+        <span className='dup action flex-none'
+              onClick={() => props.dup(index)}>
+          dup
+        </span>
+
+        <span className='swappers flex-none'>
+          <span className='swapper up'
+                onClick={() => props.nudge(index, -1)}
+          >
+            {'\u25b2'}
+          </span>
+          <span className='swapper down'
+                onClick={() => props.nudge(index, 1)}
+          >
+            {'\u25bc'}
+          </span>
+        </span>
+      </div>
+      { fxRow }
     </div>
   );
 };
@@ -97,6 +109,8 @@ WordEntry.propTypes = {
   del: PropTypes.func.isRequired,
   dup: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
-  nudge: PropTypes.func.isRequired
+  nudge: PropTypes.func.isRequired,
+  fxDesc: PropTypes.string,
+  fxState: PropTypes.object
 };
 export default WordEntry;

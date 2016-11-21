@@ -47,7 +47,7 @@ button {
     justify-content: center;
 }
 .text-button:hover {
-    color: #ccc;
+    color: #f0f0f0;
 }
 .text-button.chosen {
     color: #eee;
@@ -61,13 +61,13 @@ button {
     border-radius: 16px;
     border: 2px solid transparent;
     color: black;
-    background: #eee;
+    background: #ccc;
     outline: none;
 }
 .round-button:hover,
 .round-button:active {
-    color: white;
-    text-shadow: 0 1px 1px black;
+    color: #f0f0f0;
+    text-shadow: 0 1px 5px black;
 }
 .round-button:active {
     border: 2px solid white;
@@ -82,14 +82,14 @@ button {
 .left-panel {
     padding: 0 12px 8px 8px;
     margin-top: 8px;
-    border-right: 1px solid grey;
+    border-right: 1px solid #333;
 }
 .right-panel {
     padding: 0 8px 8px 12px;
 }
 .word-list-panel {
     padding: 8px 8px 0 0;
-    border-bottom: 1px solid grey;
+    border-bottom: 1px dashed #333;
     margin-bottom: 12px;
 }
 
@@ -231,6 +231,7 @@ footer {
 }
 .tapper.flash {
     border: 2px solid #ccc;
+    border-left-style: none;
 }
 .tapper .enable {
     margin: 0;
@@ -294,6 +295,7 @@ button.send {
 }
 
 .sender {
+    display: inline-block;
     margin: .7rem 0 0 1rem;
     height: 5px;
     width: 5px;
@@ -443,13 +445,23 @@ button.send {
 }
 
 /* ---- WORD FX ---- */
-.word-fx {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid grey;
+.word-fx-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #333;
 }
 .fx-container {
+    position: relative;
+    margin-left: 8px;
     width: 100%;
+}
+.fx-container > * {
+    margin-left: 4px;
+    margin-bottom: 8px;
+}
+.fx-container > h2 {
+    margin-left: 0;
+    margin-bottom: 8px;
 }
 .fx-container h4 {
     display: inline-block;
@@ -465,21 +477,87 @@ button.send {
     border-radius: 1rem;
 }
 
-.compass-spin input[type='checkbox'] {
+.fx-container .disabled {
+    color: #999;
+}
+.fx-container .clickable {
+    cursor: pointer;
+}
+.fx-container .enabled .clickable {
+    color: darkseagreen;
+}
+
+.fx-control {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.fx-control > div {
+    text-align: right;
+}
+.fx-control .fat {
+    margin-bottom: 12px;
+}
+.fx-control .auto-send input[type='checkbox'] {
+    margin: 0 8px 9px 0;
+}
+.fx-control .round-button {
+    margin: 0;
     margin-left: 1rem;
+}
+.fx-control .transmit {
+    background-color: #a9d6a9;
+}
+.fx-control .save-edit {
+    background-color: #ffca86;
+}
+.fx-control .save-active {
+    background-color: #ffa698;
+}
+.fx-control .text-button {
+    font-size: 85%;
+    margin-right: 6px;
+}
+
+.fx-container select {
+    font-size: 75%;
+    color: #000;
+}
+.fx-container .disabled select {
+    background-color: #999;
+    border-color: grey;
+}
+
+.compass-spin .readings {
+    font-size: 80%;
+}
+.compass-spin .samples {
+    font-size: 60%;
+    color: grey;
+}
+.compass-spin .calibrate {
+    margin-left: 1rem;
+}
+.compass-spin .calibration {
+    margin-left: 0;
 }
 
 /* ---- WORD LIST ---- */
 .word-list {
-    display: block;
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
 }
 .word-entry {
     padding: 1px;
-    margin-bottom: 5px;
-    border: 1px solid grey;
-    border-radius: 1px;
+    border: 1px solid #333;
+    border-radius: 8px;
     position: relative;
     align-items: center;
+}
+.word-entry.activated {
+    border-color: #af8;
+    border-width: 2px;
 }
 .word-activator {
     background-color: #444;
@@ -590,17 +668,36 @@ button.send {
     cursor: pointer;
 }
 
+.word-fx {
+    margin: 0 1rem 8px;
+    padding: 5px 1rem 4px;
+    font-size: 85%;
+    font-family: monospace;
+    text-align: center;
+    color: #888;
+    background-color: #141414;
+    border-color: #222;
+    border-width: 0 1px 1px;
+    border-radius: 0 0 1rem 1rem;
+    border-style: solid;
+    cursor: pointer;
+}
+
+.word-fx-spacer {
+    height: 8px;
+}
+
 /* ---- Sequencer ---- */
 .sequencer .round-button {
-    margin: 0 1rem;
-    padding: 0.2rem 1.5rem;
+    margin: 0 1rem 0 0.5rem;
+}
+.sequencer .prev {
+    padding: 0.2rem 1.2rem 0.2rem 1.5rem;
+    background-color: #bcbc8f;
 }
 .sequencer .next {
+    padding: 0.2rem 1.5rem 0.2rem 1.2rem;
     background-color: darkseagreen;
-}
-.sequencer .small-text {
-    font-size: 90%;
-    margin: 0 1rem 0 0;
 }
 
 /* ---- iPad styles ---- */

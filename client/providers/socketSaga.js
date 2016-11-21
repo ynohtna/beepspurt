@@ -87,9 +87,10 @@ const noopAction = {};
 const noop = () => noopAction;
 
 const handlers = {
-  '*HIHO*': noop,
+  '*HIHO*': noop, // TODO: Capture this connection's { id } as part of this provider's state.
   '/pong': ({ args }) => ({ type: PONG_RECV, args, dontLog: true }),
-  '/renderer/STATE': ({ args }) => ({ type: '/renderer/STATE', payload: args, root: true })
+  '/renderer/STATE': ({ args }) => ({ type: '/renderer/STATE', payload: args, root: true }),
+  '/photo/LIST': ({ args }) => ({ type: '/photo/LIST', photolist: args })
 };
 
 function* fetchSocket(source) {
@@ -286,12 +287,12 @@ const reducers = {
   masterState(state = { state: 'unknown' }, action) {
     switch (action.type) {
       case '/renderer/STATE': {
-//        console.error('MERGE_STATE ()()()()()', state, action.payload);
+//        console.error('MERGE_STATE ()()()()()', state, action);
         const r = {
           ...state,
           ...action.payload
         };
-//        console.log('post-merge master state', r);
+//        console.warn('    {{{{ post-merge master state', r);
         return r;
       }
       default:
@@ -312,6 +313,14 @@ const reducers = {
       case SET_SOCKET_STATUS:
 //        console.log(action);
         return action.status;
+      default:
+        return state;
+    }
+  },
+  photoList(state = [], action) {
+    switch (action.type) {
+      case '/photo/LIST':
+        return action.photolist || [];
       default:
         return state;
     }

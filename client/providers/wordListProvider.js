@@ -226,8 +226,8 @@ const middleware = store => next => action => {
   // FIXME: word lists should be stored as named presets, with
   //		an entry named init that references the actual named preset to load.
 
-  // TODO: Check for a changed in which entry is activated, when found
-  //       push a sendSocket '/spurter/STATE' action through the store.
+  // TODO: Check for changes in which entry is activated, when found
+  //       push a sendSocket '/spurter/STATE' action through  store.dispatch.
 
   // Only persist upon actual state changes. TODO: check via diff.
   if (lastSavedState === wordList) {

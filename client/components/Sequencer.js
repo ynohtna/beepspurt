@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
-import { Button, TextButton } from './Inputs';
+import { Button } from './Inputs';
 
 /*
    Previous
@@ -45,13 +45,13 @@ class Sequencer extends React.Component {
   render() {
     return (
       <div className='sequencer'>
-        <TextButton className='small-text'
+        <Button className='round-button prev'
                     onClick={::this.activatePrev}>
-          Prev
-        </TextButton>
+          {'prev \u21a5'}
+        </Button>
         <Button className='round-button next'
                 onClick={::this.activateNext}>
-          Next
+          {'\u21a7 next'}
         </Button>
       </div>
     );

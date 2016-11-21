@@ -2,9 +2,6 @@ import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 import WordEntry from './WordEntry';
 
-// TODO: Refactor into CSS styles applied to .word-list
-import { columnParent, flexContainer } from '../flexStyles';
-
 @provide
 class WordList extends React.Component {
   static propTypes = {
@@ -73,7 +70,10 @@ class WordList extends React.Component {
                  dup={::this.dup}
                  del={::this.del}
                  nudge={::this.nudge}
-                 canDel={array.length !== 1}/>
+                 canDel={array.length !== 1}
+                 fxDesc={ index % 2 ? 'zoom 0.9x, compass -15.0' : null }
+                 fxState={{ zoomScale: 0.9, compass: -15.0 }}
+      />
     ));
   }
 
@@ -81,8 +81,7 @@ class WordList extends React.Component {
 //    console.log('WordList props', this.props);
     const words = this.renderWords(this.props.wordList);
     return (
-      <section className='word-list'
-               style={{ ...flexContainer, ...columnParent }}>
+      <section className='word-list'>
         {words}
       </section>
     );

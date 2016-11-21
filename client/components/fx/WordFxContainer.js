@@ -1,8 +1,9 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
-
+import FxControl from './FxControl';
 import ArenaSend from './ArenaSend';
 import CompassSpin from './CompassSpin';
+import PhotoLayer from './PhotoLayer';
 import ZoomScale from './ZoomScale';
 
 /*
@@ -15,12 +16,13 @@ import ZoomScale from './ZoomScale';
    Alpha Scale
    Compass Spin
    Line Mask
+   Colour/Background colour
 */
 
 const FxToggler = ({ open, toggle }) => (
   <h2>
     <a onClick={() => toggle() }>
-      { open ? 'Word FX\u25bf' : 'Word FX\u25b9' }
+      { open ? 'Word FX \u25bf' : 'Word FX \u25b9' }
     </a>
   </h2>
 );
@@ -48,9 +50,11 @@ class WordFxContainer extends React.Component {
     return (
       <section className='fx-container'>
         <FxToggler open={fxPanelIsOpen} toggle={toggleFxPanelState} />
-        <ArenaSend />
+        <FxControl />
         <ZoomScale />
         { this.renderCompass() }
+        <PhotoLayer />
+        <ArenaSend />
       </section>
     );
   }
