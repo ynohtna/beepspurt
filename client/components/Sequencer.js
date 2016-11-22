@@ -19,6 +19,16 @@ class Sequencer extends React.Component {
     wordList: PropTypes.array.isRequired
   };
 
+  componentDidMount() {
+    window.Mousetrap.bind('ctrl+p', ::this.activatePrev);
+    window.Mousetrap.bind('ctrl+n', ::this.activateNext);
+  }
+
+  componentWillUnmount() {
+    window.Mousetrap.unbind('ctrl+p');
+    window.Mousetrap.unbind('ctrl+n');
+  }
+
   sendActive() {
     // TODO: This would be better triggered by middleware or something similar?
     const words = this.props.wordList;
@@ -32,13 +42,13 @@ class Sequencer extends React.Component {
     }
   }
 
-  activateNext() {
-    this.props.activateNextWord();
+  activatePrev() {
+    this.props.activatePrevWord();
     this.sendActive();
   }
 
-  activatePrev() {
-    this.props.activatePrevWord();
+  activateNext() {
+    this.props.activateNextWord();
     this.sendActive();
   }
 
