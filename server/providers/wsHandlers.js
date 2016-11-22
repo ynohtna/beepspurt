@@ -29,8 +29,11 @@ const wsHandlers = {
   '/spurter/BACKGROUND_MODE': dispatchHandler,
   '/spurter/BACKGROUND_OFFSET_RATIO': dispatchHandler,
 
-  '/ext/ARENA': dispatchHandler
+  '/photo/FILL': dispatchHandler,
+  '/photo/FILE': dispatchHandler,
+  '/photo/LIST': dispatchHandler,
 
+  '/ext/ARENA': dispatchHandler
   // TODO: Update with full set of server exposed reducer actions.
 };
 
