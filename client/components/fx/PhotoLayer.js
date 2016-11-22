@@ -20,6 +20,18 @@ class PhotoLayer extends React.Component {
     this.props.setPhotoEnable(!this.props.photoEnable);
   };
 
+  choosePhoto = e => {
+    this.props.choosePhotoFile(e.target.value);
+  };
+
+  refreshList = () => {
+    this.props.sendSocket('/photo/LIST');
+  };
+
+  chooseFillMode = e => {
+    this.props.setPhotoFillMode(e.target.value);
+  };
+
   render() {
     const enableClass = this.props.photoEnable ? 'enabled' : 'disabled';
     return (
@@ -28,11 +40,18 @@ class PhotoLayer extends React.Component {
             onClick={this.toggleEnable}>
           {'Photo:'}
         </h4>
-        <SelectDropDown options={this.props.photoList} />
-        <TextButton>
+
+        <SelectDropDown options={this.constructor.fillModes}
+                        value={this.props.photoFillMode}
+                        onChange={this.chooseFillMode} />
+
+        <TextButton onClick={this.refreshList}>
           {'\u27f3'}
         </TextButton>
-        <SelectDropDown options={this.constructor.fillModes} />
+
+        <SelectDropDown options={this.props.photoList}
+                        value={this.props.photoFile}
+                        onChange={this.choosePhoto} />
       </section>
     );
   }

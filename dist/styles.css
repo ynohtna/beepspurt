@@ -517,6 +517,19 @@ button.send {
 .fx-control .text-button {
     font-size: 85%;
     margin-right: 6px;
+    color: #444;
+}
+.fx-control hr {
+    margin: 4px 5px 4px 3.5rem;
+    border-top-color: #222;
+}
+.fx-control small {
+    font-size: 65%;
+    color: #666;
+    background-color: #222;
+    padding: 2px;
+    text-align: right;
+    margin-right: 5px;
 }
 
 .fx-container select {

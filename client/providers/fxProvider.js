@@ -10,7 +10,7 @@ const CHOOSE_PHOTO_FILE = '/photo/FILE';
 const actions = {
   saveFxDefault: () => ({ type: SAVE_FX_DEFAULT }),
   resetFxDefault: () => ({ type: RESET_FX_DEFAULT }),
-  mergeFx: fx => ({ type: MERGE_FX, fx }),
+  mergeFx: (fx = {}) => ({ type: MERGE_FX, fx }),
   setZoomScale: zoomScale => ({ type: SET_ZOOM_SCALE, zoomScale }),
   setPhotoFillMode: photoFillMode => ({ type: SET_PHOTO_FILL_MODE, photoFillMode }),
   setPhotoEnable: photoEnable => ({ type: SET_PHOTO_ENABLE, photoEnable }),
@@ -82,23 +82,31 @@ const reducers = {
       default:
         return state;
     }
+  },
+  defaultFx: (state = fxDefault, action) => {
+    switch (action.type) {
+      case SAVE_FX_DEFAULT:
+        return fxDefault;
+      default:
+        return state;
+    }
   }
 };
 
 let lastSavedDefault = null;
 
 const middleware = store => next => action => {
-  const result = next(action);
-  const state = store.getState();
-
   // Handle SAVE_FX_DEFAULT.
   if (action.type === SAVE_FX_DEFAULT) {
-    fxDefault = { ...fxDefault, ...state };
+    const { defaultFx, ...pureState } = store.getState(); // eslint-disable-line no-unused-vars
+    fxDefault = { ...fxDefault, ...pureState };
     console.warn('>>>> new default FX:', fxDefault); // eslint-disable-line no-console
   }
 
+  const result = next(action);
+
   // Early out if fx default is unchanged.
-  if (lastSavedDefault === fxDefault) {
+  if (lastSavedDefault === store.getState().defaultFx) {
     return result;
   }
 

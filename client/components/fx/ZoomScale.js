@@ -36,7 +36,7 @@ class ZoomScale extends React.Component {
         <Button className='numeric' onClick={::this.dec}>
           -
         </Button>
-        { this.props.zoomScale }{'%'}
+        { this.props.zoomScale }{' %'}
         <Button className='numeric' onClick={::this.inc}>
           +
         </Button>

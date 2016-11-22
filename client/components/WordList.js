@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 import WordEntry from './WordEntry';
+import transmitFx from './fx/transmitFx';
 
 @provide
 class WordList extends React.Component {
@@ -12,19 +13,26 @@ class WordList extends React.Component {
     editWord: PropTypes.func.isRequired,
     activateWord: PropTypes.func.isRequired,
     mergeState: PropTypes.func.isRequired,
+    mergeFx: PropTypes.func.isRequired,
+    defaultFx: PropTypes.object.isRequired,
     sendSocket: PropTypes.func.isRequired
   };
 
+  componentDidMount() {
+    const editing = this.props.wordList.findIndex(w => (w.editing === true));
+    if (editing >= 0) {
+      this.edit(editing);
+    }
+  }
+
   activate(index) {
-    const { uuid, ...word } = this.props.wordList[index];
+    const { uuid, ...word } = this.props.wordList[index]; // eslint-disable-line no-unused-vars
     console.log('** activate', word); // eslint-disable-line no-console
     this.props.activateWord(index);
     this.props.sendSocket('/spurter/STATE', word);
 
-    if (uuid) {
-      // TODO: Retrieve FX associated with this word entry and activate them accordingly.
-      console.log(`UUID: ${uuid}`); // eslint-disable-line no-console
-    }
+    // Transmit the activated FX!
+    transmitFx(this.props.sendSocket, { ...this.props.defaultFx, ...word.fx });
   }
 
   edit(index) {
@@ -42,6 +50,8 @@ class WordList extends React.Component {
         fontFamily: word.fontFamily
       }
     });
+    // Reset fx to default if none special saved.
+    this.props.mergeFx({ ...this.props.defaultFx, ...word.fx });
     this.props.editWord(index);
   }
 
@@ -71,8 +81,7 @@ class WordList extends React.Component {
                  del={::this.del}
                  nudge={::this.nudge}
                  canDel={array.length !== 1}
-                 fxDesc={ index % 2 ? 'zoom 0.9x, compass -15.0' : null }
-                 fxState={{ zoomScale: 0.9, compass: -15.0 }}
+                 fxState={word.fx}
       />
     ));
   }

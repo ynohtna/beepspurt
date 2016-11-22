@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import fxDescription from './fx/fxDescription';
 
 const halignStyles = [{
   justifyContent: 'flex-start',
@@ -22,10 +23,10 @@ const safeLookup = (a, i) => {
   }
 };
 
-const renderFxRow = (fxDesc, fxState) => (
-  (!fxDesc || !fxState)
-    ? <div className='word-fx-spacer'></div>
-	: <div className='word-fx'>{ fxDesc }</div>
+const renderFxRow = fxState => (
+  (fxState)
+    ? <div className='word-fx'>{ fxDescription(fxState) }</div>
+	: <div className='word-fx-spacer'></div>
 );
 
 const WordEntry = props => {
@@ -36,7 +37,6 @@ const WordEntry = props => {
     canDel,
     halign,
     valign,
-    fxDesc,
     fxState
   } = props;
   const maybeDel = canDel ? (
@@ -51,7 +51,7 @@ const WordEntry = props => {
   const halignStyle = safeLookup(halignStyles, halign);
   const halignClass = safeLookup(halignClasses, halign);
   const valignClass = safeLookup(valignClasses, valign);
-  const fxRow = renderFxRow(fxDesc, fxState);
+  const fxRow = renderFxRow(fxState);
   return (
     <div>
       <div className={`word-entry ${activeClass} flex-row flex-none`}>
@@ -110,7 +110,6 @@ WordEntry.propTypes = {
   dup: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
   nudge: PropTypes.func.isRequired,
-  fxDesc: PropTypes.string,
   fxState: PropTypes.object
 };
 export default WordEntry;

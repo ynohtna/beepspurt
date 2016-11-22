@@ -51,7 +51,7 @@ class CompassSpin extends React.Component {
     if (this.listening) {
       window.removeEventListener('deviceorientation', this, true);
       this.listening = false;
-      // FIXME: Update with final readings.
+      // TODO: Update with final readings.
     }
   }
 
@@ -101,12 +101,12 @@ class CompassSpin extends React.Component {
       beta,
       gamma
     };
-    console.log(this);
+//    console.log(this);
   };
 
   onResetCalibration = () => {
     this.calibration = this.constructor.calibrationZero;
-    console.log(this);
+//    console.log(this);
   };
 
   onZero = () => {

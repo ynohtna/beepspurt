@@ -10,6 +10,9 @@ const ACTIVATE_PREV_WORD = 'words/ACTIVATE_PREV';
 const EDIT_WORD = 'words/EDIT';
 const SAVE_WORD = 'words/SAVE';
 const SAVE_NEW_WORD = 'words/SAVE_NEW';
+const SAVE_FX_EDITING = 'words/SAVE_FX_EDITING';
+const SAVE_FX_ACTIVATED = 'words/SAVE_FX_ACTIVATED';
+const SAVE_FX_INDEX = 'words/SAVE_FX_INDEX';
 
 const actions = {
   setWordList: list => ({ type: SET_WORD_LIST, list }),
@@ -21,7 +24,10 @@ const actions = {
   activatePrevWord: () => ({ type: ACTIVATE_PREV_WORD }),
   editWord: index => ({ type: EDIT_WORD, index }),
   saveWord: word => ({ type: SAVE_WORD, word }),
-  saveNewWord: word => ({ type: SAVE_NEW_WORD, word })
+  saveNewWord: word => ({ type: SAVE_NEW_WORD, word }),
+  saveFxToEditingWord: fx => ({ type: SAVE_FX_EDITING, fx }),
+  saveFxToActivatedWord: fx => ({ type: SAVE_FX_EDITING, fx }),
+  saveFxToIndexedWord: (index, fx) => ({ type: SAVE_FX_EDITING, index, fx })
 };
 
 const defaultWordListInternal = [{
@@ -136,13 +142,16 @@ const nudge = (list, index, dir = 1) => {
 const edit = (list, index) => list.map((w, i) => ({ ...w, editing: (i === index) }));
 const activate = (list, index) => list.map((w, i) => ({ ...w, activated: (i === index) }));
 
+const isEditing = w => (w.editing === true);
+const isActivated = w => (w.activated === true);
+
 const activateOffset = (list, offset) => {
   if (!list || !list.length) {
     return list;
   }
 
   const l = list.slice();
-  const index = list.findIndex(w => (w.activated === true));
+  const index = list.findIndex(isActivated);
   let next;
 
   if (index !== -1) {	// Found currently activated entry at index.
@@ -164,7 +173,7 @@ const saveNew = (list, word) => [...list.map(w => ({ ...w, editing: false })),
 
 const save = (list, word) => {
 //  console.log('save', list, word);
-  const index = list.findIndex(w => (w.editing === true));
+  const index = list.findIndex(isEditing);
   let l;
   if (index === -1) { // Save new word at end of list, and activate it.
     l = [...list, { ...word, uuid: uuid(), editing: true }];
@@ -174,6 +183,13 @@ const save = (list, word) => {
   }
   return l;
 };
+
+const saveFxToWordIndex = (list, index, fx) => ((index < 0 || index >= list.length) ? list
+                                              : [
+                                                ...list.slice(0, index),
+                                                { ...list[index], fx },
+                                                ...list.slice(index + 1)
+                                              ]);
 
 const reducers = {
   wordList: (state = defaultWordList, action) => {
@@ -207,6 +223,15 @@ const reducers = {
 
       case SAVE_NEW_WORD:
         return saveNew(state, action.word);
+
+      case SAVE_FX_EDITING:
+        return saveFxToWordIndex(state, state.findIndex(isEditing), action.fx);
+
+      case SAVE_FX_ACTIVATED:
+        return saveFxToWordIndex(state, state.findIndex(isActivated), action.fx);
+
+      case SAVE_FX_INDEX:
+        return saveFxToWordIndex(state, action.index, action.fx);
 
       default:
         return state;

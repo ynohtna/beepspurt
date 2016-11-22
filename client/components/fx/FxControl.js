@@ -2,20 +2,56 @@ import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 import { Button, TextButton, CheckBox } from '../Inputs';
 import { shallowEqual } from '../../utils';
+import fxDescription from './fxDescription';
+import transmitFx from './transmitFx';
 
 @provide
 class FxControl extends React.Component {
   static propTypes = {
     zoomScale: PropTypes.number.isRequired,
+    photoEnable: PropTypes.bool.isRequired,
+    photoFillMode: PropTypes.string.isRequired,
+    photoFile: PropTypes.string.isRequired,
     saveFxDefault: PropTypes.func.isRequired,
     resetFxDefault: PropTypes.func.isRequired,
+    defaultFx: PropTypes.object.isRequired,
+    saveFxToEditingWord: PropTypes.func.isRequired,
+    saveFxToActivatedWord: PropTypes.func.isRequired,
     sendSocket: PropTypes.func.isRequired
   };
-  static checkedProps = ['zoomScale'];
+  static checkedProps = ['zoomScale',
+                         'photoEnable', 'photoFillMode', 'photoFile'];
 
   state = {
     autoSend: false,
     sending: false
+  };
+
+  extractProps = overrideProps => this.constructor.checkedProps.reduce((acc, val) => ({
+    ...acc,
+    [val]: (overrideProps && val in overrideProps) ? overrideProps[val] : this.props[val]
+  }), {});
+
+  transmitMessage = (props) => {
+    transmitFx(this.props.sendSocket, { ...this.props, ...props });
+    /*
+       // Send messages. TODO: Bundled message transmissions.
+       const {
+       zoomScale,
+       photoEnable, photoFillMode, photoFile
+       } = ;
+       this.props.sendSocket('/spurter/ZOOM_SCALE', zoomScale);
+
+       if (photoEnable) {
+       this.props.sendSocket('/photo/FILL', photoFillMode);
+       this.props.sendSocket('/photo/FILE', photoFile);
+       } else {
+       this.props.sendSocket('/photo/FILE', '');
+       }
+     */
+    this.cancelTimer();
+    this.setState({ sending: true });
+    this._timer = setTimeout(this.resetIndicator, 66);
   };
 
   componentWillReceiveProps(nextProps) {
@@ -50,16 +86,6 @@ class FxControl extends React.Component {
     this._timer = null;
   };
 
-  transmitMessage = (props) => {
-    // Send messages. TODO: Bundled message transmissions.
-    const { zoomScale } = { ...this.props, ...props };
-    this.props.sendSocket('/spurter/ZOOM_SCALE', zoomScale);
-
-    this.cancelTimer();
-    this.setState({ sending: true });
-    this._timer = setTimeout(this.resetIndicator, 66);
-  };
-
   toggleAutoSend = () => {
     const autoSend = !this.state.autoSend;
     if (autoSend) {	// Transmit current state when enabling auto-send.
@@ -74,6 +100,16 @@ class FxControl extends React.Component {
 
   resetDefault = () => {
     this.props.resetFxDefault();
+  };
+
+  saveToEdit = () => {
+    const fx = this.extractProps();
+    this.props.saveFxToEditingWord(fx);
+  };
+
+  saveToActive = () => {
+    const fx = this.extractProps();
+    this.props.saveFxToActivatedWord(fx);
   };
 
   render() {
@@ -97,21 +133,28 @@ class FxControl extends React.Component {
         </div>
 
         <div className='fat'>
-          <Button className='round-button save-edit'>
+          <Button className='round-button save-edit'
+                  onClick={this.saveToEdit}>
             {'\u27a6 edit'}
           </Button>
-          <Button className='round-button save-active'>
+          <Button className='round-button save-active'
+                  onClick={this.saveToActive}>
             {'\u27a6 active'}
           </Button>
         </div>
 
+        <hr />
+
         <div>
           <TextButton onClick={this.saveDefault}>
-            def-save
+            save to def
           </TextButton>
           <TextButton onClick={this.resetDefault}>
-            def-reset
+           reset from def
           </TextButton>
+        </div>
+        <div>
+          <small>{fxDescription(this.props.defaultFx)}</small>
         </div>
       </div>
     );
