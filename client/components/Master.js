@@ -10,7 +10,9 @@ class Master extends React.Component {
     masterState: PropTypes.any,
     sendSocket: PropTypes.func.isRequired,
     invertedOutput: PropTypes.bool.isRequired,
-    invertOutput: PropTypes.func.isRequired
+    invertOutput: PropTypes.func.isRequired,
+    editorPanelIsOpen: PropTypes.bool.isRequired,
+    toggleEditorPanelState: PropTypes.func.isRequired
   };
 
   stateChange(state) {
@@ -26,7 +28,12 @@ class Master extends React.Component {
   }
 
   render() {
-    const { invertedOutput, masterState } = this.props;
+    const {
+      invertedOutput,
+      masterState,
+      editorPanelIsOpen,
+      toggleEditorPanelState
+    } = this.props;
     const { state } = masterState;
 
     const activeOff = (state === 'off') ? 'active' : nullClass;
@@ -61,6 +68,10 @@ class Master extends React.Component {
         <Tapper
             onPulse={this.invert}
         />
+        <a className='hide-show-editor'
+           onClick={toggleEditorPanelState}>
+          {editorPanelIsOpen ? '\u2b45' : '\u2b46'}
+        </a>
       </span>
     );
   }

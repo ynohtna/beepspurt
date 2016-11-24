@@ -179,7 +179,7 @@ const save = (list, word) => {
     l = [...list, { ...word, uuid: uuid(), editing: true }];
   } else {	// Save new word details over word being currently edited.
     l = list.slice();
-    l[index] = { ...word, uuid: list[index].uuid, editing: true };
+    l[index] = { ...word, fx: list[index].fx, uuid: list[index].uuid, editing: true };
   }
   return l;
 };

@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 import { Button } from './Inputs';
+import transmitFx from './fx/transmitFx';
 
 /*
    Previous
@@ -15,6 +16,7 @@ class Sequencer extends React.Component {
   static propTypes = {
     activateNextWord: PropTypes.func.isRequired,
     activatePrevWord: PropTypes.func.isRequired,
+    defaultFx: PropTypes.object.isRequired,
     sendSocket: PropTypes.func.isRequired,
     wordList: PropTypes.array.isRequired
   };
@@ -37,11 +39,12 @@ class Sequencer extends React.Component {
     const words = this.props.wordList;
     const index = words.findIndex(w => (w.activated === true));
     if (index >= 0) {
-      const { uuid, ...word } = words[index];
+      const { uuid, fx, ...word } = words[index];
       this.props.sendSocket('/spurter/STATE', word);
       if (uuid) {
         console.log(`UUID: ${uuid}`); // eslint-disable-line no-console
       }
+      transmitFx(this.props.sendSocket, { ...this.props.defaultFx, ...fx });
     }
   }
 

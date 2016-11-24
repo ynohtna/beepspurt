@@ -84,6 +84,9 @@ button {
     margin-top: 8px;
     border-right: 1px solid #333;
 }
+.left-panel.closed {
+    display: none !important;
+}
 .right-panel {
     padding: 0 8px 8px 12px;
 }
@@ -220,6 +223,11 @@ footer {
     color: #000;
     text-shadow: none;
     background-color: #eee;
+}
+
+.master .hide-show-editor {
+    margin-left: 1rem;
+    text-decoration: none;
 }
 
 /* ---- TAPPER ---- */
@@ -479,6 +487,9 @@ button.send {
     background-color: #666;
     border-radius: 1rem;
 }
+.fx-container button.doubled {
+    margin: 0;
+}
 
 .fx-container .disabled {
     color: #999;
@@ -597,7 +608,7 @@ button.send {
     position: absolute;
     width: 12px;
     height: 12px;
-    border-color: #888;
+    border-color: #333;
     border-style: solid;
 }
 .word-align-sigil.h-left.v-top {
@@ -730,7 +741,7 @@ button.send {
 
 /* ---- Misc Manipulations ---- */
 .misc-manipulations a {
-    font-size: 85%;
+    font-size: 75%;
     margin-right: 1.5rem;
     color: #666;
 }

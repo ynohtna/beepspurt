@@ -29,7 +29,7 @@ class WordList extends React.Component {
   }
 
   activate(index) {
-    const { uuid, ...word } = this.props.wordList[index]; // eslint-disable-line no-unused-vars
+    const { uuid, fx, ...word } = this.props.wordList[index]; // eslint-disable-line no-unused-vars
     console.log('** activate', word); // eslint-disable-line no-console
     this.props.activateWord(index);
 
@@ -37,9 +37,8 @@ class WordList extends React.Component {
     this.props.sendSocket('/spurter/STATE', word);
 
     // Transmit activated word's FX.
-    transmitFx(this.props.sendSocket, { ...this.props.defaultFx, ...word.fx });
+    transmitFx(this.props.sendSocket, { ...this.props.defaultFx, ...fx });
 
-    console.log(this.props);
     if (this.props.autoEditUponActivation) {
       this.edit(index);
     }

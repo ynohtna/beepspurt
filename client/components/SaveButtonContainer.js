@@ -22,6 +22,8 @@ class SaveButtonContainer extends React.Component {
   saveWord() {
     const word = this.wordData();
     this.props.saveWord(word);
+    // FIXME: Resend this word's info if it is activated and auto-send is enabled.
+    // FIXME: This wipes out existing fx associated with the word!
   }
 
   saveNewWord() {

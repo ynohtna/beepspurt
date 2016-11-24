@@ -9,10 +9,11 @@ class ZoomScale extends React.Component {
     setZoomScale: PropTypes.func.isRequired
   };
 
-  // decrement
-  // scale
-  // increment
-
+  decdec() {
+    let zs = this.props.zoomScale;
+    zs = Math.max(zs - 10, 1);
+    this.props.setZoomScale(zs);
+  }
   dec() {
     let zs = this.props.zoomScale;
     if (zs > 1) {
@@ -28,17 +29,28 @@ class ZoomScale extends React.Component {
       this.props.setZoomScale(zs);
     }
   }
+  incinc() {
+    let zs = this.props.zoomScale;
+    zs = Math.min(zs + 10, 1000);
+    this.props.setZoomScale(zs);
+  }
 
   render() {
     return (
       <section className='zoom-scale'>
         <h4>{'Zoom:'}</h4>
+        <Button className='numeric doubled' onClick={::this.decdec}>
+          --
+        </Button>
         <Button className='numeric' onClick={::this.dec}>
           -
         </Button>
         { this.props.zoomScale }{' %'}
         <Button className='numeric' onClick={::this.inc}>
           +
+        </Button>
+        <Button className='numeric doubled' onClick={::this.incinc}>
+          ++
         </Button>
       </section>
     );

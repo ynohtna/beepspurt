@@ -1,11 +1,13 @@
 const panels = [
   'Font',
   'Fx',
-  'Manipulation'
+  'Manipulation',
+  'Editor'
 ];
 
 const initialPanelStates = {
-  Fx: true
+  Fx: true,
+  Editor: true
 };
 
 // --------------------
