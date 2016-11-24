@@ -457,11 +457,14 @@ button.send {
 }
 .fx-container > * {
     margin-left: 4px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 .fx-container > h2 {
     margin-left: 0;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+}
+.fx-container > h2.closed {
+    display: inline;
 }
 .fx-container h4 {
     display: inline-block;
@@ -487,6 +490,11 @@ button.send {
     color: darkseagreen;
 }
 
+.photo-layer div {
+    margin-bottom: 6px;
+}
+
+/* ---- FX Control panel ---- */
 .fx-control {
     position: absolute;
     top: 0;
@@ -539,6 +547,12 @@ button.send {
 .fx-container .disabled select {
     background-color: #999;
     border-color: grey;
+}
+
+.fx-summaries small {
+    color: #666;
+    background-color: #222;
+    margin-left: 1rem;
 }
 
 .compass-spin .readings {
@@ -667,6 +681,11 @@ button.send {
     font-size: 94%;
     color: greenyellow;
 }
+.hide-manips .del.action,
+.hide-manips .dup.action,
+.hide-manips .swappers {
+    display: none;
+}
 
 .swappers {
     color: salmon;
@@ -682,27 +701,50 @@ button.send {
 }
 
 .word-fx {
+    position: relative;
     margin: 0 1rem 8px;
     padding: 5px 1rem 4px;
     font-size: 85%;
     font-family: monospace;
-    text-align: center;
     color: #888;
     background-color: #141414;
-    border-color: #222;
+    border-color: #333;
     border-width: 0 1px 1px;
     border-radius: 0 0 1rem 1rem;
     border-style: solid;
-    cursor: pointer;
 }
-
+.word-fx .desc {
+    cursor: pointer;
+    background-color: #222;
+    padding: 1px 8px;
+}
+.word-fx .clear-fx {
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 12px;
+}
 .word-fx-spacer {
     height: 8px;
 }
 
+/* ---- Misc Manipulations ---- */
+.misc-manipulations a {
+    font-size: 85%;
+    margin-right: 1.5rem;
+    color: #666;
+}
+.misc-manipulations a.on {
+    color: darkseagreen;
+}
+
 /* ---- Sequencer ---- */
+.sequencer {
+    font-size: 120%;
+}
 .sequencer .round-button {
     margin: 0 1rem 0 0.5rem;
+    height: 2.4rem;
 }
 .sequencer .prev {
     padding: 0.2rem 1.2rem 0.2rem 1.5rem;
@@ -719,7 +761,7 @@ button.send {
 (device-height: 1024px) and
 (-webkit-device-pixel-ratio: 1)	{
     body {
-        font-size: 160%;
+        font-size: 100%;
     }
     #app {
         background: #121;
@@ -731,7 +773,8 @@ button.send {
         margin-bottom: 20px;
     }
     .word-editor {
-        margin-bottom: 1rem;
+        font-size: 90%;
+        margin-bottom: 0.5rem;
     }
     .clear-link,
     .auto-send {

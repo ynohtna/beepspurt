@@ -26,8 +26,8 @@ const actions = {
   saveWord: word => ({ type: SAVE_WORD, word }),
   saveNewWord: word => ({ type: SAVE_NEW_WORD, word }),
   saveFxToEditingWord: fx => ({ type: SAVE_FX_EDITING, fx }),
-  saveFxToActivatedWord: fx => ({ type: SAVE_FX_EDITING, fx }),
-  saveFxToIndexedWord: (index, fx) => ({ type: SAVE_FX_EDITING, index, fx })
+  saveFxToActivatedWord: fx => ({ type: SAVE_FX_ACTIVATED, fx }),
+  saveFxToIndexedWord: (index, fx) => ({ type: SAVE_FX_INDEX, index, fx })
 };
 
 const defaultWordListInternal = [{
@@ -184,12 +184,24 @@ const save = (list, word) => {
   return l;
 };
 
-const saveFxToWordIndex = (list, index, fx) => ((index < 0 || index >= list.length) ? list
-                                              : [
-                                                ...list.slice(0, index),
-                                                { ...list[index], fx },
-                                                ...list.slice(index + 1)
-                                              ]);
+const saveFxToWordIndex = (list, index, fx) => {
+  if (index < 0 || index >= list.length) {
+    return list;
+  }
+  const word = { ...list[index] };
+//  console.log('saveFxToWordIndex pre---', word, fx);
+  if (fx) {
+    word.fx = { ...fx };
+  } else {
+    delete word.fx;
+  }
+//  console.log('saveFxToWordIndex post+++', word);
+  return [
+    ...list.slice(0, index),
+    word,
+    ...list.slice(index + 1)
+  ];
+};
 
 const reducers = {
   wordList: (state = defaultWordList, action) => {

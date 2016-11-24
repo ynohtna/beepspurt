@@ -15,7 +15,10 @@ class WordList extends React.Component {
     mergeState: PropTypes.func.isRequired,
     mergeFx: PropTypes.func.isRequired,
     defaultFx: PropTypes.object.isRequired,
-    sendSocket: PropTypes.func.isRequired
+    saveFxToIndexedWord: PropTypes.func.isRequired,
+    sendSocket: PropTypes.func.isRequired,
+    autoEditUponActivation: PropTypes.bool.isRequired,
+    manipulationPanelIsOpen: PropTypes.bool.isRequired
   };
 
   componentDidMount() {
@@ -29,10 +32,17 @@ class WordList extends React.Component {
     const { uuid, ...word } = this.props.wordList[index]; // eslint-disable-line no-unused-vars
     console.log('** activate', word); // eslint-disable-line no-console
     this.props.activateWord(index);
+
+    // Transmit activated word state.
     this.props.sendSocket('/spurter/STATE', word);
 
-    // Transmit the activated FX!
+    // Transmit activated word's FX.
     transmitFx(this.props.sendSocket, { ...this.props.defaultFx, ...word.fx });
+
+    console.log(this.props);
+    if (this.props.autoEditUponActivation) {
+      this.edit(index);
+    }
   }
 
   edit(index) {
@@ -50,9 +60,19 @@ class WordList extends React.Component {
         fontFamily: word.fontFamily
       }
     });
-    // Reset fx to default if none special saved.
+    // Edit FX associated with word.
     this.props.mergeFx({ ...this.props.defaultFx, ...word.fx });
     this.props.editWord(index);
+  }
+
+  editFx(index) {
+    const word = this.props.wordList[index];
+    this.props.mergeFx({ ...this.props.defaultFx, ...word.fx });
+  }
+
+  clearFx(index) {
+//    console.log(`clearFx @ ${index}`);
+    this.props.saveFxToIndexedWord(index, null);
   }
 
   dup(index) {
@@ -67,6 +87,16 @@ class WordList extends React.Component {
     this.props.nudgeWord(index, dir);
   }
 
+  onActiveMounted(div) {
+    if (div) {
+      if (div.scrollIntoViewIfNeeded) {
+        div.scrollIntoViewIfNeeded(true);
+      } else {
+        div.scrollIntoView(true);
+      }
+    }
+  }
+
   renderWords(words) {
     return words.map((word, index, array) => (
       <WordEntry key={index} { ...word } index={index}
@@ -76,7 +106,10 @@ class WordList extends React.Component {
                           fontSize: word.fontSize ? `${word.fontSize}%` : '100%'
                    }}
                  activate={::this.activate}
+                 onActiveMounted={::this.onActiveMounted}
                  edit={::this.edit}
+                 editFx={::this.editFx}
+                 clearFx={::this.clearFx}
                  dup={::this.dup}
                  del={::this.del}
                  nudge={::this.nudge}
@@ -88,9 +121,11 @@ class WordList extends React.Component {
 
   render() {
 //    console.log('WordList props', this.props);
+    const hideManipulations = !this.props.manipulationPanelIsOpen;
+    const classes = hideManipulations ? 'word-list hide-manips' : 'word-list';
     const words = this.renderWords(this.props.wordList);
     return (
-      <section className='word-list'>
+      <section className={classes}>
         {words}
       </section>
     );

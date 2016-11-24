@@ -138,7 +138,7 @@ class CompassSpin extends React.Component {
         </TextButton>
         <TextButton className='calibration'
                     onClick={this.onZero}>
-          {'\u27c1'}
+          {'0'}
         </TextButton>
       </section>
     );

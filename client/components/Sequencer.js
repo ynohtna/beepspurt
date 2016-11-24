@@ -31,6 +31,9 @@ class Sequencer extends React.Component {
 
   sendActive() {
     // TODO: This would be better triggered by middleware or something similar?
+    // FIXME: Somehow get this action to WordList so it can auto-edit, etc.
+    // Maybe through a 'sequencerAction' store element that contains 'next', 'prev':
+    // this component sets it, and WordList responds (and resets the action to '').
     const words = this.props.wordList;
     const index = words.findIndex(w => (w.activated === true));
     if (index >= 0) {

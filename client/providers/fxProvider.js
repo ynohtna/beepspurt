@@ -1,3 +1,5 @@
+import fxDescription from '../components/fx/fxDescription';
+
 const SAVE_FX_DEFAULT = '/fx/SAVE_DEFAULT';
 const RESET_FX_DEFAULT = '/fx/RESET_DEFAULT';
 const MERGE_FX = '/fx/MERGE';
@@ -90,6 +92,22 @@ const reducers = {
       default:
         return state;
     }
+  },
+  currentFxDescription: (state = '?', action) => {
+    switch (action.type) {
+      case '/fx/SECRET/FX/DESC':
+        return action.desc;
+      default:
+        return state;
+    }
+  },
+  defaultFxDescription: (state = fxDescription(fxDefault), action) => {
+    switch (action.type) {
+      case '/fx/SECRET/FXDEFAULT/DESC':
+        return action.desc;
+      default:
+        return state;
+    }
   }
 };
 
@@ -101,12 +119,18 @@ const middleware = store => next => action => {
     const { defaultFx, ...pureState } = store.getState(); // eslint-disable-line no-unused-vars
     fxDefault = { ...fxDefault, ...pureState };
     console.warn('>>>> new default FX:', fxDefault); // eslint-disable-line no-console
+    store.dispatch({ type: '/fx/SECRET/FXDEFAULT/DESC', desc: fxDescription(fxDefault) });
   }
 
   const result = next(action);
+  const newState = store.getState();
+  const newDesc = fxDescription(newState);
+  if (newDesc !== newState.currentFxDescription) {
+    store.dispatch({ type: '/fx/SECRET/FX/DESC', desc: newDesc });
+  }
 
   // Early out if fx default is unchanged.
-  if (lastSavedDefault === store.getState().defaultFx) {
+  if (lastSavedDefault === newState.defaultFx) {
     return result;
   }
 

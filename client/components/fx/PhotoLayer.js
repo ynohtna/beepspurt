@@ -36,22 +36,25 @@ class PhotoLayer extends React.Component {
     const enableClass = this.props.photoEnable ? 'enabled' : 'disabled';
     return (
       <section className={`photo-layer ${enableClass}`}>
-        <h4 className='clickable'
-            onClick={this.toggleEnable}>
-          {'Photo:'}
-        </h4>
+        <div>
+          <h4 className='clickable'
+              onClick={this.toggleEnable}>
+            {'Photo:'}
+          </h4>
 
-        <SelectDropDown options={this.constructor.fillModes}
-                        value={this.props.photoFillMode}
-                        onChange={this.chooseFillMode} />
+          <SelectDropDown options={this.constructor.fillModes}
+                          value={this.props.photoFillMode}
+                          onChange={this.chooseFillMode} />
 
-        <TextButton onClick={this.refreshList}>
-          {'\u27f3'}
-        </TextButton>
-
-        <SelectDropDown options={this.props.photoList}
-                        value={this.props.photoFile}
-                        onChange={this.choosePhoto} />
+        </div>
+        <div>
+          <TextButton onClick={this.refreshList}>
+            {'R'}
+          </TextButton>
+          <SelectDropDown options={this.props.photoList}
+                          value={this.props.photoFile}
+                          onChange={this.choosePhoto} />
+        </div>
       </section>
     );
   }

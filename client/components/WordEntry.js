@@ -23,10 +23,17 @@ const safeLookup = (a, i) => {
   }
 };
 
-const renderFxRow = fxState => (
-  (fxState)
-    ? <div className='word-fx'>{ fxDescription(fxState) }</div>
-	: <div className='word-fx-spacer'></div>
+const renderFxRow = (fxState, index, editFx, clearFx) => (
+  (fxState && !fxState.default)
+    ? <div className='word-fx'>
+      <span className='desc' onClick={() => editFx(index)}>
+        { fxDescription(fxState) }
+      </span>
+      <span className='clear-fx' onClick={() => clearFx(index)}>
+        {'\u2327'}
+      </span>
+    </div>
+: <div className='word-fx-spacer'></div>
 );
 
 const WordEntry = props => {
@@ -37,7 +44,8 @@ const WordEntry = props => {
     canDel,
     halign,
     valign,
-    fxState
+    fxState,
+    onActiveMounted
   } = props;
   const maybeDel = canDel ? (
     <span className='del action flex-none'
@@ -46,15 +54,16 @@ const WordEntry = props => {
     </span>
   ) : null;
   const activeClass = activated ? 'activated' : '';
+  const ref = activated ? onActiveMounted : null;
   const editClass = editing ? ' editing' : '';
   const editSigil = editing ? (<span className='sigil flex-none'>{'\u25c0'}</span>) : null;
   const halignStyle = safeLookup(halignStyles, halign);
   const halignClass = safeLookup(halignClasses, halign);
   const valignClass = safeLookup(valignClasses, valign);
-  const fxRow = renderFxRow(fxState);
+  const fxRow = renderFxRow(fxState, index, props.editFx, props.clearFx);
   return (
     <div>
-      <div className={`word-entry ${activeClass} flex-row flex-none`}>
+      <div className={`word-entry ${activeClass} flex-row flex-none`} ref={ref}>
         {editSigil}
         <span className={`edit action flex-none${editClass}`}
               onClick={() => props.edit(index)}
@@ -91,8 +100,9 @@ const WordEntry = props => {
             {'\u25bc'}
           </span>
         </span>
+
       </div>
-      { fxRow }
+      {fxRow}
     </div>
   );
 };
@@ -100,6 +110,7 @@ WordEntry.propTypes = {
   index: PropTypes.number.isRequired,
   style: PropTypes.object,
   activated: PropTypes.bool,
+  onActiveMounted: PropTypes.func.isRequired,
   editing: PropTypes.bool,
   canDel: PropTypes.bool,
   halign: PropTypes.number,
@@ -109,6 +120,8 @@ WordEntry.propTypes = {
   del: PropTypes.func.isRequired,
   dup: PropTypes.func.isRequired,
   edit: PropTypes.func.isRequired,
+  editFx: PropTypes.func.isRequired,
+  clearFx: PropTypes.func.isRequired,
   nudge: PropTypes.func.isRequired,
   fxState: PropTypes.object
 };

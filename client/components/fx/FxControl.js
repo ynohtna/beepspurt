@@ -2,7 +2,6 @@ import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 import { Button, TextButton, CheckBox } from '../Inputs';
 import { shallowEqual } from '../../utils';
-import fxDescription from './fxDescription';
 import transmitFx from './transmitFx';
 
 @provide
@@ -14,7 +13,7 @@ class FxControl extends React.Component {
     photoFile: PropTypes.string.isRequired,
     saveFxDefault: PropTypes.func.isRequired,
     resetFxDefault: PropTypes.func.isRequired,
-    defaultFx: PropTypes.object.isRequired,
+    defaultFxDescription: PropTypes.string.isRequired,
     saveFxToEditingWord: PropTypes.func.isRequired,
     saveFxToActivatedWord: PropTypes.func.isRequired,
     sendSocket: PropTypes.func.isRequired
@@ -146,15 +145,15 @@ class FxControl extends React.Component {
         <hr />
 
         <div>
+          <TextButton onClick={this.resetDefault}>
+            reset from def
+          </TextButton>
           <TextButton onClick={this.saveDefault}>
             save to def
           </TextButton>
-          <TextButton onClick={this.resetDefault}>
-           reset from def
-          </TextButton>
         </div>
         <div>
-          <small>{fxDescription(this.props.defaultFx)}</small>
+          <small>{this.props.defaultFxDescription}</small>
         </div>
       </div>
     );

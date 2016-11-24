@@ -32,7 +32,7 @@ class ZoomScale extends React.Component {
   render() {
     return (
       <section className='zoom-scale'>
-        <h4>{'Zoom'}</h4>
+        <h4>{'Zoom:'}</h4>
         <Button className='numeric' onClick={::this.dec}>
           -
         </Button>
