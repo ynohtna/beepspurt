@@ -47,7 +47,7 @@ button {
     justify-content: center;
 }
 .text-button:hover {
-    color: #ccc;
+    color: #f0f0f0;
 }
 .text-button.chosen {
     color: #eee;
@@ -61,13 +61,13 @@ button {
     border-radius: 16px;
     border: 2px solid transparent;
     color: black;
-    background: #eee;
+    background: #ccc;
     outline: none;
 }
 .round-button:hover,
 .round-button:active {
-    color: white;
-    text-shadow: 0 1px 1px black;
+    color: #f0f0f0;
+    text-shadow: 0 1px 5px black;
 }
 .round-button:active {
     border: 2px solid white;
@@ -82,14 +82,17 @@ button {
 .left-panel {
     padding: 0 12px 8px 8px;
     margin-top: 8px;
-    border-right: 1px solid grey;
+    border-right: 1px solid #333;
+}
+.left-panel.closed {
+    display: none !important;
 }
 .right-panel {
     padding: 0 8px 8px 12px;
 }
 .word-list-panel {
     padding: 8px 8px 0 0;
-    border-bottom: 1px solid grey;
+    border-bottom: 1px dashed #333;
     margin-bottom: 12px;
 }
 
@@ -125,7 +128,7 @@ button {
 
 /* ---- HEADER ---- */
 header {
-    margin: 4px 8px 0;
+    margin: 4px 8px;
     height: 1.6rem;
     font-size: 110%;
 }
@@ -153,20 +156,34 @@ header .error {
 header .closed {
     color: burlywood;
 }
+.closed .status {
+    padding: 0 6px;
+    color: black;
+    background-color: tomato;
+    border-radius: 12px;
+}
 
 header .reload {
-    margin: 0 0.5rem;
+    margin: 0 0.6rem;
     color: #4a6;
 }
 
 /* ---- FOOTER ---- */
 footer {
-    height: 1rem;
+    height: 0.5rem;
     font-size: 50%;
+    color: #666;
 }
 
 /* ---- MASTER ---- */
-.master button {
+.master {
+    margin-left: 0.6rem;
+}
+.rendererControls {
+    display: inline-block;
+    vertical-align: top;
+}
+.rendererControls button {
     padding: 2px 1.2rem;
     margin: 0 0.6rem;
     font-size: 80%;
@@ -176,17 +193,72 @@ footer {
     outline: none;
     border: 2px solid transparent;
 }
-.master button:hover {
+.rendererControls button:hover {
     color: white;
     text-shadow: 0 1px 1px black;
 }
-.master button:active {
+.rendererControls button:active {
     border: 2px solid sandybrown;
 }
-.master button.active {
+.rendererControls button.active {
     color: white;
     text-shadow: 0 1px 1px black;
     border: 2px solid sandybrown;
+}
+
+.master .inverter {
+    vertical-align: top;
+    padding: 2px 0.8rem;
+    margin-left: 1.2rem;
+    margin-right: 0;
+    border-radius: 12px;
+    color: #eee;
+    background-color: black;
+    border: 2px solid #666;
+}
+.master .inverter:hover {
+    border-color: #eee;
+}
+.master .inverter.active {
+    color: #000;
+    text-shadow: none;
+    background-color: #eee;
+}
+
+.master .hide-show-editor {
+    margin-left: 1rem;
+    text-decoration: none;
+}
+
+/* ---- TAPPER ---- */
+.tapper {
+    display: inline-flex;
+    border: 2px solid #444;
+    border-left-style: none;
+    border-radius: 0 20px 20px 0;
+}
+.tapper.flash {
+    border: 2px solid #ccc;
+    border-left-style: none;
+}
+.tapper .enable {
+    margin: 0;
+}
+.tapper .enable input[type='checkbox'] {
+    margin: 4px 8px;
+}
+.tapper .tap-button {
+    margin: 0;
+    padding-left: 9px;
+    padding-right: 9px;
+    background-color: #666;
+    border-radius: 1rem;
+}
+.tapper .reset-button {
+    margin: 0 0.5rem;
+    padding-top: 0.5rem;
+    text-decoration: none;
+    color: #ccc;
 }
 
 /* ---- WORD EDITOR ---- */
@@ -231,6 +303,7 @@ button.send {
 }
 
 .sender {
+    display: inline-block;
     margin: .7rem 0 0 1rem;
     height: 5px;
     width: 5px;
@@ -380,23 +453,149 @@ button.send {
 }
 
 /* ---- WORD FX ---- */
-.word-fx {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid grey;
+.word-fx-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #333;
+}
+.fx-container {
+    position: relative;
+    margin-left: 8px;
+    width: 100%;
+}
+.fx-container > * {
+    margin-left: 4px;
+    margin-bottom: 12px;
+}
+.fx-container > h2 {
+    margin-left: 0;
+    margin-bottom: 12px;
+}
+.fx-container > h2.closed {
+    display: inline;
+}
+.fx-container h4 {
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+.fx-container button {
+    margin: 0 0.7rem;
+}
+.fx-container button.numeric {
+    display: inline-block;
+    min-width: 25px;
+    background-color: #666;
+    border-radius: 1rem;
+}
+.fx-container button.doubled {
+    margin: 0;
+}
+
+.fx-container .disabled {
+    color: #999;
+}
+.fx-container .clickable {
+    cursor: pointer;
+}
+.fx-container .enabled .clickable {
+    color: darkseagreen;
+}
+
+.photo-layer div {
+    margin-bottom: 6px;
+}
+
+/* ---- FX Control panel ---- */
+.fx-control {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.fx-control > div {
+    text-align: right;
+}
+.fx-control .fat {
+    margin-bottom: 12px;
+}
+.fx-control .auto-send input[type='checkbox'] {
+    margin: 0 8px 9px 0;
+}
+.fx-control .round-button {
+    margin: 0;
+    margin-left: 1rem;
+}
+.fx-control .transmit {
+    background-color: #a9d6a9;
+}
+.fx-control .save-edit {
+    background-color: #ffca86;
+}
+.fx-control .save-active {
+    background-color: #ffa698;
+}
+.fx-control .text-button {
+    font-size: 85%;
+    margin-right: 6px;
+    color: #444;
+}
+.fx-control hr {
+    margin: 4px 5px 4px 3.5rem;
+    border-top-color: #222;
+}
+.fx-control small {
+    font-size: 65%;
+    color: #666;
+    background-color: #222;
+    padding: 2px;
+    text-align: right;
+    margin-right: 5px;
+}
+
+.fx-container select {
+    font-size: 75%;
+    color: #000;
+}
+.fx-container .disabled select {
+    background-color: #999;
+    border-color: grey;
+}
+
+.fx-summaries small {
+    color: #666;
+    background-color: #222;
+    margin-left: 1rem;
+}
+
+.compass-spin .readings {
+    font-size: 80%;
+}
+.compass-spin .samples {
+    font-size: 60%;
+    color: grey;
+}
+.compass-spin .calibrate {
+    margin-left: 1rem;
+}
+.compass-spin .calibration {
+    margin-left: 0;
 }
 
 /* ---- WORD LIST ---- */
 .word-list {
-    display: block;
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
 }
 .word-entry {
     padding: 1px;
-    margin-bottom: 5px;
-    border: 1px solid grey;
-    border-radius: 1px;
+    border: 1px solid #333;
+    border-radius: 8px;
     position: relative;
     align-items: center;
+}
+.word-entry.activated {
+    border-color: #af8;
+    border-width: 2px;
 }
 .word-activator {
     background-color: #444;
@@ -409,7 +608,7 @@ button.send {
     position: absolute;
     width: 12px;
     height: 12px;
-    border-color: #888;
+    border-color: #333;
     border-style: solid;
 }
 .word-align-sigil.h-left.v-top {
@@ -482,6 +681,9 @@ button.send {
     cursor: pointer;
 }
 .word-entry .action.editing {
+    margin-bottom: 2px;
+    font-style: italic;
+    text-decoration: none;
     color: greenyellow;
 }
 .word-entry .sigil {
@@ -489,6 +691,11 @@ button.send {
     margin-left: -3px;
     font-size: 94%;
     color: greenyellow;
+}
+.hide-manips .del.action,
+.hide-manips .dup.action,
+.hide-manips .swappers {
+    display: none;
 }
 
 .swappers {
@@ -504,13 +711,68 @@ button.send {
     cursor: pointer;
 }
 
+.word-fx {
+    position: relative;
+    margin: 0 1rem 8px;
+    padding: 5px 1rem 4px;
+    font-size: 85%;
+    font-family: monospace;
+    color: #888;
+    background-color: #141414;
+    border-color: #333;
+    border-width: 0 1px 1px;
+    border-radius: 0 0 1rem 1rem;
+    border-style: solid;
+}
+.word-fx .desc {
+    cursor: pointer;
+    background-color: #222;
+    padding: 1px 8px;
+}
+.word-fx .clear-fx {
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 12px;
+}
+.word-fx-spacer {
+    height: 8px;
+}
+
+/* ---- Misc Manipulations ---- */
+.misc-manipulations a {
+    font-size: 75%;
+    margin-right: 1.5rem;
+    color: #666;
+}
+.misc-manipulations a.on {
+    color: darkseagreen;
+}
+
+/* ---- Sequencer ---- */
+.sequencer {
+    font-size: 120%;
+}
+.sequencer .round-button {
+    margin: 0 1rem 0 0.5rem;
+    height: 2.4rem;
+}
+.sequencer .prev {
+    padding: 0.2rem 1.2rem 0.2rem 1.5rem;
+    background-color: #bcbc8f;
+}
+.sequencer .next {
+    padding: 0.2rem 1.5rem 0.2rem 1.2rem;
+    background-color: darkseagreen;
+}
+
 /* ---- iPad styles ---- */
 @media screen and
 (device-width: 768px) and
 (device-height: 1024px) and
 (-webkit-device-pixel-ratio: 1)	{
     body {
-        font-size: 160%;
+        font-size: 100%;
     }
     #app {
         background: #121;
@@ -522,7 +784,8 @@ button.send {
         margin-bottom: 20px;
     }
     .word-editor {
-        margin-bottom: 1rem;
+        font-size: 90%;
+        margin-bottom: 0.5rem;
     }
     .clear-link,
     .auto-send {

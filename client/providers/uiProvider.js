@@ -1,10 +1,19 @@
 const panels = [
-  'Font'
+  'Font',
+  'Fx',
+  'Manipulation',
+  'Editor'
 ];
 
+const initialPanelStates = {
+  Fx: true,
+  Editor: true
+};
+
+// --------------------
 const makeActionType = (panel, type) => `/ui/${panel}Panel/${type}`;
 
-const actions = panels.reduce((out, panel) => ({
+const panelActions = panels.reduce((out, panel) => ({
   ...out,
   [`open${panel}Panel`]: () => ({
     type: makeActionType(panel, 'STATE'),
@@ -23,6 +32,11 @@ const actions = panels.reduce((out, panel) => ({
   })
 }), {});
 
+const actions = {
+  ...panelActions,
+  toggleAutoEditUponActivation: () => ({ type: '/autoedit/TOGGLE' })
+};
+
 const reducePanelState = (panel, initiallyOpen = false) => (state = initiallyOpen, action) => {
   let newState = state;
   if (action.type === makeActionType(panel, 'STATE')) {
@@ -33,10 +47,23 @@ const reducePanelState = (panel, initiallyOpen = false) => (state = initiallyOpe
   return newState;
 };
 
-const reducers = panels.reduce((out, panel) => ({
+const panelReducers = panels.reduce((out, panel) => ({
   ...out,
-  [`${panel.toLowerCase()}PanelIsOpen`]: reducePanelState(panel)
+  [`${panel.toLowerCase()}PanelIsOpen`]: reducePanelState(panel, initialPanelStates[panel])
 }), {});
+
+const reducers = {
+  ...panelReducers,
+  // TODO: Generic creator for toggleable boolean reducer & action.
+  autoEditUponActivation: (state = false, action) => {
+    switch (action.type) {
+      case '/autoedit/TOGGLE':
+        return !state;
+      default:
+        return state;
+    }
+  }
+};
 
 export default {
   actions,

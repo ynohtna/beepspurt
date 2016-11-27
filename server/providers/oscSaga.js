@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 /* eslint no-param-reassign: [2, {"props": false }] */
+const util = require('util');
+import chalk from 'chalk';
 import { effects, isCancelError } from 'redux-saga';
 const { call, cancel, fork, put, race, take } = effects;
 
@@ -16,6 +18,10 @@ const SOCKET_ERROR = '/socket/ERROR';
 const SOCKET_OPEN = '/socket/OPEN';
 const SOCKET_CLOSE = '/socket/CLOSE';
 
+const conlog = (...msgs) => console.log(chalk.blue.bold(...msgs));
+const conwarn = (...msgs) => console.warn(chalk.magenta.bold(...msgs));
+const conerr = (...msgs) => console.error(chalk.blue.inverse.white.bold(...msgs));
+
 const oscSource = socket => {
   const messageQueue = [];
   const resolveQueue = [];
@@ -28,15 +34,15 @@ const oscSource = socket => {
     }
   };
   socket.on('opened', () => {
-    console.log('socket/opened');
+    conlog('OSC socket/opened');
     resolve('opened');
   });
   socket.on('error', err => {
-    console.log('socket/error', err);
+    conerr('OSC socket/error', err);
     resolve(err);
   });
   socket.on('closed', () => {
-    console.log('socket/closed');
+    conwarn('OSC socket/closed');
     resolve('closed');
   });
   socket.on('osc', event => {
@@ -44,7 +50,7 @@ const oscSource = socket => {
       type: OSC_RECV,
       ...event
     };
-    console.log('socket/receive', res);
+    conlog('OSC socket/receive', util.inspect(res));
     resolve(res);
   });
   return {
@@ -54,30 +60,29 @@ const oscSource = socket => {
   };
 };
 
-const handlers = {
-  '*': msg => ({
-    type: msg.addr,
-    payload: (msg.args.length === 1) ? msg.args[0] : msg.args
-  }),
-  ...oscHandlers
-};
+// FIXME: Replace with explicit whitelisting of all accepted OSC verbs in oscHandlers.js.
+const defaultOscHandler = msg => ({
+  type: msg.addr,
+  payload: (msg.args.length === 1) ? msg.args[0] : msg.args
+});
 
 function* fetchSocket(source) {
   try {
-    console.log('* fetchSocket');
+    conlog('* OSC fetchSocket');
 
     let msg = yield call(source.nextMessage);
     while (msg) {
       if (msg.type && msg.type === OSC_RECV) {
         let action = null;
-        if (handlers.hasOwnProperty(msg.addr)) {
-          action = handlers[msg.addr](msg);
+        if (oscHandlers.hasOwnProperty(msg.addr)) {
+          action = oscHandlers[msg.addr](msg);
+          conlog('using OSC/RECV handler for msg:', util.inspect(msg), '=>', action);
         } else {
-          console.warn('default osc/RECV handler', msg);
-          action = handlers['*'](msg);
+          conwarn('using default OSC/RECV handler for msg:', util.inspect(msg));
+          action = defaultOscHandler(msg);
         }
         if (action) {
-          console.log('> put', action);
+          conlog('> OSC put', util.inspect(action));
           yield put(action);
         }
       } else if (msg === 'opened') {
@@ -85,7 +90,7 @@ function* fetchSocket(source) {
       } else if (msg === 'closed') {
         yield put({ type: SOCKET_CLOSED });
       } else {
-        console.warn('unknown message type on socket', msg);
+        conwarn('unknown message type on OSC socket', msg);
         yield put({ type: SOCKET_ERROR, error: msg });
       }
 
@@ -93,7 +98,7 @@ function* fetchSocket(source) {
     }
   } catch (error) {
     if (!isCancelError(error)) {
-      console.error('*fetchSocket error', error);
+      conerr('* OSC fetchSocket error', error);
     }
   }
 }
@@ -102,10 +107,10 @@ function* oscSaga(...args) {
   if (args.length < 2) {
     throw new Error('*oscSaga requires second parameter to be a Socket instance');
   }
-  console.log('* oscSaga');
+  conlog('* oscSaga');
 
   yield take('/plask/INIT');
-  console.log('* oscSaga/INIT');
+  conlog('* oscSaga/INIT');
 
   const socket = args[1];
   const source = oscSource(socket);
@@ -115,7 +120,7 @@ function* oscSaga(...args) {
   while (active) {
     if (awaitOpen) { // Await user-initiated open socket request.
       yield take(SOCKET_OPEN);
-      console.log(SOCKET_OPEN);
+      conlog(SOCKET_OPEN);
     }
 
     // Fork socket fetching.
@@ -133,10 +138,10 @@ function* oscSaga(...args) {
       close: take(SOCKET_CLOSE),
       open: take(SOCKET_OPEN)
     });
-    console.log('***** oscSaga race!', winner, fetchTask.isRunning());
+    conwarn('***** oscSaga race!', winner, fetchTask.isRunning());
 
     // Cancel fetch & send.
-    console.log('cancelling socket fetch');
+    conwarn('cancelling socket fetch');
     yield cancel(fetchTask);
 
     // TODO: Dispatch socket status: winner.

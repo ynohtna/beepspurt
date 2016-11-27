@@ -12,6 +12,7 @@ class SendAutoSendClear extends React.Component {
     clearMessage: PropTypes.func.isRequired,
     sendSocket: PropTypes.func.isRequired
   };
+  static checkedProps = ['message', 'alignment', 'styling'];
 
   state = {
     autoSend: false,
@@ -19,10 +20,9 @@ class SendAutoSendClear extends React.Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    const checkedProps = ['message', 'alignment', 'styling'];
     let send = false;
     if (this.state.autoSend) {
-      for (const k of checkedProps) {
+      for (const k of this.constructor.checkedProps) {
         const equal = shallowEqual(this.props[k], nextProps[k]);
         if (!equal) {
           send = true;
@@ -82,7 +82,7 @@ class SendAutoSendClear extends React.Component {
 
         <Button className='round-button send'
                 onClick={this.transmitMessage}>
-          send
+          {'\u21e1 send \u21e1'}
         </Button>
 
         <div className={`sender ${sendingClassName}`} />

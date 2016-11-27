@@ -46,7 +46,7 @@ const socketSource = websocket => {
     }
   };
   websocket.onopen = () => {
-    console.log('socket/opened');
+    console.log('%c socket/opened', 'color: green');
     resolve('opened');
   };
   websocket.onerror = err => {
@@ -56,7 +56,7 @@ const socketSource = websocket => {
   websocket.onclose = e => {
     // TODO: convert code into reason text as per:
     //       https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
-    console.log('socket/closed [reason, code]', e.reason, e.code);
+    console.warn('socket/closed [reason, code]', e.reason, e.code);
     resolve('closed');
   };
   websocket.onmessage = msg => {
@@ -69,7 +69,7 @@ const socketSource = websocket => {
         ...data
       };
       if (data.addr === '*HIHO*' && data.id) {
-        websocket._id = data.id;
+        websocket.socket_id = data.id;
       }
       resolve(res);
     } catch (ex) {
@@ -87,9 +87,10 @@ const noopAction = {};
 const noop = () => noopAction;
 
 const handlers = {
-  '*HIHO*': noop,
+  '*HIHO*': noop, // TODO: Capture this connection's { id } as part of this provider's state.
   '/pong': ({ args }) => ({ type: PONG_RECV, args, dontLog: true }),
-  '/renderer/STATE': ({ args }) => ({ type: '/renderer/STATE', payload: args, root: true })
+  '/renderer/STATE': ({ args }) => ({ type: '/renderer/STATE', payload: args, root: true }),
+  '/photo/LIST': ({ args }) => ({ type: '/photo/LIST', photolist: args })
 };
 
 function* fetchSocket(source) {
@@ -100,18 +101,19 @@ function* fetchSocket(source) {
     let msg = yield call(source.nextMessage);
     while (msg) {
       if (!(msg.addr in dontLog)) {
-        console.log(':::: MSG', msg);
+        console.log('%c :::: MSG', 'color: gold', msg);
       }
       if (msg.type && msg.type === SOCKET_RECV) {
         let action;
         // Sanitize remote actions against registered handlers.
         if (msg.addr && msg.addr in handlers) {
+          // Lookup action creator associated with the incoming OSC address.
           action = handlers[msg.addr](msg);
         }
         if (action) {
           if (action !== noopAction) {
             if (!action.dontLog) {
-              console.log('>:>|', action);
+              console.log('%c >:>|', 'color: orange', action);
             }
             yield put(action);
           }
@@ -153,10 +155,10 @@ function *sendSocket(websocket) {
     while (send) {
       const msg = yield take(SEND_SOCKET);
       const { addr, args = nullArgs } = msg;
-      const id = websocket._id;
+      const id = websocket.socket_id;
       const data = JSON.stringify({ addr, args: mungeArgs(args), id });
       if (!(addr in dontLog)) {
-        console.log('> socketSend', data);
+        console.log('%c > socketSend', 'color: sienna', data);
       }
       websocket.send(data);
     }
@@ -225,12 +227,12 @@ function* rootSaga() {
   while (active) {
     if (awaitOpen) {
       yield take(OPEN_SOCKET);
-      console.log('::: OPEN_SOCKET');
+      console.log('%c ::: OPEN_SOCKET', 'color: green');
     }
     yield put(actionCreators.setSocketStatus('opening'));
 
     const endpoint = endpointFromWindowLocation(window.location);
-    console.log(`:::: WS connecting to endpoint ${endpoint}`);
+    console.log(`%c :::: WS connecting to endpoint ${endpoint}`, 'color: green');
 
     const socket = new window.WebSocket(endpoint);
     const source = socketSource(socket);
@@ -246,7 +248,8 @@ function* rootSaga() {
       close: take(CLOSE_SOCKET),
       open: take(OPEN_SOCKET)
     });
-    console.log('**** socketSaga race!', winner,
+    console.log('%c **** socketSaga race!', 'color: grey',
+                winner,
                 fetchTask.isRunning(), sendTask.isRunning(), pingTask.isRunning());
 
     // Close socket if didClose didn't win race.
@@ -255,20 +258,21 @@ function* rootSaga() {
     }
 
     // Cancel fetch, send & ping.
-    console.log('cancelling socket ping');
+//    console.log('cancelling socket ping');
     yield cancel(pingTask);
 
-    console.log('cancelling socket fetch');
+//    console.log('cancelling socket fetch');
     yield cancel(fetchTask);
 
-    console.log('cancelling socket send');
+//    console.log('cancelling socket send');
     yield cancel(sendTask);
 
     // Update socket & ping status.
     yield put(actionCreators.setSocketStatus('closed'));
     yield put(actionCreators.setPingInfo(-1));
 
-    // If socket closed or errored then await new open request, i.e. from direct user intervention.
+    // If socket closed or errored then await new open request
+    // from direct user interaction.
     awaitOpen = !winner.open;
   }
 }
@@ -283,12 +287,12 @@ const reducers = {
   masterState(state = { state: 'unknown' }, action) {
     switch (action.type) {
       case '/renderer/STATE': {
-//        console.error('MERGE_STATE ()()()()()', state, action.payload);
+//        console.error('MERGE_STATE ()()()()()', state, action);
         const r = {
           ...state,
           ...action.payload
         };
-//        console.log('post-merge master state', r);
+//        console.warn('    {{{{ post-merge master state', r);
         return r;
       }
       default:
@@ -309,6 +313,14 @@ const reducers = {
       case SET_SOCKET_STATUS:
 //        console.log(action);
         return action.status;
+      default:
+        return state;
+    }
+  },
+  photoList(state = [], action) {
+    switch (action.type) {
+      case '/photo/LIST':
+        return action.photolist || [];
       default:
         return state;
     }

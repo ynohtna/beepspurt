@@ -129,6 +129,14 @@ function css_hue_to_rgb(m1, m2, h) {
 }
 
 function parseCSSColor(css_str) {
+  if (css_str instanceof Array && (css_str.length >= 3) && (css_str.length <= 4)) {
+    return [parseInt(css_str[0], 10),
+            parseInt(css_str[1], 10),
+            parseInt(css_str[2], 10),
+            isFinite(css_str[3]) ? parseInt(css_str[3], 10) : 255
+    ];
+  }
+
   // Remove all whitespace, not compliant, but should just be more accepting.
   var str = css_str.replace(/ /g, '').toLowerCase();
 

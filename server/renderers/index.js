@@ -1,28 +1,35 @@
 /* eslint-disable no-console */
-import drawMessage from './drawMessage.js';
+import { initMessage, drawMessage } from './message.js';
+import { initPhoto, drawPhoto } from './photo.js';
+// import { initVideo, drawVideo } from './videoTest.js';
 
-// ---- ---- WORD SPURTER ---- ----
+// TODO: Multi-renderer support.
+/*
+   init() {
+     rendererList = renderers.map(r => r.init(gl, canvas, paint, settings));
+   }
+   draw() {
+     rendererList.sort();
+     rendererList.forEach(r => r.draw());
+   }
+*/
 
-// TODO: Refactor into list of declared renderers, each with chosen/active states.
-// Call init on each, then draw on chosen & active.
-const init = (paint /* , settings */) => {
-  paint.setFontFamily('Rockwell', 0);
-  paint.setTextSize(128);
-  paint.setFakeBoldText(true);
-  paint.setAntiAlias(true);
-  paint.setSubpixelText(true);
-  paint.setLCDRenderText(true);
-  paint.setAutohinted(true);
+
+// ---- INIT ----
+const init = (gl, canvas, paint, settings) => {
+  initMessage(gl, canvas, paint, settings);
+  initPhoto(gl, canvas, paint, settings);
+// initVideo(gl, canvas, paint, settings);
 };
 
-const draw = (canvas, paint, state) => {
-  const { rendererState } = state;
-  const { frame } = rendererState;
 
-  if ((frame) & 0x01) {
-    drawMessage(canvas, paint, state);
-  }
+// ---- DRAW ----
+const draw = (gl, canvas, paint, state) => {
+//  drawVideo(gl, canvas, paint, state);
+  drawPhoto(gl, canvas, paint, state);
+  drawMessage(gl, canvas, paint, state);
 };
+
 
 export default {
   init,

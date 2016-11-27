@@ -1,9 +1,7 @@
 import React, { PropTypes } from 'react';
 import provide from 'react-redux-provide';
 import WordEntry from './WordEntry';
-
-// TODO: Refactor into CSS styles applied to .word-list
-import { columnParent, flexContainer } from '../flexStyles';
+import transmitFx from './fx/transmitFx';
 
 @provide
 class WordList extends React.Component {
@@ -15,13 +13,35 @@ class WordList extends React.Component {
     editWord: PropTypes.func.isRequired,
     activateWord: PropTypes.func.isRequired,
     mergeState: PropTypes.func.isRequired,
-    sendSocket: PropTypes.func.isRequired
+    mergeFx: PropTypes.func.isRequired,
+    defaultFx: PropTypes.object.isRequired,
+    saveFxToIndexedWord: PropTypes.func.isRequired,
+    sendSocket: PropTypes.func.isRequired,
+    autoEditUponActivation: PropTypes.bool.isRequired,
+    manipulationPanelIsOpen: PropTypes.bool.isRequired
   };
 
+  componentDidMount() {
+    const editing = this.props.wordList.findIndex(w => (w.editing === true));
+    if (editing >= 0) {
+      this.edit(editing);
+    }
+  }
+
   activate(index) {
-    const word = this.props.wordList[index];
+    const { uuid, fx, ...word } = this.props.wordList[index]; // eslint-disable-line no-unused-vars
+    console.log('** activate', word); // eslint-disable-line no-console
     this.props.activateWord(index);
+
+    // Transmit activated word state.
     this.props.sendSocket('/spurter/STATE', word);
+
+    // Transmit activated word's FX.
+    transmitFx(this.props.sendSocket, { ...this.props.defaultFx, ...fx });
+
+    if (this.props.autoEditUponActivation) {
+      this.edit(index);
+    }
   }
 
   edit(index) {
@@ -39,7 +59,19 @@ class WordList extends React.Component {
         fontFamily: word.fontFamily
       }
     });
+    // Edit FX associated with word.
+    this.props.mergeFx({ ...this.props.defaultFx, ...word.fx });
     this.props.editWord(index);
+  }
+
+  editFx(index) {
+    const word = this.props.wordList[index];
+    this.props.mergeFx({ ...this.props.defaultFx, ...word.fx });
+  }
+
+  clearFx(index) {
+//    console.log(`clearFx @ ${index}`);
+    this.props.saveFxToIndexedWord(index, null);
   }
 
   dup(index) {
@@ -54,6 +86,16 @@ class WordList extends React.Component {
     this.props.nudgeWord(index, dir);
   }
 
+  onActiveMounted(div) {
+    if (div) {
+      if (div.scrollIntoViewIfNeeded) {
+        div.scrollIntoViewIfNeeded(true);
+      } else {
+        div.scrollIntoView(true);
+      }
+    }
+  }
+
   renderWords(words) {
     return words.map((word, index, array) => (
       <WordEntry key={index} { ...word } index={index}
@@ -63,20 +105,26 @@ class WordList extends React.Component {
                           fontSize: word.fontSize ? `${word.fontSize}%` : '100%'
                    }}
                  activate={::this.activate}
+                 onActiveMounted={::this.onActiveMounted}
                  edit={::this.edit}
+                 editFx={::this.editFx}
+                 clearFx={::this.clearFx}
                  dup={::this.dup}
                  del={::this.del}
                  nudge={::this.nudge}
-                 canDel={array.length !== 1}/>
+                 canDel={array.length !== 1}
+                 fxState={word.fx}
+      />
     ));
   }
 
   render() {
 //    console.log('WordList props', this.props);
+    const hideManipulations = !this.props.manipulationPanelIsOpen;
+    const classes = hideManipulations ? 'word-list hide-manips' : 'word-list';
     const words = this.renderWords(this.props.wordList);
     return (
-      <section className='word-list'
-               style={{ ...flexContainer, ...columnParent }}>
+      <section className={classes}>
         {words}
       </section>
     );

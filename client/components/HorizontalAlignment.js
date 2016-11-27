@@ -9,7 +9,7 @@ const HorizontalAlignment = props => {
     <span {...restProps}>
       <TextButton className={chosen(ALIGN.LEFT)}
                   onClick={() => onChange(ALIGN.LEFT)}>
-        {'\u25c0'}
+        {'\u25c1'}
       </TextButton>
       <TextButton className={chosen(ALIGN.CENTER)}
                   style={{ marginTop: -4 }}
@@ -18,7 +18,7 @@ const HorizontalAlignment = props => {
       </TextButton>
       <TextButton className={chosen(ALIGN.RIGHT)}
                   onClick={() => onChange(ALIGN.RIGHT)}>
-        {'\u25b6'}
+        {'\u25b7'}
       </TextButton>
     </span>
   );

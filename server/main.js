@@ -2,10 +2,14 @@ const Plask = require('plask');
 import createSagaMiddleware from 'redux-saga';
 import createStore from './store';
 import Socket from './socket';
-import { oscSaga, serverSaga } from './providers/index';
+import OscSender from './oscSender';
+import { extSaga, oscSaga, serverSaga } from './providers/index';
 import renderer from './renderers/index';
+import chalk from 'chalk';
+const util = require('util');
 
 const ON_DEV = (process.env.NODE_ENV && process.env.NODE_ENV.startsWith('dev'));
+const NO_RENDER = process.env.NO_RENDER !== undefined;
 const log = ON_DEV ? (...args) => console.log(...args) // eslint-disable-line no-console
   : function noop() {};
 
@@ -14,27 +18,32 @@ let bootMsg = `
       --=-=-=-==-=-=-=--
     ---=  PRODUCTION  =---
       --=-=-=-==-=-=-=--
-
 `;
 if (ON_DEV) {
   bootMsg = `
 
     <<<<---->>>> DEVELOPMENT <<<<---->>>>
-
 `;
 }
-console.log(bootMsg); // eslint-disable-line no-console
+log(chalk.bgMagenta.white.bold(bootMsg));
+if (NO_RENDER) {
+  log(chalk.bgRed.white.bold(`
+
+    [[ XX ]] RENDERING DISABLED [[ XX ]]
+`));
+}
 
 import appSettings from './settings';
 const settings = appSettings(ON_DEV);
-log('Settings:', settings, '\n');
+log(chalk.yellow.bold('Settings: ', util.inspect(settings, { depth: 5 }), '\n'));
 
 const sagaMiddleware = createSagaMiddleware();
 const { store, dispatch } = createStore(sagaMiddleware);
-log('Initial state:', store.getState(), '\n');
+log(chalk.cyan.bold('Initial state: ', util.inspect(store.getState()), '\n'));
 
 sagaMiddleware.run(oscSaga, new Socket(settings.osc));
 sagaMiddleware.run(serverSaga, settings.server);
+sagaMiddleware.run(extSaga(new OscSender({ port: 7000 }), '/ext/ARENA'));
 
 import perfnow from 'performance-now';
 const fps = settings.framerate || 30;
@@ -53,17 +62,18 @@ Plask.simpleWindow({
 
   init() {
 //    this.setTitle('-- test --');
-    const { paint } = this;
-    renderer.init(paint, settings);
+    const { gl, canvas, paint } = this;
+    renderer.init(gl, canvas, paint, settings);
     dispatch('/plask/INIT');
     dispatch('/renderer/FRAME_INIT', settings);
+    dispatch('/photo/LIST');
   },
 
   draw() {
-    const { canvas, paint } = this;
+    const { gl, canvas, paint } = this;
     const storeState = store.getState();
     const { rendererState } = storeState;
-    const { state, frame } = rendererState;
+    const { state, frame, clearColour } = rendererState;
 
     if (state !== 'pause') {
       dispatch('/renderer/FRAME_ADVANCE');
@@ -79,30 +89,33 @@ Plask.simpleWindow({
     }
     lastFrame = now;
 
+    if (NO_RENDER) {
+      return;
+    }
 
     // Every expected second show amortised draw timing stats.
     if ((realFrame % reportFrames) === 0) {
       const mspf = lastClock ? ((now - lastClock) / reportFrames) : 0;
-      log(`#${realFrame}/${frame}: ${state} : ${now} : ${mspf} : ${maxFrameTime}`);
+      log(chalk.cyan(`#${realFrame}/${frame}: ${state} : ${now} : ${mspf} : ${maxFrameTime}`));
       lastClock = now;
       maxFrameTime = 0;
     }
     realFrame += 1;
 
+    const [clrr, clrg, clrb, clra] = clearColour;
+
     if (state === 'pause') {
       // No need to do any clearing or rendering.
     } else if (state === 'off') {
-      if (lastState !== 'off') {
-        canvas.clear(0, 0, 0, 0);	// Only clear once.
+      if (lastState !== 'off') {	// Only clear on first frame after being turned off.
+        canvas.clear(clrr, clrg, clrb, clra);
       }
     } else {
-      // Clear canvas.
-      const { clearColour: [clrr, clrg, clrb, clra] } = rendererState;
+      // Clear canvas, then render.
       canvas.clear(clrr, clrg, clrb, clra);
-
-      // Perform render.
-      renderer.draw(canvas, paint, storeState);
+      renderer.draw(gl, canvas, paint, storeState);
     }
+
     lastState = state;
   }
 });
